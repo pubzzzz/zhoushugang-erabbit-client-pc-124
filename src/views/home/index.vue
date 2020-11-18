@@ -10,4 +10,8 @@ export default {
 }
 </script>
 
-<style scoped lang='less'></style>
+<style scoped lang='less'>
+.xtx-home-page{
+  color:@xtxColor;
+}
+</style>
