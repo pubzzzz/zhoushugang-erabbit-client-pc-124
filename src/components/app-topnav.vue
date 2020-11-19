@@ -2,14 +2,16 @@
   <nav class="app-topnav">
     <div class="container">
       <ul>
-        <!-- 登录后展示 begin -->
-        <li><a href="#"><i class="iconfont icon-user"></i>赵大鼓</a></li>
-        <li><a href="#">退出登录</a></li>
-        <!-- 登录后展示 end -->
-        <!-- 未登录展示 begin -->
-        <li><a href="#">请先登录</a></li>
-        <li><a href="#">免费注册</a></li>
-        <!-- 未登录展示 end -->
+        <!-- 登录后展示 -->
+        <template v-if="token">
+          <li><a href="#"><i class="iconfont icon-user"></i>{{nickname}}</a></li>
+          <li><a href="#">退出登录</a></li>
+        </template>
+        <!-- 未登录展示 -->
+        <template v-else>
+          <li><a href="#">请先登录</a></li>
+          <li><a href="#">免费注册</a></li>
+        </template>
         <li><a href="#">我的订单</a></li>
         <li><a href="#">会员中心</a></li>
         <li><a href="#">帮助中心</a></li>
@@ -21,8 +23,12 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
-  name: 'AppTopnav'
+  name: 'AppTopnav',
+  computed: {
+    ...mapState('user', ['nickname', 'token'])
+  }
 }
 </script>
 

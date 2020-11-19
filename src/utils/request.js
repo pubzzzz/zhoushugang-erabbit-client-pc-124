@@ -11,7 +11,7 @@ const instance = axios.create({
 // 请求拦截器
 instance.interceptors.request.use(config => {
   // 如果token存在在请求头携带
-  const { token } = store.user
+  const { token } = store.state.user
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 }, e => Promise.reject(e))
