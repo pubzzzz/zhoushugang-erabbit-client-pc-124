@@ -1,7 +1,7 @@
 import Mock from 'mockjs'
+import { defaultCategory } from '@/api/constans'
 
-const preList = ['美食', '餐厨', '艺术', '电器', '居家', '洗护', '孕婴', '服装', '杂货']
-const list = preList.map(item => {
+const list = defaultCategory.map(item => {
   const count = Mock.mock('@integer(5,10)')
   const children = []
   for (let index = 0; index < count; index++) {

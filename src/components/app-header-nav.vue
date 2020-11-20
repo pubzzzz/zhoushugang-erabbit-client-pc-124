@@ -1,33 +1,37 @@
 <template>
   <ul class="app-header-nav">
     <li class="home"><RouterLink to="/">首页</RouterLink></li>
-    <li>
-      <a href="#">美食</a>
-      <div class="layer">
+    <li v-for="item in list" :key="item.id">
+      <RouterLink @mouseenter="show(item)" @mouseleave="hide(item)" to="/" @click="hide(item)">{{item.name}}</RouterLink>
+      <div @mouseenter="show(item)"  @mouseleave="hide(item)" class="layer" :class="{open:item.open}" v-if="item.children">
         <ul>
-          <li v-for="i in 10" :key="i">
-            <a href="#">
-              <img src="http://zhoushugang.gitee.io/erabbit-client-pc-static/uploads/img/category%20(4).png" alt="">
-              <p>果干</p>
-            </a>
+          <li v-for="sub in item.children" :key="sub.id">
+            <RouterLink to="/" @click="hide(item)">
+              <img :src="sub.picture" alt="">
+              <p>{{sub.name}}</p>
+            </RouterLink>
           </li>
         </ul>
       </div>
     </li>
-    <li><a href="#">餐厨</a></li>
-    <li><a href="#">艺术</a></li>
-    <li><a href="#">电器</a></li>
-    <li><a href="#">居家</a></li>
-    <li><a href="#">洗护</a></li>
-    <li><a href="#">孕婴</a></li>
-    <li><a href="#">服装</a></li>
-    <li><a href="#">杂货</a></li>
   </ul>
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
-  name: 'AppHeaderNav'
+  name: 'AppHeaderNav',
+  computed: {
+    ...mapState('category', ['list'])
+  },
+  methods: {
+    hide (item) {
+      item.open = false
+    },
+    show (item) {
+      item.open = true
+    }
+  }
 }
 </script>
 
@@ -35,7 +39,6 @@ export default {
 .app-header-nav {
   width: 820px;
   display: flex;
-  justify-content: space-around;
   padding-left: 40px;
   position: relative;
   > li {
@@ -53,14 +56,18 @@ export default {
         color: @xtxColor;
         border-bottom: 1px solid @xtxColor;
       }
-      > .layer {
-        height: 124px;
-        opacity: 1;
-      }
+      // > .layer {
+      //   height: 124px;
+      //   opacity: 1;
+      // }
     }
   }
 }
 .layer {
+  &.open {
+    height: 132px;
+    opacity: 1;
+  }
   width: 1240px;
   background-color: #fff;
   position: absolute;
@@ -69,14 +76,14 @@ export default {
   height: 0;
   overflow: hidden;
   opacity: 0;
-  .shadow();
-  transition: all .2s linear .2s;
+  box-shadow: 0 0 5px #ccc;
+  transition: all .2s .1s;
   ul {
     display: flex;
     flex-wrap: wrap;
     padding: 0 70px;
     align-items: center;
-    height: 124px;
+    height: 132px;
     li {
       width: 110px;
       text-align: center;
