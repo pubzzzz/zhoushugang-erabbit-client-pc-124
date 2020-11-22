@@ -1,4 +1,5 @@
 <template>
+  <AppHeaderSticky />
   <AppTopnav/>
   <AppHeader/>
   <main class="app-body">
@@ -11,10 +12,11 @@
 <script>
 import AppTopnav from '@/components/app-topnav'
 import AppHeader from '@/components/app-header'
+import AppHeaderSticky from '@/components/app-header-sticky'
 import AppFooter from '@/components/app-footer'
 export default {
   name: 'XtxLayout',
-  components: { AppTopnav, AppHeader, AppFooter },
+  components: { AppTopnav, AppHeader, AppFooter, AppHeaderSticky },
   created () {
     this.$store.dispatch('category/getCategory')
   }

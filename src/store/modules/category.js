@@ -11,6 +11,14 @@ export default {
   mutations: {
     setCategory (state, payload) {
       state.list = payload
+    },
+    show (state, payload) {
+      const item = state.list.find(item => item.id === payload.id)
+      item.open = true
+    },
+    hide (state, payload) {
+      const item = state.list.find(item => item.id === payload.id)
+      item.open = false
     }
   },
   actions: {

@@ -18,19 +18,14 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
 export default {
   name: 'AppHeaderNav',
   computed: {
     ...mapState('category', ['list'])
   },
   methods: {
-    hide (item) {
-      item.open = false
-    },
-    show (item) {
-      item.open = true
-    }
+    ...mapMutations('category', ['show', 'hide'])
   }
 }
 </script>
