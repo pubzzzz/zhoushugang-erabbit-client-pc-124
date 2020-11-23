@@ -1,5 +1,5 @@
 <template>
-  <div class="app_footer">
+  <footer class="app_footer">
     <!-- 联系我们 -->
     <div class="contact">
       <div class="container">
@@ -60,7 +60,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </footer>
 </template>
 
 <script>
