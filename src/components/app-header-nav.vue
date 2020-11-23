@@ -36,6 +36,7 @@ export default {
   display: flex;
   padding-left: 40px;
   position: relative;
+  z-index: 998;
   > li {
     margin-right: 40px;
     width: 38px;

@@ -1,17 +1,27 @@
 <template>
   <div class='xtx-home-page'>
-    首页内容
+    <div class="home-entry">
+      <div class="container">
+        <!-- 左侧分类 -->
+        <HomeCategory />
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import HomeCategory from './components/home-category'
 export default {
-  name: 'xtx-home-page'
+  name: 'xtx-home-page',
+  components: { HomeCategory }
 }
 </script>
 
 <style scoped lang='less'>
-.xtx-home-page{
-  color:@xtxColor;
+.home-entry {
+  .container {
+    height: 500px;
+    position: relative;
+  }
 }
 </style>
