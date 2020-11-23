@@ -1,9 +1,9 @@
 <template>
   <ul class="app-header-nav">
     <li class="home"><RouterLink to="/">首页</RouterLink></li>
-    <li v-for="item in list" :key="item.id">
-      <RouterLink @mouseenter="show(item)" @mouseleave="hide(item)" to="/" @click="hide(item)">{{item.name}}</RouterLink>
-      <div @mouseenter="show(item)"  @mouseleave="hide(item)" class="layer" :class="{open:item.open}" v-if="item.children">
+    <li @mouseenter="show(item)" @mouseleave="hide(item)" v-for="item in list" :key="item.id">
+      <RouterLink to="/" @click="hide(item)">{{item.name}}</RouterLink>
+      <div class="layer" :class="{open:item.open}" v-if="item.children">
         <ul>
           <li v-for="sub in item.children" :key="sub.id">
             <RouterLink to="/" @click="hide(item)">

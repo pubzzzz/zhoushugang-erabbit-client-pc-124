@@ -39,7 +39,7 @@ export default {
   top: 0;
   z-index: 999;
   background-color: #fff;
-  box-shadow: 0 0 3px #e4e4e4;
+  border-bottom: 1px solid #e4e4e4;
   transform: translateY(-100%);
   opacity: 0;
   &.show {
