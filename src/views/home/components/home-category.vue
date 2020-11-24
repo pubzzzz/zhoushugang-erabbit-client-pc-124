@@ -88,6 +88,7 @@ export default {
   height: 500px;
   background: rgba(0,0,0,0.8);
   position: relative;
+  z-index: 99;
   .menu {
     li {
       padding-left: 40px;
