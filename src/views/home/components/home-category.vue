@@ -1,16 +1,20 @@
 <template>
-  <div class='home-category'>
+  <div class='home-category' @mouseleave="categoryId=null">
     <ul class="menu">
-      <li v-for="item in menuList" :key="item.id" @mouseenter="categoryId=item.id">
+      <li :class="{active:categoryId===item.id}" v-for="item in menuList" :key="item.id" @mouseenter="categoryId=item.id">
         <RouterLink to="/">{{item.name}}</RouterLink>
         <template v-if="item.children">
           <RouterLink to="/" v-for="sub in item.children" :key="sub.id">{{sub.name}}</RouterLink>
         </template>
+        <span v-else>
+          <XtxSkeleton width="40px" style="margin-right:5px" bg="rgba(255,255,255,0.2)" />
+          <XtxSkeleton width="35px" bg="rgba(255,255,255,0.2)" />
+        </span>
       </li>
     </ul>
     <!-- 弹层 -->
     <div class="layer">
-      <h4 v-if="currCategory && currCategory.id!=='brand'">分类推荐 <small>根据您的购买或浏览记录推荐</small></h4>
+      <h4 v-if="currCategory">{{currCategory.id==='brand'?'品牌':'分类'}}推荐 <small>根据您的购买或浏览记录推荐</small></h4>
       <ul v-if="currCategory && currCategory.goods && currCategory.goods.length">
         <li v-for="item in currCategory.goods" :key="item.id">
           <RouterLink to="/">
@@ -23,16 +27,35 @@
           </RouterLink>
         </li>
       </ul>
+      <ul v-if="currCategory && currCategory.brands && currCategory.brands.length">
+        <li class="brand" v-for="item in currCategory.brands" :key="item.id">
+          <RouterLink to="/">
+            <img :src="item.picture" alt="">
+            <div class="info">
+              <p class="place"><i class="iconfont icon-position"></i>{{item.place}}</p>
+              <p class="name ellipsis">{{item.name}}</p>
+              <p class="desc ellipsis-2">{{item.desc}}</p>
+            </div>
+          </RouterLink>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
 
 <script>
+import { findHotBrand } from '@/api/brand'
 export default {
   name: 'HomeCategory',
   data () {
     return {
-      categoryId: null
+      categoryId: null,
+      brand: {
+        id: 'brand',
+        name: '品牌',
+        children: [{ id: 'brand-create', name: '品牌推荐' }],
+        brands: []
+      }
     }
   },
   computed: {
@@ -49,13 +72,12 @@ export default {
           goods: item.goods
         }
       })
-      const brand = {
-        id: 'brand',
-        name: '品牌',
-        children: [{ id: 'brand-create', name: '品牌制造' }]
-      }
-      return [...category, brand]
+      return [...category, this.brand]
     }
+  },
+  async created () {
+    const data = await findHotBrand({ limit: 6 })
+    this.brand.brands = data.result
   }
 }
 </script>
@@ -71,7 +93,7 @@ export default {
       padding-left: 40px;
       height: 50px;
       line-height: 50px;
-      &:hover {
+      &:hover,&.active {
         background: @xtxColor;
       }
       a {
@@ -124,13 +146,13 @@ export default {
           &:hover {
             background: #e3f9f4;
           }
+          img {
+              width: 95px;
+              height: 95px;
+          }
           .info {
             padding-left: 10px;
             line-height: 24px;
-            img {
-              width: 95px;
-              height: 95px;
-            }
             .name {
               font-size: 16px;
               color: #666;
@@ -139,11 +161,29 @@ export default {
               color: #999;
             }
             .price {
-              font-size: 22px;
+              font-size: 20px;
               color: @priceColor;
               i {
                 font-size: 16px;
               }
+            }
+          }
+        }
+      }
+      li.brand {
+        height: 180px;
+        a {
+          align-items: flex-start;
+          img {
+            width: 120px;
+            height: 160px;
+          }
+          .info {
+            p {
+              margin-top: 8px;
+            }
+            .place {
+              color: #999;
             }
           }
         }
