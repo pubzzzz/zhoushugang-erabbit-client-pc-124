@@ -140,12 +140,19 @@ export default {
       top: 228px;
       text-align: center;
       line-height: 44px;
+      opacity: 0;
+      transition: all 0.5s;
       &.prev{
         left: 20px;
       }
       &.next{
         right: 20px;
       }
+    }
+  }
+  &:hover {
+    .carousel-btn {
+      opacity: 1;
     }
   }
 }

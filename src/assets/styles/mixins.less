@@ -1,13 +1,8 @@
-// 阴影
-.shadow () {
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
-}
 // 鼠标经过上移阴影动画
 .hoverShadow () {
-  position: relative;
   transition: all .5s;
   &:hover {
-    top: -3px;
-    .shadow ();
+    transform: translate3d(0,-3px,0);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
   }
 }
