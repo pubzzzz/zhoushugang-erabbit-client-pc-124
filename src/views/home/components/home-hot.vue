@@ -1,6 +1,6 @@
 <template>
   <HomePanel title="人气推荐" sub-title="人气爆款 不容错过">
-    <div style="position: relative;height: 426px;">
+    <div ref="box" style="position: relative;height: 426px;">
       <Transition name="fade">
         <ul v-if="goods.length" ref="pannel" class="goods-list">
           <li v-for="item in goods" :key="item.id">
@@ -21,17 +21,13 @@
 import HomePanel from './home-panel'
 import HomeSkeleton from './home-skeleton'
 import { findHot } from '@/api/home'
+import { useLazyData } from '@/hooks'
 export default {
   name: 'HomeHot',
   components: { HomePanel, HomeSkeleton },
-  data () {
-    return {
-      goods: []
-    }
-  },
-  async created () {
-    const data = await findHot()
-    this.goods = data.result
+  setup () {
+    const { container, data } = useLazyData(findHot)
+    return { goods: data, box: container }
   }
 }
 </script>

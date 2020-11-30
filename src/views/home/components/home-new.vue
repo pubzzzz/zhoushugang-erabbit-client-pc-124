@@ -1,7 +1,7 @@
 <template>
   <HomePanel title="新鲜好物" sub-title="新鲜出炉 品质靠谱">
     <template v-slot:right><XtxMore /></template>
-    <div style="position: relative;height: 406px;">
+    <div ref="box" style="position: relative;height: 406px;">
       <Transition name="fade">
         <ul v-if="goods.length" ref="pannel" class="goods-list">
           <li v-for="item in goods" :key="item.id">
@@ -22,17 +22,13 @@
 import HomePanel from './home-panel'
 import HomeSkeleton from './home-skeleton'
 import { findNew } from '@/api/home'
+import { useLazyData } from '@/hooks'
 export default {
   name: 'HomeNew',
   components: { HomePanel, HomeSkeleton },
-  data () {
-    return {
-      goods: []
-    }
-  },
-  async created () {
-    const data = await findNew()
-    this.goods = data.result
+  setup () {
+    const { container, data } = useLazyData(findNew)
+    return { goods: data, box: container }
   }
 }
 </script>

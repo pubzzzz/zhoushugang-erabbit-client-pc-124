@@ -83,6 +83,17 @@ export default {
 </script>
 
 <style scoped lang='less'>
+.xtx-skeleton {
+  animation: fade 1s linear infinite alternate;
+}
+@keyframes fade {
+  from {
+    opacity: 0.2;
+  }
+  to {
+    opacity: 1;
+  }
+}
 .home-category {
   width: 250px;
   height: 500px;
