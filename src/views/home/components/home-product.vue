@@ -1,27 +1,23 @@
 <template>
-  <div class="home-product">
-    <HomePanel title="生鲜" v-for="i in 4" :key="i">
+  <div class="home-product" ref="homeProduct">
+    <HomePanel :title="cate.name" v-for="cate in data" :key="cate.id">
       <template v-slot:right>
         <div class="sub">
-          <RouterLink to="/">海鲜</RouterLink>
-          <RouterLink to="/">水果</RouterLink>
-          <RouterLink to="/">蔬菜</RouterLink>
-          <RouterLink to="/">水产</RouterLink>
-          <RouterLink to="/">禽肉</RouterLink>
+          <RouterLink v-for="sub in cate.children" :key="sub.id" to="/">{{sub.name}}</RouterLink>
         </div>
         <XtxMore />
       </template>
       <div class="box">
         <RouterLink class="cover" to="/">
-          <img src="http://zhoushugang.gitee.io/erabbit-client-pc-static/uploads/fresh_goods_cover.jpg" alt="">
+          <img :src="cate.picture" alt="">
           <strong class="label">
-            <span>生鲜馆</span>
-            <span>全场3件7折</span>
+            <span>{{cate.name}}馆</span>
+            <span>{{cate.saleInfo}}</span>
           </strong>
         </RouterLink>
         <ul class="goods-list">
-          <li v-for="i in 8" :key="i">
-            <HomeGoods />
+          <li v-for="item in cate.goods" :key="item.id">
+            <HomeGoods :goods="item" />
           </li>
         </ul>
       </div>
@@ -32,9 +28,15 @@
 <script>
 import HomePanel from './home-panel'
 import HomeGoods from './home-goods'
+import { findGoods } from '@/api/home'
+import { useLazyData } from '@/hooks'
 export default {
   name: 'HomeProduct',
-  components: { HomePanel, HomeGoods }
+  components: { HomePanel, HomeGoods },
+  setup () {
+    const { container, data } = useLazyData(findGoods)
+    return { homeProduct: container, data }
+  }
 }
 </script>
 

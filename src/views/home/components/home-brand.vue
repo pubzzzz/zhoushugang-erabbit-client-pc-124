@@ -46,6 +46,9 @@ export default {
 </script>
 
 <style scoped lang='less' vars={translateX}>
+.home-panel {
+  background:#f5f5f5
+}
 .iconfont {
   width: 20px;
   height: 20px;

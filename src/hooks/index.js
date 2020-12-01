@@ -5,13 +5,15 @@ export const useLazyData = (apiFn) => {
   const data = ref([])
   const { stop } = useIntersectionObserver(
     container,
-    ([{ isIntersecting }]) => {
+    ([{ isIntersecting }], dom) => {
       if (isIntersecting) {
         stop()
         apiFn && apiFn().then(({ result }) => {
           data.value = result
         })
       }
+    }, {
+      threshold: 0
     }
   )
   return { container, data }
