@@ -12,6 +12,8 @@
     <HomeNew />
     <!-- 人气推荐 -->
     <HomeHot />
+    <!-- 热门品牌 -->
+    <HomeBrand style="background:#f5f5f5" />
   </div>
 </template>
 
@@ -20,9 +22,10 @@ import HomeCategory from './components/home-category'
 import HomeBanner from './components/home-banner'
 import HomeNew from './components/home-new'
 import HomeHot from './components/home-hot'
+import HomeBrand from './components/home-brand'
 export default {
   name: 'xtx-home-page',
-  components: { HomeCategory, HomeBanner, HomeNew, HomeHot }
+  components: { HomeCategory, HomeBanner, HomeNew, HomeHot, HomeBrand }
 }
 </script>
 
