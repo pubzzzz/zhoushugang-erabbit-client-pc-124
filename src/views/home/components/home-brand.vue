@@ -68,8 +68,9 @@ export default {
 .box {
   display: flex;
   width: 100%;
-  height: 305px;
+  height: 345px;
   overflow: hidden;
+  padding-bottom: 40px;
   .list {
     width: 200%;
     display: flex;

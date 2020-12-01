@@ -37,6 +37,9 @@ export default {
       flex: 1;
       font-size: 32px;
       font-weight: normal;
+      margin-left: 6px;
+      height: 35px;
+      line-height: 35px;
       small {
         font-size: 16px;
         color: #999;
