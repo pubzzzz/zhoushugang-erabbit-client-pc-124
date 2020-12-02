@@ -1,0 +1,39 @@
+<script>
+import { h } from 'vue'
+export default {
+  name: 'XtxBread',
+  render () {
+    const items = this.$slots.default()
+    const domTree = []
+    items.forEach((item, i) => {
+      domTree.push(item)
+      if (i < (items.length - 1)) {
+        domTree.push(h('i', { class: 'iconfont icon-angle-right' }))
+      }
+    })
+    return h('div', { class: 'xtx-bread' }, domTree)
+  }
+}
+</script>
+
+<style lang='less'>
+.xtx-bread{
+  display: flex;
+  padding: 25px 10px;
+  &-item {
+    a {
+      color: #666;
+      transition: all .4s;
+      &:hover {
+        color: @xtxColor;
+      }
+    }
+  }
+  i {
+    font-size: 12px;
+    margin-left: 4px;
+    margin-right: 10px;
+    line-height: 22px;
+  }
+}
+</style>

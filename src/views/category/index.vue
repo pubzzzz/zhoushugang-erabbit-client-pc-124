@@ -1,7 +1,11 @@
 <template>
   <div class='top-category'>
     <div class="container">
-      顶级类目
+      <XtxBread>
+        <XtxBreadItem to="/">首页</XtxBreadItem>
+        <XtxBreadItem to="/">电器</XtxBreadItem>
+        <XtxBreadItem>空调</XtxBreadItem>
+      </XtxBread>
     </div>
   </div>
 </template>
@@ -14,6 +18,5 @@ export default {
 
 <style scoped lang='less'>
 .top-category {
-
 }
 </style>
