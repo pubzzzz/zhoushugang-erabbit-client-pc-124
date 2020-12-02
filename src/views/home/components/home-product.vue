@@ -9,7 +9,7 @@
       </template>
       <div class="box">
         <RouterLink class="cover" to="/">
-          <img :src="cate.picture" alt="">
+          <img alt="" v-lazy="cate.picture">
           <strong class="label">
             <span>{{cate.name}}馆</span>
             <span>{{cate.saleInfo}}</span>
@@ -66,6 +66,10 @@ export default {
       height: 610px;
       margin-right: 10px;
       position: relative;
+      img {
+        width: 100%;
+        height: 100%;
+      }
       .label {
         width: 188px;
         height: 66px;
