@@ -1,22 +1,93 @@
 <template>
   <div class='top-category'>
     <div class="container">
+      <!-- 面包屑 -->
       <XtxBread>
         <XtxBreadItem to="/">首页</XtxBreadItem>
-        <XtxBreadItem to="/">电器</XtxBreadItem>
-        <XtxBreadItem>空调</XtxBreadItem>
+        <XtxBreadItem>{{currCategory.name}}</XtxBreadItem>
       </XtxBread>
+      <!-- 轮播图 -->
+      <XtxCarousel :sliders="sliders" style="height:500px" />
+      <!-- 所有二级分类 -->
+      <div class="sub-list">
+        <h3>全部分类</h3>
+        <ul>
+          <li v-for="item in currCategory.children" :key="item.id">
+            <a href="javascript:;">
+              <img :src="item.picture" >
+              <p>{{item.name}}</p>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <!-- 不同分类商品 -->
     </div>
   </div>
 </template>
 
 <script>
+import { findBanner } from '@/api/home'
+import { mapState } from 'vuex'
 export default {
-  name: 'TopCategory'
+  name: 'TopCategory',
+  data () {
+    return {
+      sliders: []
+    }
+  },
+  computed: {
+    ...mapState('category', ['list']),
+    currCategory () {
+      let currCategory = {}
+      if (this.list && this.list.length) {
+        currCategory = this.list.find(item => item.id === this.$route.params.id) || {}
+      }
+      return currCategory
+    }
+  },
+  async created () {
+    const data = await findBanner()
+    this.sliders = data.result
+  }
 }
 </script>
 
 <style scoped lang='less'>
 .top-category {
+  h3 {
+    font-size: 28px;
+    color: #666;
+    font-weight: normal;
+    text-align: center;
+    line-height: 100px;
+  }
+  .sub-list {
+    margin-top: 20px;
+    background-color: #fff;
+    ul {
+      display: flex;
+      padding: 0 32px;
+      flex-wrap: wrap;
+      li {
+        width: 168px;
+        height: 160px;
+        a {
+          text-align: center;
+          display: block;
+          font-size: 16px;
+          img {
+            width: 100px;
+            height: 100px;
+          }
+          p {
+            line-height: 40px;
+          }
+          &:hover {
+            color: @xtxColor;
+          }
+        }
+      }
+    }
+  }
 }
 </style>
