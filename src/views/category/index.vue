@@ -27,7 +27,7 @@
         <div class="head">
           <h3>- {{item.name}} -</h3>
           <p class="tag">柔软细腻，融水即化无残余</p>
-          <XtxMore />
+          <XtxMore :path="`/category/sub/${item.id}`" />
         </div>
         <div class="body">
           <CategoryGoods v-for="g in item.goods" :key="g.id" :goods="g" />
