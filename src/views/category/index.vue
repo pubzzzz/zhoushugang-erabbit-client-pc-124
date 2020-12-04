@@ -4,7 +4,9 @@
       <!-- 面包屑 -->
       <XtxBread>
         <XtxBreadItem to="/">首页</XtxBreadItem>
-        <XtxBreadItem>{{currCategory.name}}</XtxBreadItem>
+        <transition name="fade-right" mode="out-in">
+          <XtxBreadItem :key="currCategory.id">{{currCategory.name}}</XtxBreadItem>
+        </transition>
       </XtxBread>
       <!-- 轮播图 -->
       <XtxCarousel :sliders="sliders" style="height:500px" />
@@ -20,19 +22,33 @@
           </li>
         </ul>
       </div>
-      <!-- 不同分类商品 -->
+      <!-- 分类关联商品 -->
+      <div class="ref-goods" v-for="item in subCategoryList" :key="item.id">
+        <div class="head">
+          <h3>- {{item.name}} -</h3>
+          <p class="tag">柔软细腻，融水即化无残余</p>
+          <XtxMore />
+        </div>
+        <div class="body">
+          <CategoryGoods v-for="g in item.goods" :key="g.id" :goods="g" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import { findBanner } from '@/api/home'
+import { findTopCategory } from '@/api/category'
 import { mapState } from 'vuex'
+import CategoryGoods from './components/category-goods'
 export default {
   name: 'TopCategory',
+  components: { CategoryGoods },
   data () {
     return {
-      sliders: []
+      sliders: [],
+      subCategoryList: []
     }
   },
   computed: {
@@ -48,11 +64,39 @@ export default {
   async created () {
     const data = await findBanner()
     this.sliders = data.result
+  },
+  watch: {
+    '$route.params.id': {
+      handler () {
+        this.loadData()
+      },
+      immediate: true
+    }
+  },
+  methods: {
+    async loadData () {
+      const data = await findTopCategory()
+      this.subCategoryList = data.result.children
+    }
   }
 }
 </script>
 
 <style scoped lang='less'>
+.fade-right-enter-to,
+.fade-right-leave-from{
+  opacity: 1;
+  transform: none;
+}
+.fade-right-enter-active,
+.fade-right-leave-active{
+  transition: all .5s;
+}
+.fade-right-enter-from,
+.fade-right-leave-to{
+  opacity: 0;
+  transform: translate3d(20px,0,0);
+}
 .top-category {
   h3 {
     font-size: 28px;
@@ -87,6 +131,30 @@ export default {
           }
         }
       }
+    }
+  }
+  .ref-goods {
+    background-color: #fff;
+    margin-top: 20px;
+    position: relative;
+    .head {
+      .xtx-more {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+      }
+      .tag {
+        text-align: center;
+        color: #999;
+        font-size: 20px;
+        position: relative;
+        top: -20px;
+      }
+    }
+    .body {
+      display: flex;
+      justify-content: space-around;
+      padding: 0 40px 30px;
     }
   }
 }
