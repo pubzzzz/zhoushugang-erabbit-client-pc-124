@@ -4,9 +4,9 @@
       <!-- 面包屑 -->
       <XtxBread>
         <XtxBreadItem to="/">首页</XtxBreadItem>
-        <transition name="fade-right" mode="out-in">
+        <Transition name="fade-right" mode="out-in">
           <XtxBreadItem :key="currCategory.id">{{currCategory.name}}</XtxBreadItem>
-        </transition>
+        </Transition>
       </XtxBread>
       <!-- 轮播图 -->
       <XtxCarousel :sliders="sliders" style="height:500px" />
@@ -83,20 +83,6 @@ export default {
 </script>
 
 <style scoped lang='less'>
-.fade-right-enter-to,
-.fade-right-leave-from{
-  opacity: 1;
-  transform: none;
-}
-.fade-right-enter-active,
-.fade-right-leave-active{
-  transition: all .5s;
-}
-.fade-right-enter-from,
-.fade-right-leave-to{
-  opacity: 0;
-  transform: translate3d(20px,0,0);
-}
 .top-category {
   h3 {
     font-size: 28px;
