@@ -10,6 +10,7 @@ const instance = axios.create({
 
 // 请求拦截器
 instance.interceptors.request.use(config => {
+  config.headers['souce-client'] = 'pc'
   // 如果token存在在请求头携带
   const { token } = store.state.user
   if (token) config.headers.Authorization = `Bearer ${token}`

@@ -4,16 +4,16 @@
     <div class="special-list" ref="homeSpecial">
       <div class="special-item" v-for="item in list" :key="item.id">
         <RouterLink to="/">
-          <img :src="item.picture" alt />
+          <img :src="item.cover" alt />
           <div class="meta">
-            <p class="title">{{item.title}}<small>{{item.desc}}</small></p>
-            <span class="price">&yen;{{item.price}}起</span>
+            <p class="title">{{item.title}}<small>{{item.summary}}</small></p>
+            <span class="price">&yen;{{item.lowestPrice}}起</span>
           </div>
         </RouterLink>
         <div class="foot">
-          <span class="like"><i class="iconfont icon-hart1"></i>{{item.like_count}}</span>
-          <span class="view"><i class="iconfont icon-see"></i>{{item.view_count}}</span>
-          <span class="reply"><i class="iconfont icon-message"></i>{{item.reply_count}}</span>
+          <span class="like"><i class="iconfont icon-hart1"></i>{{item.collectNum}}</span>
+          <span class="view"><i class="iconfont icon-see"></i>{{item.viewNum}}</span>
+          <span class="reply"><i class="iconfont icon-message"></i>{{item.replyNum}}</span>
         </div>
       </div>
     </div>
