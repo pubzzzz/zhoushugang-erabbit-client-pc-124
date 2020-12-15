@@ -9,7 +9,7 @@
         </template>
         <!-- 未登录展示 -->
         <template v-else>
-          <li><a href="#">请先登录</a></li>
+          <li><RouterLink to="/login">请先登录</RouterLink></li>
           <li><a href="#">免费注册</a></li>
         </template>
         <li><a href="#">我的订单</a></li>

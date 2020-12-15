@@ -4,6 +4,7 @@ const Layout = () => import('@/views/Layout')
 const Home = () => import('@/views/home/index')
 const TopCategory = () => import('@/views/category/index')
 const SubCategory = () => import('@/views/category/sub')
+const Login = () => import('@/views/login/index')
 
 const routes = [
   {
@@ -14,7 +15,8 @@ const routes = [
       { path: '/category/:id', component: TopCategory },
       { path: '/category/sub/:id', component: SubCategory }
     ]
-  }
+  },
+  { path: '/login', component: Login }
 ]
 
 const router = createRouter({
