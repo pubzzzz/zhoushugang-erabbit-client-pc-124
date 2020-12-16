@@ -38,6 +38,7 @@
           </div>
           <div class="form-item">
             <div class="agree">
+              <XtxCheckbox v-model="form.isAgree" />
               <span>我已同意</span>
               <a href="javascript:;">《隐私条款》</a>
               <span>和</span>
@@ -77,7 +78,11 @@ export default {
       // account 账户登录 qrcode 扫码登录
       activeName: 'account',
       // 是否短信登录
-      isMsgLogin: false
+      isMsgLogin: false,
+      // 表单信息
+      form: {
+        isAgree: true
+      }
     }
   }
 }
