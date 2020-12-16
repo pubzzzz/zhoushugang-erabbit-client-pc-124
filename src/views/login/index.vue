@@ -45,7 +45,7 @@
               <a href="javascript:;">《服务条款》</a>
             </div>
           </div>
-          <a href="javascript:;" class="btn">登录</a>
+          <a href="javascript:;" class="btn">登 录</a>
         </div>
         <div class="action">
           <img src="https://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_7.png" alt="">
