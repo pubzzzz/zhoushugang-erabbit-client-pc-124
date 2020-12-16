@@ -41,6 +41,10 @@ export default {
     width: 306px;
     height: 406px;
     .hoverShadow();
+    img {
+      width: 306px;
+      height: 306px;
+    }
     p {
       font-size: 22px;
       padding-top: 12px;

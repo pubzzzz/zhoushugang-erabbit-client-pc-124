@@ -15,38 +15,41 @@
             <i class="iconfont icon-msg"></i> 使用短信登录
           </a>
         </div>
-        <div class="form">
+        <Form ref="form" class="form" :validation-schema="schema" v-slot="{errors}" autocomplete="off">
           <div class="form-item">
             <div class="input">
               <i class="iconfont icon-user"></i>
-              <input type="text" :placeholder="isMsgLogin?'请输入手机号':'请输入账号'">
+              <Field :class="{error:errors.mobile}" v-model="form.mobile" name="mobile" type="text" placeholder="请输入手机号" />
             </div>
-            <!-- <div class="error"><i class="iconfont icon-warning" />请输入手机号</div> -->
+            <div class="error" v-if="errors.mobile"><i class="iconfont icon-warning" />{{errors.mobile}}</div>
           </div>
           <div class="form-item" v-if="!isMsgLogin">
             <div class="input">
               <i class="iconfont icon-lock"></i>
-              <input type="password" placeholder="请输入密码">
+              <Field :class="{error:errors.password}" v-model="form.password" name="password" type="password" placeholder="请输入密码" />
             </div>
+            <div class="error" v-if="errors.password"><i class="iconfont icon-warning" />{{errors.password}}</div>
           </div>
           <div class="form-item" v-else>
             <div class="input">
               <i class="iconfont icon-code"></i>
-              <input type="password" placeholder="请输入验证码">
+              <Field :class="{error:errors.code}" v-model="form.code" name="code" type="password" placeholder="请输入验证码" />
               <span class="code">发送验证码</span>
             </div>
+            <div class="error" v-if="errors.code"><i class="iconfont icon-warning" />{{errors.code}}</div>
           </div>
           <div class="form-item">
             <div class="agree">
-              <XtxCheckbox v-model="form.isAgree" />
+              <Field as="XtxCheckbox" name="isAgree" v-model="form.isAgree"/>
               <span>我已同意</span>
               <a href="javascript:;">《隐私条款》</a>
               <span>和</span>
               <a href="javascript:;">《服务条款》</a>
             </div>
+            <div class="error" v-if="errors.isAgree"><i class="iconfont icon-warning" />{{errors.isAgree}}</div>
           </div>
-          <a href="javascript:;" class="btn">登 录</a>
-        </div>
+          <a @click="submit()" href="javascript:;" class="btn">登 录</a>
+        </Form>
         <div class="action">
           <img src="https://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_7.png" alt="">
           <div class="url">
@@ -67,13 +70,18 @@
 <script>
 import LoginHeader from './components/login-header'
 import LoginFooter from './components/login-footer'
+import { Form, Field } from 'vee-validate'
+import veeSchema from '@/utils/vee-validate-schema'
 export default {
   name: 'Login',
   components: {
     LoginHeader,
-    LoginFooter
+    LoginFooter,
+    Form,
+    Field
   },
   data () {
+    const { isAgree, mobile, password, code } = veeSchema
     return {
       // account 账户登录 qrcode 扫码登录
       activeName: 'account',
@@ -81,8 +89,31 @@ export default {
       isMsgLogin: false,
       // 表单信息
       form: {
-        isAgree: true
+        isAgree: true,
+        mobile: '',
+        password: '',
+        code: ''
+      },
+      // 校验规则
+      schema: { isAgree, mobile, password, code }
+    }
+  },
+  watch: {
+    // 切换时候，重置校验和数据
+    isMsgLogin () {
+      this.form = {
+        isAgree: true,
+        mobile: '',
+        password: '',
+        code: ''
       }
+      this.$refs.form.resetForm()
+    }
+  },
+  methods: {
+    async submit () {
+      const valid = await this.$refs.form.validate()
+      console.log(valid)
     }
   }
 }
@@ -120,7 +151,7 @@ export default {
       .input {
         position: relative;
         height: 36px;
-        i {
+        > i {
           width: 34px;
           height: 34px;
           background: #cfcdcd;
@@ -159,7 +190,7 @@ export default {
           cursor: pointer;
         }
       }
-      .error {
+      > .error {
         position: absolute;
         font-size: 12px;
         line-height: 28px;
