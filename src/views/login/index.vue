@@ -34,7 +34,9 @@
             <div class="input">
               <i class="iconfont icon-code"></i>
               <Field :class="{error:errors.code}" v-model="form.code" name="code" type="password" placeholder="请输入验证码" />
-              <span class="code">发送验证码</span>
+              <span @click="send()" class="code">
+                {{duration===0?'发送验证码':`${duration}秒后发送`}}
+              </span>
             </div>
             <div class="error" v-if="errors.code"><i class="iconfont icon-warning" />{{errors.code}}</div>
           </div>
@@ -72,7 +74,7 @@ import LoginHeader from './components/login-header'
 import LoginFooter from './components/login-footer'
 import { Form, Field } from 'vee-validate'
 import veeSchema from '@/utils/vee-validate-schema'
-import { accountLogin } from '@/api/user'
+import { accountLogin, mobileLoginCode, mobileLogin } from '@/api/user'
 import { mapMutations } from 'vuex'
 export default {
   name: 'Login',
@@ -97,7 +99,9 @@ export default {
         code: ''
       },
       // 校验规则
-      schema: { isAgree, mobile, password, code }
+      schema: { isAgree, mobile, password, code },
+      // 倒计时
+      duration: 0
     }
   },
   watch: {
@@ -112,19 +116,41 @@ export default {
       this.$refs.form.resetForm()
     }
   },
+  unmounted () {
+    clearInterval(this.timer)
+  },
   methods: {
+    async send () {
+      const valid = this.schema.mobile(this.form.mobile)
+      if (valid === true) {
+        if (this.duration > 0) return
+        await mobileLoginCode()
+        this.duration = 60
+        clearInterval(this.timer)
+        this.timer = window.setInterval(() => {
+          this.duration--
+          if (this.duration === 0) clearInterval(this.timer)
+        }, 1000)
+      } else {
+        this.$refs.form.setFieldError('mobile', valid)
+      }
+    },
     async submit () {
       const valid = await this.$refs.form.validate()
       if (valid) {
         try {
           if (this.isMsgLogin) {
           // 短信登录
+            const { mobile, code } = this.form
+            const data = await mobileLogin(mobile, code)
+            this.setUser(data.result)
           } else {
           // 账户登录
             const { mobile, password } = this.form
             const data = await accountLogin({ account: mobile, password })
             this.setUser(data.result)
           }
+          this.$message('登录成功', 'success')
         } catch (e) {
           this.$message('手机号或密码错误', 'error')
         }
