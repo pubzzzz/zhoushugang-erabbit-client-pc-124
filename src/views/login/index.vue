@@ -72,6 +72,8 @@ import LoginHeader from './components/login-header'
 import LoginFooter from './components/login-footer'
 import { Form, Field } from 'vee-validate'
 import veeSchema from '@/utils/vee-validate-schema'
+import { accountLogin } from '@/api/user'
+import { mapMutations } from 'vuex'
 export default {
   name: 'Login',
   components: {
@@ -113,8 +115,20 @@ export default {
   methods: {
     async submit () {
       const valid = await this.$refs.form.validate()
-      console.log(valid)
-    }
+      if (valid) {
+        if (this.isMsgLogin) {
+          // 短信登录
+        } else {
+          // 账户登录
+          const { mobile, password } = this.form
+          const data = await accountLogin({ account: mobile, password })
+          this.setUser(data.result)
+        }
+        const redirectUrl = this.$route.query.redirectUrl || '/'
+        this.$router.push(redirectUrl)
+      }
+    },
+    ...mapMutations('user', ['setUser'])
   }
 }
 </script>

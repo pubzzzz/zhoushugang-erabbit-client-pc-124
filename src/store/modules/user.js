@@ -5,6 +5,14 @@ export default {
     id: '',
     nickname: '',
     avatar: '',
-    token: ''
-  })
+    token: '',
+    mobile: ''
+  }),
+  mutations: {
+    setUser (state, payload) {
+      for (const key in payload) {
+        state[key] = payload[key]
+      }
+    }
+  }
 }

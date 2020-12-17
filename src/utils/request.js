@@ -20,7 +20,7 @@ instance.interceptors.request.use(config => {
 // 响应拦截器
 instance.interceptors.response.use(res => res.data, e => {
   // 在某一个页面，如果登录失效拦截到登录，且在地址栏携带返回页面的路径
-  if (e.response.status === 401) {
+  if (e.response && e.response.status === 401) {
     const targetUrl = router.currentRoute.fullPath
     router.push('/login', { query: { redirectUrl: encodeURIComponent(targetUrl) } })
   }

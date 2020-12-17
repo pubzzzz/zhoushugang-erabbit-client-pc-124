@@ -15,7 +15,6 @@ const schema = {
     return true
   },
   isAgree (value) {
-    console.log(value)
     if (!value) return '需同意隐私条款和服务条款'
     return true
   }
