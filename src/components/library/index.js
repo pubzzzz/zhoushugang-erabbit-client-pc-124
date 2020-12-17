@@ -44,14 +44,17 @@ const defineDirective = (app) => {
 const bindPrototype = (app) => {
   // 消息提示
   const messageConfig = { timer: null, duration: 3000 }
+  const messageContainer = document.createElement('div')
+  messageContainer.setAttribute('class', 'message-container')
+  document.body.append(messageContainer)
   app.config.globalProperties.$message = (text, type) => {
     const messageCom = importFn('./xtx-message.vue').default
     const vn = createVNode(messageCom, { type, text })
     vn.appContext = app._context
-    render(vn, document.body)
+    render(vn, messageContainer)
     clearTimeout(messageConfig.timer)
     messageConfig.timer = setTimeout(() => {
-      render(null, document.body)
+      render(null, messageContainer)
     }, messageConfig.duration)
   }
 }
