@@ -3,6 +3,7 @@
 // import XtxMore from './xtx-more.vue'
 // import XtxBread from './xtx-bread'
 // import XtxBreadItem from './xtx-bread-item'
+import { createVNode, render } from 'vue'
 const importFn = require.context('./', false, /\.vue$/)
 
 export default {
@@ -17,6 +18,7 @@ export default {
       app.component(component.name, component)
     })
     defineDirective(app)
+    bindPrototype(app)
   }
 }
 
@@ -36,4 +38,20 @@ const defineDirective = (app) => {
       observer.observe(el)
     }
   })
+}
+
+// 原型函数
+const bindPrototype = (app) => {
+  // 消息提示
+  const messageConfig = { timer: null, duration: 3000 }
+  app.config.globalProperties.$message = (text, type) => {
+    const messageCom = importFn('./xtx-message.vue').default
+    const vn = createVNode(messageCom, { type, text })
+    vn.appContext = app._context
+    render(vn, document.body)
+    clearTimeout(messageConfig.timer)
+    messageConfig.timer = setTimeout(() => {
+      render(null, document.body)
+    }, messageConfig.duration)
+  }
 }

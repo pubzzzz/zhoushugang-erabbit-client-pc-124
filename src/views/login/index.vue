@@ -116,13 +116,17 @@ export default {
     async submit () {
       const valid = await this.$refs.form.validate()
       if (valid) {
-        if (this.isMsgLogin) {
+        try {
+          if (this.isMsgLogin) {
           // 短信登录
-        } else {
+          } else {
           // 账户登录
-          const { mobile, password } = this.form
-          const data = await accountLogin({ account: mobile, password })
-          this.setUser(data.result)
+            const { mobile, password } = this.form
+            const data = await accountLogin({ account: mobile, password })
+            this.setUser(data.result)
+          }
+        } catch (e) {
+          this.$message('手机号或密码错误', 'error')
         }
         const redirectUrl = this.$route.query.redirectUrl || '/'
         this.$router.push(redirectUrl)
