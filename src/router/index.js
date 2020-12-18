@@ -5,6 +5,7 @@ const Home = () => import('@/views/home/index')
 const TopCategory = () => import('@/views/category/index')
 const SubCategory = () => import('@/views/category/sub')
 const Login = () => import('@/views/login/index')
+const LoginCallback = () => import('@/views/login/callback')
 
 const routes = [
   {
@@ -16,7 +17,8 @@ const routes = [
       { path: '/category/sub/:id', component: SubCategory }
     ]
   },
-  { path: '/login', component: Login }
+  { path: '/login', component: Login },
+  { path: '/login/callback', component: LoginCallback }
 ]
 
 const router = createRouter({
