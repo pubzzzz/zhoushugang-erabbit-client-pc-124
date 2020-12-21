@@ -4,8 +4,8 @@
       <ul>
         <!-- 登录后展示 -->
         <template v-if="profile.token">
-          <li><a href="#"><i class="iconfont icon-user"></i>{{profile.nickname}}</a></li>
-          <li><a href="#">退出登录</a></li>
+          <li><RouterLink to="/member"><i class="iconfont icon-user"></i>{{profile.nickname}}</RouterLink></li>
+          <li><a href="javascript:" @click="logout()">退出登录</a></li>
         </template>
         <!-- 未登录展示 -->
         <template v-else>
@@ -23,11 +23,18 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
 export default {
   name: 'AppTopnav',
   computed: {
     ...mapState('user', ['profile'])
+  },
+  methods: {
+    ...mapMutations('user', ['setUser']),
+    logout () {
+      this.setUser({})
+      this.$router.push('/login')
+    }
   }
 }
 </script>
