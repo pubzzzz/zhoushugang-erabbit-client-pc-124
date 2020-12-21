@@ -24,3 +24,12 @@ export const mobileLoginCode = (mobile) => {
 export const mobileLogin = (mobile, code) => {
   return request('login/code', 'post', { mobile, code })
 }
+
+/**
+ * 以openId进行登录
+ * @param {String} unionId - QQ互联唯一标识
+ * @param {*} source - 注册来源
+ */
+export const qqLogin = (unionId, source = 6) => {
+  return request('/login/social', 'post', { unionId, source })
+}

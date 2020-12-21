@@ -2,17 +2,21 @@
 export default {
   namespaced: true,
   state: () => ({
-    id: '',
-    nickname: '',
-    avatar: '',
-    token: '',
-    mobile: ''
+    profile: {
+      id: '',
+      nickname: '',
+      avatar: '',
+      token: '',
+      mobile: ''
+    },
+    returnUrl: '/'
   }),
   mutations: {
     setUser (state, payload) {
-      for (const key in payload) {
-        state[key] = payload[key]
-      }
+      state.profile = payload
+    },
+    setReturnUrl (state, payload) {
+      state.returnUrl = payload
     }
   }
 }

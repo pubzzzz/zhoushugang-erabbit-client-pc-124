@@ -3,8 +3,8 @@
     <div class="container">
       <ul>
         <!-- 登录后展示 -->
-        <template v-if="token">
-          <li><a href="#"><i class="iconfont icon-user"></i>{{nickname}}</a></li>
+        <template v-if="profile.token">
+          <li><a href="#"><i class="iconfont icon-user"></i>{{profile.nickname}}</a></li>
           <li><a href="#">退出登录</a></li>
         </template>
         <!-- 未登录展示 -->
@@ -27,7 +27,7 @@ import { mapState } from 'vuex'
 export default {
   name: 'AppTopnav',
   computed: {
-    ...mapState('user', ['nickname', 'token'])
+    ...mapState('user', ['profile'])
   }
 }
 </script>

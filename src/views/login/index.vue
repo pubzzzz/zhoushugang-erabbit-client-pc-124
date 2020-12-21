@@ -160,7 +160,10 @@ export default {
         this.$router.push(redirectUrl)
       }
     },
-    ...mapMutations('user', ['setUser'])
+    ...mapMutations('user', ['setUser', 'setReturnUrl'])
+  },
+  created () {
+    this.setReturnUrl(this.$route.query.returnUrl || '/')
   }
 }
 </script>
