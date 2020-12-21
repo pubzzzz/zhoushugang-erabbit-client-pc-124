@@ -15,10 +15,10 @@
       </a>
     </nav>
     <div class="tab-content" v-if="hasAccount">
-      <CallbackBind :nickname="nickname" :avatar="avatar" />
+      <CallbackBind :nickname="nickname" :avatar="avatar" :openId="openId" />
     </div>
     <div class="tab-content" v-else>
-      <CallbackPatch />
+      <CallbackPatch :openId="openId"/>
     </div>
   </section>
   <LoginFooter />
@@ -32,6 +32,7 @@ import CallbackPatch from './components/callback-patch'
 import QC from 'qc'
 import { qqLogin } from '@/api/user'
 import { mapMutations, mapState } from 'vuex'
+import defaultAvatar from '@/assets/images/200.png'
 export default {
   name: 'LoginCallback',
   components: {
@@ -42,10 +43,11 @@ export default {
   },
   data () {
     return {
-      nickname: 'zhoushugang',
-      avatar: 'http://zhoushugang.gitee.io/erabbit-client-pc-static/uploads/avatar_1.png',
+      nickname: '',
+      avatar: defaultAvatar,
       hasAccount: true,
-      isBind: true
+      isBind: true,
+      openId: ''
     }
   },
   computed: {
@@ -57,9 +59,10 @@ export default {
   created () {
     if (QC.Login.check()) {
       QC.Login.getMe(async (openId) => {
+        this.openId = openId
         try {
           // 已注册，已绑定
-          const data = await qqLogin(openId)
+          const data = await qqLogin(openId).fn()
           this.setUser(data.result)
           this.$router.push(this.returnUrl)
         } catch (e) {

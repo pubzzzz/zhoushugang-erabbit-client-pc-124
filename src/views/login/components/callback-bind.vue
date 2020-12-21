@@ -1,5 +1,5 @@
 <template>
-  <div class="xtx-form">
+  <Form ref="form" class="xtx-form" :validation-schema="schema" v-slot="{errors}" autocomplete="off">
     <div class="user-info">
       <img :src="avatar" alt="" />
       <p>Hi，{{ nickname }} 欢迎来小兔鲜，完成绑定后可以QQ账号一键登录哦~</p>
@@ -7,26 +7,78 @@
     <div class="xtx-form-item">
       <div class="field">
         <i class="icon iconfont icon-phone"></i>
-        <input class="input" type="text" placeholder="绑定的手机号" />
+        <Field v-model="form.mobile" name="mobile" :class="{err:errors.mobile}" class="input" type="text" placeholder="绑定的手机号" />
       </div>
-      <div class="error"></div>
+      <div class="error" v-if="errors.mobile">{{errors.mobile}}</div>
     </div>
     <div class="xtx-form-item">
       <div class="field">
         <i class="icon iconfont icon-code"></i>
-        <input class="input" type="text" placeholder="短信验证码" />
-        <span class="code">发送验证码</span>
+        <Field v-model="form.code" name="code" :class="{err:errors.code}" class="input" type="text" placeholder="短信验证码" />
+        <span @click="send()" class="code">
+          {{duration===0?'发送验证码':`${duration}秒后发送`}}
+        </span>
       </div>
-      <div class="error"></div>
+      <div class="error" v-if="errors.code">{{errors.code}}</div>
     </div>
-    <a href="javascript:;" class="submit">立即绑定</a>
-  </div>
+    <a @click="submit()" href="javascript:;" class="submit">立即绑定</a>
+  </Form>
 </template>
 
 <script>
+import veeSchema from '@/utils/vee-validate-schema'
+import { Form, Field } from 'vee-validate'
+import { qqBindCode, qqBind } from '@/api/user'
+import { mapMutations, mapState } from 'vuex'
 export default {
   name: 'CallbackBind',
-  props: ['nickname', 'avatar']
+  components: { Form, Field },
+  props: ['nickname', 'avatar', 'openId'],
+  data () {
+    const { mobile, code } = veeSchema
+    return {
+      schema: { mobile, code },
+      form: {
+        mobile: '',
+        code: ''
+      },
+      duration: 0
+    }
+  },
+  computed: {
+    ...mapState('user', ['returnUrl'])
+  },
+  methods: {
+    ...mapMutations('user', ['setUser']),
+    async submit () {
+      const valid = await this.$refs.form.validate()
+      if (valid) {
+        try {
+          const data = await qqBind({ openId: this.openId, ...this.form })
+          this.setUser(data.result)
+          this.$router.push(this.returnUrl)
+          this.$message('绑定账户成功', 'success')
+        } catch (e) {
+          this.$message('绑定账户失败', 'error')
+        }
+      }
+    },
+    async send () {
+      const valid = this.schema.mobile(this.form.mobile)
+      if (valid === true) {
+        if (this.duration > 0) return
+        await qqBindCode()
+        this.duration = 60
+        clearInterval(this.timer)
+        this.timer = window.setInterval(() => {
+          this.duration--
+          if (this.duration === 0) clearInterval(this.timer)
+        }, 1000)
+      } else {
+        this.$refs.form.setFieldError('mobile', valid)
+      }
+    }
+  }
 }
 </script>
 

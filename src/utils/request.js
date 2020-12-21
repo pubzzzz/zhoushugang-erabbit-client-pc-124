@@ -37,7 +37,7 @@ const request = (url, method, submitData) => {
   return instance({
     url,
     method,
-    [url.toUpperCase() === 'GET' ? 'params' : 'data']: submitData
+    [method.toUpperCase() === 'GET' ? 'params' : 'data']: submitData
   })
 }
 

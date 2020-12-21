@@ -153,11 +153,11 @@ export default {
             this.setUser(data.result)
           }
           this.$message('登录成功', 'success')
+          const redirectUrl = this.$route.query.redirectUrl || '/'
+          this.$router.push(redirectUrl)
         } catch (e) {
           this.$message('手机号或密码错误', 'error')
         }
-        const redirectUrl = this.$route.query.redirectUrl || '/'
-        this.$router.push(redirectUrl)
       }
     },
     ...mapMutations('user', ['setUser', 'setReturnUrl'])
