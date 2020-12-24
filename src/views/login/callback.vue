@@ -62,7 +62,7 @@ export default {
         this.openId = openId
         try {
           // 已注册，已绑定
-          const data = await qqLogin(openId).fn()
+          const data = await qqLogin(openId)
           this.setUser(data.result)
           this.$router.push(this.returnUrl)
         } catch (e) {

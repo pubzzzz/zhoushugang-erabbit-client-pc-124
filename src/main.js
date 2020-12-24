@@ -5,7 +5,8 @@ import store from './store'
 import './mock'
 import ui from './components/library'
 
-import 'normalize.css'
+import 'normalize. css'
+
 import '@/assets/styles/common.less'
 
 createApp(App).use(store).use(router).use(ui).mount('#app')

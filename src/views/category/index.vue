@@ -30,7 +30,7 @@
           <XtxMore :path="`/category/sub/${item.id}`" />
         </div>
         <div class="body">
-          <CategoryGoods v-for="g in item.goods" :key="g.id" :goods="g" />
+          <GoodsItem v-for="g in item.goods" :key="g.id" :goods="g" />
         </div>
       </div>
     </div>
@@ -41,10 +41,10 @@
 import { findBanner } from '@/api/home'
 import { findTopCategory } from '@/api/category'
 import { mapState } from 'vuex'
-import CategoryGoods from './components/category-goods'
+import GoodsItem from './components/goods-item'
 export default {
   name: 'TopCategory',
-  components: { CategoryGoods },
+  components: { GoodsItem },
   data () {
     return {
       sliders: [],

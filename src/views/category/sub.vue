@@ -37,6 +37,10 @@
           <XtxSkeleton class="item" width="600px" height="39px"  />
         </div>
       </Transition>
+      <!-- 结果区域 -->
+      <div class="goods-list">
+        <GoodsListHead />
+      </div>
     </div>
   </div>
 </template>
@@ -46,8 +50,10 @@ import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { findSubCategoryFilter } from '@/api/category'
+import GoodsListHead from './components/goods-list-head'
 export default {
   name: 'SubCategory',
+  components: { GoodsListHead },
   setup () {
     const breadCategory = useBreadCategory()
     const { filterData, filterLoading } = useFilter()
@@ -115,6 +121,7 @@ const useBreadCategory = () => {
         flex: 1;
         a {
           margin-right: 36px;
+          transition: all .3s;
           &.active,
           &:hover {
             color: @xtxColor;
@@ -123,5 +130,10 @@ const useBreadCategory = () => {
       }
     }
   }
+}
+.goods-list {
+  background: #fff;
+  padding: 0 30px 30px;
+  margin-top: 25px;
 }
 </style>
