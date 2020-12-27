@@ -57,4 +57,12 @@ const bindPrototype = (app) => {
       render(null, messageContainer)
     }, messageConfig.duration)
   }
+  // 延时
+  app.config.globalProperties.$sleep = (duration = 500) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve()
+      }, duration)
+    })
+  }
 }

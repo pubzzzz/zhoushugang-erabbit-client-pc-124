@@ -1,8 +1,9 @@
 import Mock from 'mockjs'
+import qs from 'qs'
 export default {
   hot: config => {
-    const body = JSON.parse(config.body) || {}
-    const limit = body.limit || 10
+    const query = qs.parse(config.url.split('?')[1])
+    const limit = query.limit || 10
     const brands = []
     for (let index = 0; index < limit; index++) {
       brands.push(Mock.mock({

@@ -2,138 +2,102 @@
   <div class='sub-category'>
     <div class="container">
       <!-- 面包屑 -->
-      <XtxBread>
-        <XtxBreadItem to="/">首页</XtxBreadItem>
-        <XtxBreadItem v-if="breadCategory.parent" :to="`/category/${breadCategory.parent.id}`">
-          {{breadCategory.parent.name}}
-        </XtxBreadItem>
-        <Transition name="fade-right" mode="out-in">
-          <XtxBreadItem :key="breadCategory.current.id" v-if="breadCategory.current">
-            {{breadCategory.current.name}}
-          </XtxBreadItem>
-        </Transition>
-      </XtxBread>
+      <SubBread />
       <!-- 筛选区 -->
-      <Transition name="fade">
-        <div v-if="!filterLoading" class="xtx-filter">
-          <div class="item">
-            <div class="head">品牌：</div>
-            <div class="body">
-              <a @click="filterData.selectedBrand=val.id" :class="{active:filterData.selectedBrand===val.id}" href="javascript:;" v-for="val in filterData.brands" :key="val.id">{{val.name}}</a>
-            </div>
-          </div>
-          <div class="item" v-for="attr in filterData.saleProperties" :key="attr.id">
-            <div class="head">{{attr.name}}：</div>
-            <div class="body">
-              <a @click="attr.selected=val.id" :class="{active:attr.selected===val.id}" href="javascript:;" v-for="val in attr.properties" :key="val.id">{{val.name}}</a>
-            </div>
-          </div>
-        </div>
-        <div v-else class="xtx-filter">
-          <XtxSkeleton class="item" width="800px" height="39px"  />
-          <XtxSkeleton class="item" width="800px" height="39px"  />
-          <XtxSkeleton class="item" width="600px" height="39px"  />
-          <XtxSkeleton class="item" width="600px" height="39px"  />
-          <XtxSkeleton class="item" width="600px" height="39px"  />
-        </div>
-      </Transition>
+      <SubFilter @change="filterChange" />
       <!-- 结果区域 -->
       <div class="goods-list">
-        <GoodsListHead />
+        <!-- 排序 -->
+        <GoodsSort @change="sortChange"/>
+        <!-- 列表 -->
+        <ul>
+          <li v-for="item in list" :key="item.id" >
+            <GoodsItem :goods="item" />
+          </li>
+        </ul>
+        <!-- 加载 -->
+        <XtxInfiniteLoading v-model:loading="loading" v-model:finished="finished" @infinite="getData" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { computed, ref, watch } from 'vue'
-import { useStore } from 'vuex'
+import SubBread from './components/sub-bread'
+import SubFilter from './components/sub-filter'
+import GoodsSort from './components/goods-sort'
+import GoodsItem from './components/goods-item'
+import { findSubCategoryGoods } from '@/api/category'
+import { ref, getCurrentInstance } from 'vue'
 import { useRoute } from 'vue-router'
-import { findSubCategoryFilter } from '@/api/category'
-import GoodsListHead from './components/goods-list-head'
 export default {
   name: 'SubCategory',
-  components: { GoodsListHead },
+  components: { SubBread, SubFilter, GoodsSort, GoodsItem },
   setup () {
-    const breadCategory = useBreadCategory()
-    const { filterData, filterLoading } = useFilter()
-    return { breadCategory, filterData, filterLoading }
-  }
-}
-// 使用筛选区数据
-const useFilter = () => {
-  const filterData = ref(null)
-  const filterLoading = ref(false)
-  const route = useRoute()
-  watch(() => route.params.id, async (newVal, oldVal) => {
-    filterData.value = null
-    filterLoading.value = true
-    const { result } = await findSubCategoryFilter(newVal)
-    result.selectedBrand = undefined
-    result.brands.unshift({ id: undefined, name: '全部' })
-    result.saleProperties.forEach(item => {
-      item.selected = undefined
-      item.properties.unshift({ id: undefined, name: '全部' })
-    })
-    filterData.value = result
-    filterLoading.value = false
-  }, {
-    immediate: true
-  })
-  return { filterData, filterLoading }
-}
-// 使用面包屑数据
-const useBreadCategory = () => {
-  const store = useStore()
-  const route = useRoute()
-  return computed(() => {
-    const { list } = store.state.category
-    const breadCategory = {}
-    list.forEach(item => {
-      if (item.children) {
-        item.children.forEach(sub => {
-          if (route.params.id === sub.id) {
-            breadCategory.current = sub
-            breadCategory.parent = { id: item.id, name: item.name }
-          }
-        })
+    // 获取vue实例
+    const { ctx: that } = getCurrentInstance()
+    // 获取路由信息
+    const route = useRoute()
+    // 数据列表
+    const list = ref([])
+    // 是否加载中
+    const loading = ref(false)
+    // 是否加载完
+    const finished = ref(false)
+    // 查询参数
+    that.params = {
+      page: 1,
+      pageSize: 15
+    }
+    // 获取数据
+    const getData = async () => {
+      loading.value = true
+      await that.$sleep()
+      that.params.categoryId = route.params.id
+      const data = await findSubCategoryGoods(that.params)
+      list.value.push(...data.result.items)
+      loading.value = false
+      if (data.result.items.length === 0) {
+        finished.value = true
+      } else {
+        that.params.page++
       }
-    })
-    return breadCategory
-  })
+    }
+    // 筛选改变
+    const filterChange = (filterParams) => {
+      that.params = { ...that.params, ...filterParams }
+      that.params.page = 1
+      list.value = []
+      finished.value = false
+    }
+    // 排序改变
+    const sortChange = (sortParams) => {
+      that.params = { ...that.params, ...sortParams }
+      that.params.page = 1
+      list.value = []
+      finished.value = false
+    }
+    return { getData, list, loading, finished, filterChange, sortChange }
+  }
 }
 </script>
 
 <style scoped lang='less'>
-.sub-category {
-  // 筛选区
-  .xtx-filter {
-    background: #fff;
-    padding: 25px;
-    .item {
-      display: flex;
-      padding: 10px 0;
-      .head {
-        width: 80px;
-        color: #999;
-      }
-      .body {
-        flex: 1;
-        a {
-          margin-right: 36px;
-          transition: all .3s;
-          &.active,
-          &:hover {
-            color: @xtxColor;
-          }
-        }
+.goods-list {
+  background: #fff;
+  padding: 0 25px;
+  margin-top: 25px;
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0 5px;
+    li {
+      margin-right: 20px;
+      margin-bottom: 20px;
+      &:nth-child(5n) {
+        margin-right: 0;
       }
     }
   }
-}
-.goods-list {
-  background: #fff;
-  padding: 0 30px 30px;
-  margin-top: 25px;
 }
 </style>

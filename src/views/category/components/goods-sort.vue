@@ -1,6 +1,7 @@
 <template>
-  <div class='goods-list-head'>
+  <div class='goods-sort'>
     <div class="sort">
+      <a :class="{active:myFilters.sortField===''}" href="javascript:;"  @click="changeSort('')">默认排序</a>
       <a :class="{active:myFilters.sortField==='publishTime'}" href="javascript:;" @click="changeSort('publishTime')">最新商品</a>
       <a :class="{active:myFilters.sortField==='orderNum'}" href="javascript:;" @click="changeSort('orderNum')">最高人气</a>
       <a :class="{active:myFilters.sortField==='evaluateNum'}" href="javascript:;" @click="changeSort('evaluateNum')">评论最多</a>
@@ -18,37 +19,42 @@
 </template>
 
 <script>
-export default {
-  name: 'GoodsListHead',
-  data () {
-    return {
-      myFilters: {
-        sortField: '',
-        sortMethod: '',
-        inventory: false,
-        onlyDiscount: false
-      }
-    }
-  },
-  methods: {
-    changeSort (field) {
-      this.myFilters.sortField = field
-      if (field === 'price') {
-        if (this.sortMethod === '') {
-          this.myFilters.sortMethod = 'desc'
-        } else {
-          this.myFilters.sortMethod = this.myFilters.sortMethod === 'desc' ? 'asc' : 'desc'
-        }
+import { reactive, watch } from 'vue'
+const useSortData = () => {
+  const myFilters = reactive({
+    sortField: '',
+    sortMethod: '',
+    inventory: false,
+    onlyDiscount: false
+  })
+  const changeSort = (field) => {
+    myFilters.sortField = field
+    if (field === 'price') {
+      if (myFilters.sortMethod === '') {
+        myFilters.sortMethod = 'desc'
       } else {
-        this.myFilters.sortMethod = ''
+        myFilters.sortMethod = myFilters.sortMethod === 'desc' ? 'asc' : 'desc'
       }
+    } else {
+      myFilters.sortMethod = ''
     }
+  }
+  return { myFilters, changeSort }
+}
+export default {
+  name: 'GoodsSort',
+  setup (props, { emit }) {
+    const { myFilters, changeSort } = useSortData()
+    watch(myFilters, () => {
+      emit('change', myFilters)
+    })
+    return { myFilters, changeSort }
   }
 }
 </script>
 
 <style scoped lang='less'>
-.goods-list-head {
+.goods-sort {
   height: 80px;
   display: flex;
   align-items: center;
