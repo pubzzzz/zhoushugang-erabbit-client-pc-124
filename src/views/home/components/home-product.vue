@@ -114,4 +114,7 @@ export default {
     }
   }
 }
+img {
+  background: #ebebeb url(../../../assets/images/200.png) no-repeat center / contain;
+}
 </style>
