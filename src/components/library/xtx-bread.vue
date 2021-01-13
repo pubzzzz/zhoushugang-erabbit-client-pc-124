@@ -31,8 +31,8 @@ export default {
   }
   i {
     font-size: 12px;
-    margin-left: 4px;
-    margin-right: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
     line-height: 22px;
   }
 }

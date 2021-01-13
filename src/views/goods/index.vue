@@ -1,15 +1,20 @@
 <template>
-  <div class='xtx-goods-page'>
+  <div class='xtx-goods-page' v-if="goods">
     <div class="container">
       <!-- 面包屑 -->
       <XtxBread>
         <XtxBreadItem to="/">首页</XtxBreadItem>
-        <XtxBreadItem to="/">手机</XtxBreadItem>
-        <XtxBreadItem to="/">华为</XtxBreadItem>
-        <XtxBreadItem to="/">p30</XtxBreadItem>
+        <XtxBreadItem :to="'/category/'+goods.categories[0].id">{{goods.categories[0].name}}</XtxBreadItem>
+        <XtxBreadItem :to="'/category/sub/'+goods.categories[1].id">{{goods.categories[1].name}}</XtxBreadItem>
+        <XtxBreadItem>{{goods.name}}</XtxBreadItem>
       </XtxBread>
       <!-- 商品信息 -->
-      <div class="goods-info"></div>
+      <div class="goods-info">
+        <div class="media">
+          <GoodsImage :images="goods.mainPictures" />
+        </div>
+        <div class="spec"></div>
+      </div>
       <!-- 商品推荐 -->
       <GoodsRelevant />
       <!-- 商品详情 -->
@@ -29,9 +34,27 @@
 
 <script>
 import GoodsRelevant from './components/goods-relevant'
+import GoodsImage from './components/goods-image'
+import { findGoods } from '@/api/goods'
+import { ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
+// 处理商品数据
+const useGoods = () => {
+  const goods = ref(null)
+  const route = useRoute()
+  watch(() => route.params.id, async () => {
+    const data = await findGoods(route.query.id)
+    goods.value = data.result
+  }, { immediate: true })
+  return goods
+}
 export default {
   name: 'XtxGoodsPage',
-  components: { GoodsRelevant }
+  components: { GoodsRelevant, GoodsImage },
+  setup () {
+    const goods = useGoods()
+    return { goods }
+  }
 }
 </script>
 
@@ -39,6 +62,16 @@ export default {
 .goods-info {
   min-height: 600px;
   background: #fff;
+  display: flex;
+  .media {
+    width: 580px;
+    height: 600px;
+    padding: 30px 50px;
+  }
+  .spec {
+    flex: 1;
+    padding: 30px 30px 30px 0;
+  }
 }
 .goods-footer {
   display: flex;
