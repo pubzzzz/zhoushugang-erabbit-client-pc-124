@@ -96,6 +96,7 @@ export default {
       left: 0;
       top: 0;
       position: absolute;
+      z-index: 500;
     }
   }
   .small {
