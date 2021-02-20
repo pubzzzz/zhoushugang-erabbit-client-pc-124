@@ -74,6 +74,7 @@ export default {
   height: 400px;
   position: relative;
   display: flex;
+  z-index: 500;
   .large {
     position: absolute;
     top: 0;
