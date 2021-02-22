@@ -124,6 +124,7 @@ export default {
 .xtx-city {
   display: inline-block;
   position: relative;
+  z-index: 400;
   .select {
     border: 1px solid #e4e4e4;
     height: 30px;

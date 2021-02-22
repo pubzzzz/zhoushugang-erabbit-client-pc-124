@@ -16,6 +16,7 @@
         </div>
         <div class="spec">
           <GoodsName :goods="goods"/>
+          <GoodsSku :goods="goods" @change="changeSku"/>
         </div>
       </div>
       <!-- 商品推荐 -->
@@ -40,6 +41,7 @@ import GoodsRelevant from './components/goods-relevant'
 import GoodsImage from './components/goods-image'
 import GoodsSales from './components/goods-sales'
 import GoodsName from './components/goods-name'
+import GoodsSku from './components/goods-sku'
 import { findGoods } from '@/api/goods'
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -55,10 +57,18 @@ const useGoods = () => {
 }
 export default {
   name: 'XtxGoodsPage',
-  components: { GoodsRelevant, GoodsImage, GoodsSales, GoodsName },
+  components: { GoodsRelevant, GoodsImage, GoodsSales, GoodsName, GoodsSku },
   setup () {
     const goods = useGoods()
-    return { goods }
+    // sku改变时候触发
+    const changeSku = (sku) => {
+      if (sku.skuId) {
+        goods.value.price = sku.price
+        goods.value.oldPrice = sku.oldPrice
+        goods.value.inventory = sku.inventory
+      }
+    }
+    return { goods, changeSku }
   }
 }
 </script>
