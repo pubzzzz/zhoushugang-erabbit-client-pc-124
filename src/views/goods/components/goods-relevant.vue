@@ -4,26 +4,40 @@
       <i class="icon" />
       <span class="title">同类商品推荐</span>
     </div>
-    <div class="slider">
-      <a href="javascript:;" v-for="i in 4" :key="i">
-        <img src="https://yanxuan-item.nosdn.127.net/65be335760e2375432b4410adbd32b2f.png" alt="">
-        <p class="name">者或定级般器离</p>
-        <p class="price">&yen;100.00</p>
-      </a>
-    </div>
-    <div class="pager">
-      <span>1</span>
-      <span class="active">2</span>
-      <span>3</span>
-      <span>4</span>
-    </div>
+    <!-- 此处使用改造后的xtx-carousel.vue -->
+    <XtxCarousel :sliders="sliders" style="height:380px" auto-play />
   </div>
 </template>
 
 <script>
+import { findRelGoods } from '@/api/goods'
+import { ref } from 'vue'
+// 得到需要的数据
+const useRelGoodsData = (id) => {
+  const sliders = ref([])
+  findRelGoods(id).then(data => {
+    // 每页4条
+    const size = 4
+    const total = Math.ceil(data.result.length / size)
+    for (let i = 0; i < total; i++) {
+      sliders.value.push(data.result.slice(i * size, (i + 1) * size))
+    }
+  })
+  return sliders
+}
 export default {
   // 同类推荐，猜你喜欢
-  name: 'GoodsRelevant'
+  name: 'GoodsRelevant',
+  props: {
+    goodsId: {
+      type: String,
+      default: undefined
+    }
+  },
+  setup (props) {
+    const sliders = useRelGoodsData(props.goodsId)
+    return { sliders }
+  }
 }
 </script>
 
@@ -60,44 +74,24 @@ export default {
       }
     }
   }
-  .slider {
-    display: flex;
-    justify-content: space-around;
-    padding: 0 40px;
-    > a {
-      width: 240px;
-      text-align: center;
-      img {
-        padding: 20px;
-      }
-      .name {
-        font-size: 16px;
-        color: #666;
-      }
-      .price {
-        font-size: 16px;
-        color: @priceColor;
-        margin-top: 10px;
+}
+::v-deep .xtx-carousel {
+  .carousel {
+    &-indicator {
+      bottom: 30px;
+      span {
+        &.active {
+          background: @xtxColor;
+        }
       }
     }
-  }
-  .pager {
-    height: 80px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    > span {
-      width: 24px;
-      height: 24px;
-      text-align: center;
-      line-height: 24px;
-      border-radius: 50%;
-      background: lighten(@xtxColor, 50%);
-      color: @xtxColor;
-      margin: 0 10px;
-      &.active {
-        background: @xtxColor;
-        color: #fff;
+    &-btn {
+      top: 110px;
+      opacity: 1;
+      background: #fff;
+      color: #ddd;
+      i {
+        font-size: 30px;
       }
     }
   }
