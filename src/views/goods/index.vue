@@ -22,17 +22,20 @@
         </div>
       </div>
       <!-- 商品推荐 -->
-      <GoodsRelevant />
+      <GoodsRelevant :goodsId="goods.id"/>
       <!-- 商品详情 -->
       <div class="goods-footer">
         <div class="goods-article">
           <!-- 商品+评价 -->
-          <div class="goods-tabs"></div>
+          <GoodsTabs :goods="goods" />
           <!-- 注意事项 -->
           <div class="goods-warn"></div>
         </div>
         <!-- 24热榜+专题推荐 -->
-        <div class="goods-aside"></div>
+        <div class="goods-aside">
+          <GoodsHot />
+          <GoodsHot :type="2" />
+        </div>
       </div>
     </div>
   </div>
@@ -44,6 +47,8 @@ import GoodsImage from './components/goods-image'
 import GoodsSales from './components/goods-sales'
 import GoodsName from './components/goods-name'
 import GoodsSku from './components/goods-sku'
+import GoodsTabs from './components/goods-tabs'
+import GoodsHot from './components/goods-hot'
 import { findGoods } from '@/api/goods'
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -59,7 +64,7 @@ const useGoods = () => {
 }
 export default {
   name: 'XtxGoodsPage',
-  components: { GoodsRelevant, GoodsImage, GoodsSales, GoodsName, GoodsSku },
+  components: { GoodsRelevant, GoodsImage, GoodsSales, GoodsName, GoodsSku, GoodsTabs, GoodsHot },
   setup () {
     const goods = useGoods()
     // sku改变时候触发
@@ -103,10 +108,6 @@ export default {
     width: 280px;
     min-height: 1000px;
   }
-}
-.goods-tabs {
-  min-height: 600px;
-  background: #fff;
 }
 .goods-warn {
   min-height: 600px;
