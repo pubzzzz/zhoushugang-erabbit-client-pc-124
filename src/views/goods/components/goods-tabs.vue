@@ -15,7 +15,7 @@
       >
     </nav>
     <!-- 这个位置显示对应的组件 GoodsDetail 或者 GoodsComment -->
-    <component :is="'goods-'+activeName" />
+    <component :is="'goods-'+activeName" :goods="goods" />
   </div>
 </template>
 <script>
@@ -25,6 +25,12 @@ import GoodsComment from './goods-comment'
 export default {
   name: 'GoodsTabs',
   components: { GoodsDetail, GoodsComment },
+  props: {
+    goods: {
+      type: Object,
+      default: () => {}
+    }
+  },
   setup () {
     // detail-->详情   comment-->评价
     const activeName = ref('detail')
