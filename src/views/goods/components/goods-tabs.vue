@@ -11,7 +11,7 @@
         :class="{ active: activeName === 'comment' }"
         href="javascript:;"
         @click="clickTab('comment')"
-        >商品评价<span>(500+)</span></a
+        >商品评价<span>({{goods.commentCount}})</span></a
       >
     </nav>
     <!-- 这个位置显示对应的组件 GoodsDetail 或者 GoodsComment -->

@@ -51,7 +51,7 @@ import GoodsTabs from './components/goods-tabs'
 import GoodsHot from './components/goods-hot'
 import GoodsWarn from './components/goods-warn'
 import { findGoods } from '@/api/goods'
-import { ref, watch } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 // 处理商品数据
 const useGoods = () => {
@@ -59,7 +59,10 @@ const useGoods = () => {
   const route = useRoute()
   watch(() => route.params.id, async () => {
     const data = await findGoods(route.query.id)
-    goods.value = data.result
+    goods.value = null
+    nextTick(() => {
+      goods.value = data.result
+    })
   }, { immediate: true })
   return goods
 }

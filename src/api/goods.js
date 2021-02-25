@@ -25,3 +25,20 @@ export const findRelGoods = (id, limit = 16) => {
 export const findHotGoods = (type, limit = 3) => {
   return request('/goods/hot', 'get', { type, limit })
 }
+
+/**
+ * 获取商品的评价统计信息
+ * @param {String} id - 商品ID
+ */
+export const findCommentInfoByGoods = (id) => {
+  return request(`/goods/${id}/evaluate`, 'get')
+}
+
+/**
+ * 获取商品的评价列表信息
+ * @param {String} id - 商品ID
+ * @param {Object} reqParams - 筛选条件
+ */
+export const findCommentListByGoods = (id, reqParams) => {
+  return request(`/goods/${id}/evaluate/page`, 'get', reqParams)
+}

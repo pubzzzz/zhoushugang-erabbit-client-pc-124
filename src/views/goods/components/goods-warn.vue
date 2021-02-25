@@ -7,11 +7,9 @@
       单笔订单金额(不含运费)满88元免邮费；不满88元，每单收取10元运费。（港澳台地区需满500元免邮费；不满500元，每单收取30元运费)
     </p>
     <br />
-    <br />
     <p class="tit">• 使用什么快递发货?</p>
     <p>默认使用顺丰快递发货(个别商品使用其他快递）</p>
-    <p>配送范围覆盖全国大部分地区(港澳台地区除外）。</p>
-    <br />
+    <p>配送范围覆盖全国大部分地区(港澳台地区除外）</p>
     <br />
     <p class="tit">• 如何申请退货?</p>
     <p>
@@ -33,8 +31,8 @@
   background: #fff;
   padding-bottom: 40px;
   h3 {
-    height: 80px;
-    line-height: 80px;
+    height: 70px;
+    line-height: 70px;
     border-bottom: 1px solid #f5f5f5;
     padding-left: 50px;
     font-size: 18px;

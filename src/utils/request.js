@@ -42,3 +42,5 @@ const request = (url, method, submitData) => {
 }
 
 export default request
+
+export const myAxios = instance
