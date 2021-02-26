@@ -41,7 +41,7 @@
   }
   p {
     line-height: 40px;
-    padding-left: 25px;
+    padding: 0 25px;
     color: #666;
     &.tit {
       color: #333;

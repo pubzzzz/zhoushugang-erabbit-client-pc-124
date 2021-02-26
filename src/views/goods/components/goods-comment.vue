@@ -22,20 +22,20 @@
       </div>
     </div>
     <!-- 排序 -->
-    <div class="sort">
+    <div class="sort" v-if="commentInfo">
       <span>排序：</span>
       <a
-        @click="reqParams.sortField=null"
+        @click="changeSort(null)"
         href="javascript:;"
         :class="{active:reqParams.sortField===null}"
       >默认</a>
       <a
-        @click="reqParams.sortField='praiseCount'"
+        @click="changeSort('praiseCount')"
         href="javascript:;"
         :class="{active:reqParams.sortField==='praiseCount'}"
       >最热</a>
       <a
-        @click="reqParams.sortField='createTime'"
+        @click="changeSort('createTime')"
         href="javascript:;"
         :class="{active:reqParams.sortField==='createTime'}"
       >最新</a>
@@ -63,6 +63,8 @@
         </div>
       </div>
     </div>
+    <!-- 分页 -->
+    <XtxPagination @current-change="changePager" :total="total" :current-page="reqParams.page"  />
   </div>
 </template>
 <script>
@@ -106,6 +108,12 @@ export default {
         reqParams.hasPicture = false
         reqParams.tag = currTag.title
       }
+      reqParams.page = 1
+    }
+    // 改变排序
+    const changeSort = (type) => {
+      reqParams.sortField = type
+      reqParams.page = 1
     }
     // 筛选条件准备
     const reqParams = reactive({
@@ -118,6 +126,7 @@ export default {
     })
     // 初始化或者筛选条件改变后，获取列表数据。
     const commentList = ref([])
+    const total = ref(0)
     watch(reqParams, async () => {
       const data = await findCommentListByGoods(props.goods.id, reqParams)
       commentList.value = data.result.items.map(item => {
@@ -128,8 +137,13 @@ export default {
         item.orderInfo.specsText = item.orderInfo.specs.reduce((p, n) => `${p} ${n.name}：${n.nameValue}`, '')
         return item
       })
+      total.value = data.result.counts
     }, { immediate: true })
-    return { commentInfo, currTagIndex, changeTag, reqParams, commentList }
+    // 改变分页
+    const changePager = (np) => {
+      reqParams.page = np
+    }
+    return { commentInfo, currTagIndex, changeTag, reqParams, changeSort, commentList, total, changePager }
   }
 }
 </script>
