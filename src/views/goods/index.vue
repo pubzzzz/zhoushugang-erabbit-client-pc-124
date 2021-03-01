@@ -91,10 +91,10 @@ export default {
     const store = useStore()
     const insertCart = () => {
       if (!currSku.value) {
-        return instance.ctx.$message('请选择商品规格')
+        return instance.proxy.$message('请选择商品规格')
       }
       if (num.value > goods.inventory) {
-        return instance.ctx.$message('库存不足')
+        return instance.proxy.$message('库存不足')
       }
       store.dispatch('cart/insertCart', {
         id: goods.value.id,

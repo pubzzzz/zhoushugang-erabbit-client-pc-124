@@ -35,7 +35,7 @@ export default {
   components: { SubBread, SubFilter, GoodsSort, GoodsItem },
   setup () {
     // 获取vue实例
-    const { ctx: that } = getCurrentInstance()
+    const { proxy: that } = getCurrentInstance()
     // 获取路由信息
     const route = useRoute()
     // 数据列表
