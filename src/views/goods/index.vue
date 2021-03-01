@@ -18,7 +18,7 @@
           <GoodsName :goods="goods"/>
           <GoodsSku :goods="goods" @change="changeSku"/>
           <XtxNumbox label="数量" v-model="num" :max="goods.inventory"/>
-          <XtxButton type="primary" style="margin-top:20px;">加入购物车</XtxButton>
+          <XtxButton @click="insertCart()" type="primary" style="margin-top:20px;">加入购物车</XtxButton>
         </div>
       </div>
       <!-- 商品推荐 -->
@@ -51,8 +51,9 @@ import GoodsTabs from './components/goods-tabs'
 import GoodsHot from './components/goods-hot'
 import GoodsWarn from './components/goods-warn'
 import { findGoods } from '@/api/goods'
-import { nextTick, ref, watch } from 'vue'
+import { getCurrentInstance, nextTick, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
 // 处理商品数据
 const useGoods = () => {
   const goods = ref(null)
@@ -77,11 +78,39 @@ export default {
         goods.value.price = sku.price
         goods.value.oldPrice = sku.oldPrice
         goods.value.inventory = sku.inventory
+        currSku.value = sku
+      } else {
+        currSku.value = null
       }
     }
     // 选择的数量
     const num = ref(1)
-    return { goods, changeSku, num }
+    // 加入购物车逻辑
+    const currSku = ref(null)
+    const instance = getCurrentInstance()
+    const store = useStore()
+    const insertCart = () => {
+      if (!currSku.value) {
+        return instance.ctx.$message('请选择商品规格')
+      }
+      if (num.value > goods.inventory) {
+        return instance.ctx.$message('库存不足')
+      }
+      store.dispatch('cart/insertCart', {
+        id: goods.value.id,
+        skuId: currSku.value.skuId,
+        name: goods.value.name,
+        picture: goods.value.mainPictures[0],
+        price: currSku.value.price,
+        count: num.value,
+        attrsText: currSku.value.specsText,
+        selected: false,
+        stock: currSku.value.inventory
+      }).then(() => {
+        instance.ctx.$message('加入购物车成功', 'success')
+      })
+    }
+    return { goods, changeSku, num, insertCart }
   }
 }
 </script>
