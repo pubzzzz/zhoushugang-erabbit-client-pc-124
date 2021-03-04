@@ -42,3 +42,11 @@ export const findCommentInfoByGoods = (id) => {
 export const findCommentListByGoods = (id, reqParams) => {
   return request(`/goods/${id}/evaluate/page`, 'get', reqParams)
 }
+
+/**
+ * 获取商品的最新价格和库存和是否有效
+ * @param {String} skuId - 商品SKUID
+ */
+export const findGoodsNewInfo = (skuId) => {
+  return request(`/goods/stock/${skuId}`, 'get')
+}

@@ -102,9 +102,11 @@ export default {
         name: goods.value.name,
         picture: goods.value.mainPictures[0],
         price: currSku.value.price,
+        nowPrice: currSku.value.price,
         count: num.value,
         attrsText: currSku.value.specsText,
-        selected: false,
+        selected: true,
+        isEffective: true,
         stock: currSku.value.inventory
       }).then(() => {
         instance.ctx.$message('加入购物车成功', 'success')
