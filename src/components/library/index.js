@@ -4,6 +4,7 @@
 // import XtxBread from './xtx-bread'
 // import XtxBreadItem from './xtx-bread-item'
 import { createVNode, render } from 'vue'
+import Confirm from './confirm'
 const importFn = require.context('./', false, /\.vue$/)
 
 export default {
@@ -64,5 +65,9 @@ const bindPrototype = (app) => {
         resolve()
       }, duration)
     })
+  }
+  // 确认框
+  app.config.globalProperties.$confirm = (config) => {
+    return Confirm(app, config)
   }
 }
