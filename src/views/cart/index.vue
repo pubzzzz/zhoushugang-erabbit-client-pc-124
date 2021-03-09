@@ -23,10 +23,11 @@
               <td><XtxCheckbox @change="checkOne(item)" :modelValue="item.selected" /></td>
               <td>
                 <div class="goods">
-                  <RouterLink to="/"><img :src="item.picture" alt=""></RouterLink>
+                  <RouterLink :to="`/product/${item.id}`"><img :src="item.picture" alt=""></RouterLink>
                   <div>
                     <p class="name ellipsis">{{item.name}}</p>
                     <!-- 选择规格组件 -->
+                    <CartSku :text="item.attrsText" :skuId="item.skuId" @change="$event=>updateSku($event,item)" />
                   </div>
                 </div>
               </td>
@@ -37,7 +38,7 @@
                 </p>
               </td>
               <td class="tc">
-                <XtxNumbox :modelValue="item.count" />
+                <XtxNumbox :max="item.stock" :modelValue="item.count" @change="$event=>updateNum($event,item)" />
               </td>
               <td class="tc">
                 <p class="f16 red">&yen;{{item.nowPrice*100*item.count/100}}</p>
@@ -78,14 +79,14 @@
       <div v-if="$store.state.cart.list.length" class="action">
         <div class="batch">
           <XtxCheckbox @change="checkAll" :modelValue="$store.getters['cart/isCheckAll']">全选</XtxCheckbox>
-          <a href="javascript:;">删除商品</a>
+          <a @click="batchDeleteSelectedCart()" href="javascript:;">删除商品</a>
           <a href="javascript:;">移入收藏夹</a>
-          <a href="javascript:;">清空失效商品</a>
+          <a @click="batchDeleteInvalidCart()" href="javascript:;">清空失效商品</a>
         </div>
         <div class="total">
           共 {{$store.getters['cart/validTotal']}} 件商品，已选择 {{$store.getters['cart/selectedTotal']}} 件，商品合计：
           <span class="red">&yen;{{$store.getters['cart/selectedAmount']}}</span>
-          <XtxButton type="primary">下单结算</XtxButton>
+          <XtxButton type="primary" @click="checkout()">下单结算</XtxButton>
         </div>
       </div>
       <!-- 没有商品 -->
@@ -101,9 +102,11 @@ import CartNone from '@/views/cart/components/cart-none'
 import { useStore } from 'vuex'
 import Confirm from '@/components/library/confirm'
 import { getCurrentInstance } from 'vue'
+import CartSku from './components/cart-sku'
+import { useRouter } from 'vue-router'
 export default {
   name: 'XtxCartPage',
-  components: { GoodRelevant, CartNone },
+  components: { GoodRelevant, CartNone, CartSku },
   setup () {
     const store = useStore()
     // 单选操作
@@ -120,12 +123,84 @@ export default {
     const deleteCart = (item) => {
       Confirm(app, { text: ' 您确认从购物车删除该商品吗？' }).then(() => {
         // console.log('点击确认')
-        store.dispatch('cart/deleteCart', item.skuId)
+        store.dispatch('cart/deleteCart', [item.skuId])
       }).catch(e => {
         // console.log('点击取消')
       })
     }
-    return { checkOne, checkAll, deleteCart }
+    // 批量删除选中商品
+    const batchDeleteSelectedCart = () => {
+      Confirm(app, { text: ' 您确认从购物车批量删除选中商品吗？' }).then(() => {
+        const skuIds = store.getters['cart/selectedList'].map(item => item.skuId)
+        store.dispatch('cart/deleteCart', skuIds)
+      }).catch(e => {})
+    }
+    // 清空无效商品
+    const batchDeleteInvalidCart = () => {
+      Confirm(app, { text: ' 您确认从购物车批量删除无效商品吗？' }).then(() => {
+        const skuIds = store.getters['cart/invalidList'].map(item => item.skuId)
+        store.dispatch('cart/deleteCart', skuIds)
+      }).catch(e => {})
+    }
+    // 修改商品规格
+    const updateSku = async (newSku, oldGoods) => {
+      const sameGoods = store.state.cart.list.find(item => item.skuId === newSku.skuId)
+      await store.dispatch('cart/deleteCart', [oldGoods.skuId])
+      if (sameGoods) {
+        // 已经有相同的，删除当前商品，更新相同商品数据
+        await store.dispatch('cart/updateCart', {
+          skuId: sameGoods.skuId,
+          count: sameGoods.count + oldGoods.count
+        })
+      } else {
+        // 而没有相同的，删除当前商品，加条新的商品数据
+        await store.dispatch('cart/insertCart', {
+          id: newSku.id,
+          skuId: newSku.skuId,
+          name: oldGoods.name,
+          picture: oldGoods.picture,
+          price: newSku.price,
+          nowPrice: newSku.price,
+          count: oldGoods.count,
+          attrsText: newSku.specsText,
+          selected: oldGoods.selected,
+          isEffective: oldGoods.isEffective,
+          stock: newSku.inventory
+        })
+      }
+    }
+
+    // 修改数量
+    const updateNum = async (count, item) => {
+      await store.dispatch('cart/updateCart', {
+        skuId: item.skuId,
+        count
+      })
+    }
+
+    // 去结算
+    const router = useRouter()
+    const checkout = () => {
+      if (store.getters['cart/selectedList'].length <= 0) return
+      if (store.state.user.profile.token) {
+        router.push('/member/checkout')
+      } else {
+        Confirm(app, { text: '您需要登录后才能进行结算，确认去登录吗？' }).then(() => {
+          router.push('/member/checkout')
+        }).catch(e => {})
+      }
+    }
+
+    return {
+      checkOne,
+      checkAll,
+      deleteCart,
+      batchDeleteSelectedCart,
+      batchDeleteInvalidCart,
+      updateSku,
+      updateNum,
+      checkout
+    }
   }
 }
 </script>

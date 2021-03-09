@@ -31,8 +31,10 @@ export default {
   },
   methods: {
     ...mapMutations('user', ['setUser']),
+    ...mapMutations('cart', ['setCart']),
     logout () {
       this.setUser({})
+      this.setCart([])
       this.$router.push('/login')
     }
   }

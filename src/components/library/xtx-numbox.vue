@@ -36,7 +36,7 @@ export default {
       if (newValue < props.min) return
       if (newValue > props.max) return
       num.value = newValue
-      emit('change', num.value)
+      emit('change', newValue)
     }
     return { num, changeNum }
   }

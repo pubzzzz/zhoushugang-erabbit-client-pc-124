@@ -50,3 +50,11 @@ export const findCommentListByGoods = (id, reqParams) => {
 export const findGoodsNewInfo = (skuId) => {
   return request(`/goods/stock/${skuId}`, 'get')
 }
+
+/**
+ * 根据商品SKUID获取  属性和sku信息
+ * @param {String} skuId - 商品SKUID
+ */
+export const findGoodsSkus = (skuId) => {
+  return request(`/goods/sku/${skuId}`, 'get')
+}

@@ -1,4 +1,5 @@
 // 购物车状态
+import { checkCart, deleteCart, findCart, insertCart, mergeCart, updateCart } from '@/api/cart'
 import { findGoodsNewInfo } from '@/api/goods'
 export default {
   namespaced: true,
@@ -68,14 +69,28 @@ export default {
         const goods = state.list.find(item => item.skuId === skuId)
         goods.selected = selected
       })
+    },
+    // 设置购物车
+    setCart (state, list) {
+      state.list = list
     }
   },
   actions: {
+    // 合并购物车
+    async mergeCart (ctx) {
+      const cartList = ctx.state.list.map(({ skuId, selected, count }) => ({ skuId, selected, count }))
+      await mergeCart(cartList)
+      ctx.commit('setCart', [])
+    },
     // 查询购物车信息
     findCart (ctx) {
       return new Promise((resolve, reject) => {
-        if (ctx.rootState.user.token) {
-          // 已登录 TODO
+        if (ctx.rootState.user.profile.token) {
+          // 已登录
+          findCart().then(data => {
+            ctx.commit('setCart', data.result)
+            resolve()
+          })
         } else {
           // 未登录
           // 根据本地购物车查询商品最新信息，更新本地购物车
@@ -93,9 +108,14 @@ export default {
     },
     insertCart (ctx, goods) {
       return new Promise((resolve, reject) => {
-        if (ctx.rootState.user.token) {
-          // 已登录 TODO
-
+        if (ctx.rootState.user.profile.token) {
+          // 已登录
+          insertCart({ skuId: goods.skuId, count: goods.count }).then(() => {
+            return findCart()
+          }).then(data => {
+            ctx.commit('setCart', data.result)
+            resolve()
+          })
         } else {
           // 未登录
           ctx.commit('insertCart', goods)
@@ -103,23 +123,38 @@ export default {
         }
       })
     },
-    deleteCart (ctx, skuId) {
+    deleteCart (ctx, skuIds) {
       return new Promise((resolve, reject) => {
-        if (ctx.rootState.user.token) {
+        if (ctx.rootState.user.profile.token) {
           // 已登录 TODO
-
+          deleteCart(skuIds).then(() => {
+          //   return findCart()
+          // }).then(data => {
+          // 减少一次请求
+            skuIds.forEach(skuId => {
+              ctx.commit('deleteCart', skuId)
+            })
+            resolve()
+          })
         } else {
           // 未登录
-          ctx.commit('deleteCart', skuId)
+          skuIds.forEach(skuId => {
+            ctx.commit('deleteCart', skuId)
+          })
           resolve()
         }
       })
     },
     updateCart (ctx, goods) {
       return new Promise((resolve, reject) => {
-        if (ctx.rootState.user.token) {
+        if (ctx.rootState.user.profile.token) {
           // 已登录 TODO
-
+          updateCart(goods).then(() => {
+            return findCart()
+          }).then(data => {
+            ctx.commit('setCart', data.result)
+            resolve()
+          })
         } else {
           // 未登录
           ctx.commit('updateCart', goods)
@@ -130,9 +165,14 @@ export default {
     // 单选操作，全选操作。 payload === {skuIds,selected}
     checkCart (ctx, payload) {
       return new Promise((resolve, reject) => {
-        if (ctx.rootState.user.token) {
+        if (ctx.rootState.user.profile.token) {
           // 已登录 TODO
-
+          checkCart(payload).then(() => {
+            return findCart()
+          }).then(data => {
+            ctx.commit('setCart', data.result)
+            resolve()
+          })
         } else {
           // 未登录
           ctx.commit('checkCart', payload)

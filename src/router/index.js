@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+import store from '@/store'
 
 const Layout = () => import('@/views/Layout')
 const Home = () => import('@/views/home/index')
@@ -32,6 +33,15 @@ const router = createRouter({
   scrollBehavior () {
     return { left: 0, top: 0 }
   }
+})
+
+// 访问权限控制
+router.beforeEach((to, from, next) => {
+  if (to.path.startsWith('/member') && !store.state.user.profile.token) {
+    // 拦截去登录(带上回跳地址)
+    return next({ path: '/login', query: { redirectUrl: to.fullPath } })
+  }
+  next()
 })
 
 export default router

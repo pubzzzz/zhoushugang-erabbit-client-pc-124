@@ -153,6 +153,9 @@ export default {
             this.setUser(data.result)
           }
           this.$message('登录成功', 'success')
+          // 合并购物车
+          this.$store.dispatch('cart/mergeCart')
+
           const redirectUrl = this.$route.query.redirectUrl || '/'
           this.$router.push(redirectUrl)
         } catch (e) {
