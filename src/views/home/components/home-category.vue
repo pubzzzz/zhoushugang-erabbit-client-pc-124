@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { findHotBrand } from '@/api/brand'
+import { findHotBrand } from '@/api/home'
 export default {
   name: 'HomeCategory',
   data () {

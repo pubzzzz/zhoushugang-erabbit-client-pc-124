@@ -19,3 +19,7 @@ export const findGoods = () => {
 export const findSpecial = () => {
   return request('home/special', 'get')
 }
+
+export const findHotBrand = (payload) => {
+  return request('/home/brand', 'get', payload)
+}

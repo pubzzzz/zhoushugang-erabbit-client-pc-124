@@ -59,7 +59,7 @@ export default {
     // 确认事件
     const submit = () => {
       close()
-      if (changedSku.value.skuId && changedSku.value.skuId !== props.skuId) {
+      if (changedSku.value && changedSku.value.skuId && changedSku.value.skuId !== props.skuId) {
         // 选择了一个有效的skuId且和默认的不一致，才去更新
         emit('change', changedSku.value)
       }

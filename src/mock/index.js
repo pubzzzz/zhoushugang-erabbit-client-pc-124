@@ -8,5 +8,5 @@ Mock.setup({
 })
 
 // 拦截请求
-Mock.mock(/\/category\/all\.*/, 'get', category.all)
-Mock.mock(/\/brand\/hot\.*/, 'get', brand.hot)
+Mock.mock(/\/category\/head\.*/, 'get', category.all)
+Mock.mock(/\/home\/brand\.*/, 'get', brand.hot)

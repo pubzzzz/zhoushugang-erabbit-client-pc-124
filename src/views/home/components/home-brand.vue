@@ -25,7 +25,7 @@
 import HomePanel from './home-panel'
 import { computed, ref } from 'vue'
 import { useLazyData } from '@/hooks'
-import { findHotBrand } from '@/api/brand'
+import { findHotBrand } from '@/api/home'
 export default {
   name: 'HomeBrand',
   components: { HomePanel },
