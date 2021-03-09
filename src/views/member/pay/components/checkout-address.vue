@@ -10,13 +10,20 @@
       <a v-if="selectedAddress.id" href="javascript:;">修改地址</a>
     </div>
     <div class="action">
-      <XtxButton class="btn">切换地址</XtxButton>
+      <XtxButton @click="dialogVisible=true" class="btn">切换地址</XtxButton>
       <XtxButton class="btn">添加地址</XtxButton>
     </div>
+    <XtxDialog title="切换收货地址" v-model:visible="dialogVisible">
+      对话框内容
+      <template v-slot:footer>
+        <XtxButton @click="dialogVisible=false" type="gray" style="margin-right:20px">取消</XtxButton>
+        <XtxButton @click="dialogVisible=false" type="primary">确认</XtxButton>
+      </template>
+    </XtxDialog>
   </div>
 </template>
 <script>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 export default {
   name: 'CheckoutAddress',
   props: {
@@ -33,7 +40,9 @@ export default {
       if (defaultAddress) return defaultAddress
       else return props.list[0]
     })
-    return { selectedAddress }
+    // 对话框显示隐藏
+    const dialogVisible = ref(false)
+    return { selectedAddress, dialogVisible }
   }
 }
 </script>
