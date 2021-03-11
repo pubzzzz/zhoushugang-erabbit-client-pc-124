@@ -84,11 +84,13 @@ export default {
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     background-repeat: no-repeat;
     background-size: 800px 800px;
+    background-color: #f8f8f8;
   }
   .middle {
     width: 400px;
     height: 400px;
     position: relative;
+    background-color: #f8f8f8;
     cursor: move;
     .layer {
       width: 200px;

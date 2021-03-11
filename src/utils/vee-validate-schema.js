@@ -12,7 +12,7 @@ const schema = {
   },
   password (value) {
     if (!value) return '请输入密码'
-    if (value.length < 8 || value.length > 24) return '密码8-24个字符'
+    if (value.length < 6 || value.length > 24) return '密码6-24个字符'
     return true
   },
   isAgree (value) {

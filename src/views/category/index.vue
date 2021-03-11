@@ -67,15 +67,15 @@ export default {
   },
   watch: {
     '$route.params.id': {
-      handler () {
-        this.loadData()
+      handler (now) {
+        now && this.loadData()
       },
       immediate: true
     }
   },
   methods: {
     async loadData () {
-      const data = await findTopCategory()
+      const data = await findTopCategory(this.$route.params.id)
       this.subCategoryList = data.result.children
     }
   }

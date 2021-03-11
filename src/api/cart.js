@@ -21,7 +21,7 @@ export const findCart = () => {
  * @param {String} skuId - 商品SKUID
  * @param {Number} count - 商品数量
  */
-export const insertCart = (skuId, count) => {
+export const insertCart = ({ skuId, count }) => {
   return request('/member/cart', 'post', { skuId, count })
 }
 
@@ -38,7 +38,7 @@ export const deleteCart = (skuIds) => {
  * @param {Array<String>} skuIds - 商品skuId集合
  * @param {Boolean} selected - 是否选中
  */
-export const checkCart = (skuIds, selected) => {
+export const checkCart = ({ skuIds, selected }) => {
   return request('/member/cart/selected', 'put', { ids: skuIds, selected })
 }
 
@@ -47,5 +47,5 @@ export const checkCart = (skuIds, selected) => {
  * @param {Object} goods - 购物车商品对象(支持selected count)
  */
 export const updateCart = (goods) => {
-  return request(`member/cart/${goods.skuId}`, 'put', goods)
+  return request(`/member/cart/${goods.skuId}`, 'put', goods)
 }

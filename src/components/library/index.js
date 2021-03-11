@@ -3,8 +3,9 @@
 // import XtxMore from './xtx-more.vue'
 // import XtxBread from './xtx-bread'
 // import XtxBreadItem from './xtx-bread-item'
-import { createVNode, render } from 'vue'
+
 import Confirm from './confirm'
+import Message from './message'
 const importFn = require.context('./', false, /\.vue$/)
 
 export default {
@@ -44,19 +45,8 @@ const defineDirective = (app) => {
 // 原型函数
 const bindPrototype = (app) => {
   // 消息提示
-  const messageConfig = { timer: null, duration: 3000 }
-  const messageContainer = document.createElement('div')
-  messageContainer.setAttribute('class', 'message-container')
-  document.body.append(messageContainer)
   app.config.globalProperties.$message = (text, type) => {
-    const messageCom = importFn('./xtx-message.vue').default
-    const vn = createVNode(messageCom, { type, text })
-    vn.appContext = app._context
-    render(vn, messageContainer)
-    clearTimeout(messageConfig.timer)
-    messageConfig.timer = setTimeout(() => {
-      render(null, messageContainer)
-    }, messageConfig.duration)
+    Message(app, { text, type })
   }
   // 延时
   app.config.globalProperties.$sleep = (duration = 500) => {

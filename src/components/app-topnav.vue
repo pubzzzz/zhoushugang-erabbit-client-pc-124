@@ -4,7 +4,12 @@
       <ul>
         <!-- 登录后展示 -->
         <template v-if="profile.token">
-          <li><RouterLink to="/member"><i class="iconfont icon-user"></i>{{profile.nickname}}</RouterLink></li>
+          <li>
+            <RouterLink to="/member">
+              <i class="iconfont icon-user"></i>
+              {{profile.nickname||profile.mobile.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')}}
+            </RouterLink>
+          </li>
           <li><a href="javascript:" @click="logout()">退出登录</a></li>
         </template>
         <!-- 未登录展示 -->

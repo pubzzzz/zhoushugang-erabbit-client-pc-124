@@ -72,10 +72,12 @@ export default {
 .cart-sku {
   height: 28px;
   border: 1px solid #f5f5f5;
-  padding-left: 10px;
+  padding: 0 6px;
   position: relative;
   margin-top: 10px;
+  display:inline-block;
   .attrs {
+    line-height: 24px;
     display: flex;
     span {
       max-width: 230px;
@@ -83,11 +85,8 @@ export default {
       color: #999;
     }
     i {
-      width: 28px;
-      height: 26px;
-      line-height: 26px;
-      text-align: center;
-      transition: all 0.4s;
+      margin-left: 5px;
+      font-size: 14px;
     }
   }
   .layer {

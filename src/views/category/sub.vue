@@ -47,12 +47,11 @@ export default {
     // 查询参数
     that.params = {
       page: 1,
-      pageSize: 15
+      pageSize: 20
     }
     // 获取数据
     const getData = async () => {
       loading.value = true
-      await that.$sleep()
       that.params.categoryId = route.params.id
       const data = await findSubCategoryGoods(that.params)
       list.value.push(...data.result.items)

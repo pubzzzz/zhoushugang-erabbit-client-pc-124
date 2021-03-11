@@ -1,7 +1,7 @@
 <template>
   <div class="xtx-city" ref="target">
     <div class="select" @click="toggleDialog" :class="{active}">
-      <span v-if="!fullName" class="placeholder">请选择配送地址</span>
+      <span v-if="!fullName" class="placeholder">{{placeholder}}</span>
       <span v-else class="value">{{fullName}}</span>
       <i class="iconfont icon-angle-down"></i>
     </div>
@@ -41,6 +41,10 @@ export default {
     countyCode: {
       type: String,
       default: ''
+    },
+    placeholder: {
+      type: String,
+      default: '请选择配送地址'
     }
   },
   setup (props, { emit }) {
@@ -107,11 +111,24 @@ export default {
       cityCode: '',
       countyCode: ''
     })
+    // 获取完整中文
+    const getFullLaction = () => {
+      const arr = []
+      const province = allData.value.find(p => p.code === changeResult.provinceCode)
+      arr.push(province.name)
+      const city = province.areaList.find(c => c.code === changeResult.cityCode)
+      arr.push(city.name)
+      const county = city.areaList.find(y => y.code === changeResult.countyCode)
+      arr.push(county.name)
+      return arr.join(' ')
+    }
+    // 选择完成
     const changeItem = (item) => {
       if (item.level === 0) changeResult.provinceCode = item.code
       if (item.level === 1) changeResult.cityCode = item.code
       if (item.level === 2) {
         changeResult.countyCode = item.code
+        changeResult.fullLaction = getFullLaction()
         emit('change', changeResult)
         closeDialog()
       }

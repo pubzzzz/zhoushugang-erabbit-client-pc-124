@@ -1,4 +1,4 @@
-import { defaultCategory } from '@/api/constans'
+import { defaultCategory } from '@/api/constants'
 import { findAllCategory } from '@/api/category'
 export default {
   namespaced: true,

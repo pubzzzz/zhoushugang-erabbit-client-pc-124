@@ -4,8 +4,8 @@ import router from '@/router'
 
 // 创建一个新的axios实例
 const instance = axios.create({
-  baseURL: 'https://mock.boxuegu.com/mock/1175/',
-  // baseURL: 'http://pcapi-xiaotuxian-front.itheima.net/',
+  // baseURL: 'https://mock.boxuegu.com/mock/1175/',
+  baseURL: 'http://pcapi-xiaotuxian-front.itheima.net/',
   timeout: 5000
 })
 
@@ -13,7 +13,7 @@ const instance = axios.create({
 instance.interceptors.request.use(config => {
   config.headers['souce-client'] = 'pc'
   // 如果token存在在请求头携带
-  const { token } = store.state.user
+  const { token } = store.state.user.profile
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 }, e => Promise.reject(e))
