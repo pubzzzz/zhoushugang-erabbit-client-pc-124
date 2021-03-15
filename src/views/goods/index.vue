@@ -4,7 +4,7 @@
       <!-- 面包屑 -->
       <XtxBread>
         <XtxBreadItem to="/">首页</XtxBreadItem>
-        <XtxBreadItem v-if="goods.categories" :to="'/category/'+goods.categories[0].id">{{goods.categories[0].name}}</XtxBreadItem>
+        <XtxBreadItem v-if="goods.categories" :to="'/category/'+goods.categories[2].id">{{goods.categories[2].name}}</XtxBreadItem>
         <XtxBreadItem v-if="goods.categories" :to="'/category/sub/'+goods.categories[1].id">{{goods.categories[1].name}}</XtxBreadItem>
         <XtxBreadItem>{{goods.name}}</XtxBreadItem>
       </XtxBread>
@@ -60,7 +60,8 @@ const useGoods = () => {
   const route = useRoute()
   watch(() => route.params.id, async () => {
     if (route.params.id && route.path.startsWith('/product')) {
-      const data = await findGoods(route.params.id)
+      // 目前写死只有一个商品
+      const data = await findGoods('1369155859933827074')
       goods.value = null
       nextTick(() => {
         goods.value = data.result

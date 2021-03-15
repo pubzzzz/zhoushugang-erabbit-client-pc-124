@@ -11,7 +11,7 @@
         <span class="icon iconfont icon-queren2"></span>
         <div class="tip">
           <p>订单提交成功！请尽快完成支付。</p>
-          <p>支付还剩 <span>{{time}}</span>, 超时后将取消订单</p>
+          <p>支付还剩 <span>{{timeText}}</span>, 超时后将取消订单</p>
         </div>
         <div class="amount">
           <span>应付总额：</span>
@@ -23,8 +23,8 @@
         <p class="head">选择以下支付方式付款</p>
         <div class="item">
           <p>支付平台</p>
-          <a class="btn" href="javascript:;">微信</a>
-          <a class="btn" :href="`http://pcapi-xiaotuxian-front.itheima.net/pay/aliPay?orderId=${order.id}`" target="_blank">支付宝</a>
+          <a class="btn wx" @click="$router.push('/pay/callback?orderId=1369595674747736065')" href="javascript:;"></a>
+          <a class="btn alipay" @click="visibleDialog=true" :href="payUrl" target="_blank"></a>
         </div>
         <div class="item">
           <p>支付方式</p>
@@ -36,19 +36,32 @@
         </div>
       </div>
     </div>
+    <XtxDialog title="正在支付..." v-model:visible="visibleDialog">
+      <div class="pay-wait">
+        <img src="@/assets/images/load.gif" alt="">
+        <div>
+            <p>如果支付成功：</p>
+            <RouterLink  :to="`/member/order/${order?.id}`">查看订单详情></RouterLink>
+            <p>如果支付失败：</p>
+            <RouterLink to="/">查看相关疑问></RouterLink>
+        </div>
+      </div>
+    </XtxDialog>
   </div>
 </template>
 <script>
 import { computed, ref } from 'vue'
 import { findOrder } from '@/api/order'
 import { useRoute } from 'vue-router'
+import dayjs from 'dayjs'
 export default {
   name: 'XtxPayPage',
   setup () {
     // 订单
     const order = ref(null)
     // 倒计时
-    const downTime = ref(0)
+    const total = ref(0)
+    let timer = null
     // 路由信息
     const route = useRoute()
     // 查询订单
@@ -56,23 +69,34 @@ export default {
       // 设置订单
       order.value = data.result
       // 算出倒计时时间单位秒，30分钟
-      const nowTime = Date.now()
-      const createTime = new Date(order.value.createTime).getTime()
-      downTime.value = Math.ceil(1800 - (nowTime - createTime) / 1000)
+      const nowTime = dayjs().unix()
+      const endTime = dayjs(order.value.createTime).add(30, 'minute').unix()
+      total.value = endTime - nowTime
+      // 倒计时
+      if (timer) clearInterval(timer)
+      timer = setInterval(() => {
+        total.value--
+        if (total.value < 0) {
+          clearInterval(timer)
+        }
+      }, 1000)
     })
     // 倒计时文本
-    const timer = setInterval(() => {
-      downTime.value--
-      if (downTime.value <= 0) clearInterval(timer)
-    }, 1000)
-    const time = computed(() => {
-      if (order.value && downTime.value > 0) {
-        const m = Math.floor(downTime.value / 60)
-        const s = downTime.value % 60
-        return `${m}分${s}秒`
+    const timeText = computed(() => {
+      if (total.value > 0) {
+        return dayjs.unix(total.value).format('mm分ss秒')
+      } else {
+        return '00分00秒'
       }
     })
-    return { order, time }
+    // 支付提示
+    const visibleDialog = ref(false)
+    const payUrl = computed(() => {
+      const payInterface = 'http://pcapi-xiaotuxian-front.itheima.net/pay/aliPay'
+      const payRedirect = 'http://localhost:8080/#/pay/callback'
+      return `${payInterface}?orderId=${order.value?.id}&redirect=${payRedirect}`
+    })
+    return { order, timeText, visibleDialog, payUrl }
   }
 }
 </script>
@@ -140,6 +164,23 @@ export default {
     &:hover {
       border-color: @xtxColor;
     }
+    &.alipay {
+      background: url(https://cdn.cnbj1.fds.api.mi-img.com/mi-mall/7b6b02396368c9314528c0bbd85a2e06.png) no-repeat center / contain;
+    }
+    &.wx {
+      background: url(https://cdn.cnbj1.fds.api.mi-img.com/mi-mall/c66f98cff8649bd5ba722c2e8067c6ca.jpg) no-repeat center / contain;
+    }
+  }
+}
+.pay-wait {
+  display: flex;
+  justify-content: space-around;
+  p {
+    margin-top: 30px;
+    font-size: 14px;
+  }
+  a {
+    color: @xtxColor;
   }
 }
 </style>

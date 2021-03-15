@@ -89,6 +89,7 @@ export default {
       top: 110px;
       opacity: 1;
       background: #fff;
+      background-color: rgba(0,0,0,0);
       color: #ddd;
       i {
         font-size: 30px;

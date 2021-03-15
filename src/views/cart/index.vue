@@ -104,6 +104,7 @@ import Confirm from '@/components/library/confirm'
 import { getCurrentInstance } from 'vue'
 import CartSku from './components/cart-sku'
 import { useRouter } from 'vue-router'
+import Message from '@/components/library/message'
 export default {
   name: 'XtxCartPage',
   components: { GoodRelevant, CartNone, CartSku },
@@ -181,7 +182,7 @@ export default {
     // 去结算
     const router = useRouter()
     const checkout = () => {
-      if (store.getters['cart/selectedList'].length <= 0) return
+      if (store.getters['cart/selectedList'].length <= 0) return Message(app, { text: '至少勾选一件商品' })
       if (store.state.user.profile.token) {
         router.push('/member/checkout')
       } else {

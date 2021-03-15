@@ -176,8 +176,8 @@ export default {
     text-align: center;
     img {
       padding: 20px;
-      width: 240px!important;
-      height: 240px!important;
+      width: 230px!important;
+      height: 230px!important;
     }
     .name {
       font-size: 16px;
