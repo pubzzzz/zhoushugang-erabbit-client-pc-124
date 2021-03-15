@@ -112,7 +112,7 @@ export default {
         isEffective: true,
         stock: currSku.value.inventory
       }).then(() => {
-        instance.ctx.$message('加入购物车成功', 'success')
+        instance.proxy.$message('加入购物车成功', 'success')
       })
     }
     return { goods, changeSku, num, insertCart }
