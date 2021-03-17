@@ -53,47 +53,28 @@
 import { computed, ref } from 'vue'
 import { findOrder } from '@/api/order'
 import { useRoute } from 'vue-router'
-import dayjs from 'dayjs'
+import { usePayDownTime } from '@/hooks'
 export default {
   name: 'XtxPayPage',
   setup () {
     // 订单
     const order = ref(null)
-    // 倒计时
-    const total = ref(0)
-    let timer = null
     // 路由信息
     const route = useRoute()
+    // 倒计时文字
+    const timeText = ref('')
     // 查询订单
     findOrder(route.query.id).then(data => {
-      // 设置订单
       order.value = data.result
-      // 算出倒计时时间单位秒，30分钟
-      const nowTime = dayjs().unix()
-      const endTime = dayjs(order.value.createTime).add(30, 'minute').unix()
-      total.value = endTime - nowTime
-      // 倒计时
-      if (timer) clearInterval(timer)
-      timer = setInterval(() => {
-        total.value--
-        if (total.value < 0) {
-          clearInterval(timer)
-        }
-      }, 1000)
-    })
-    // 倒计时文本
-    const timeText = computed(() => {
-      if (total.value > 0) {
-        return dayjs.unix(total.value).format('mm分ss秒')
-      } else {
-        return '00分00秒'
-      }
+      usePayDownTime(data.result.createTime, text => {
+        timeText.value = text
+      })
     })
     // 支付提示
     const visibleDialog = ref(false)
     const payUrl = computed(() => {
       const payInterface = 'http://pcapi-xiaotuxian-front.itheima.net/pay/aliPay'
-      const payRedirect = 'http://localhost:8080/#/pay/callback'
+      const payRedirect = encodeURIComponent('http://localhost:8080/#/pay/callback')
       return `${payInterface}?orderId=${order.value?.id}&redirect=${payRedirect}`
     })
     return { order, timeText, visibleDialog, payUrl }

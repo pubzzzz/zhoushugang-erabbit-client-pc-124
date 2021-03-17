@@ -87,7 +87,7 @@ export default {
       const valid = this.schema.mobile(this.form.mobile)
       if (valid === true) {
         if (this.duration > 0) return
-        await qqPatchCode()
+        await qqPatchCode(this.form.mobile)
         this.duration = 60
         clearInterval(this.timer)
         this.timer = window.setInterval(() => {
