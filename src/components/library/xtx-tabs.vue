@@ -4,8 +4,8 @@ import { useVModel } from '@vueuse/core'
 export default {
   name: 'XtxTabs',
   render () {
-    const { ctx } = getCurrentInstance()
-    const panels = ctx.$slots.default()
+    const { proxy } = getCurrentInstance()
+    const panels = proxy.$slots.default()
     const dynamicPanels = []
     panels.forEach(item => {
       if (item.type.name === 'XtxTabsPanel') {
@@ -20,8 +20,8 @@ export default {
       <nav>
         {dynamicPanels.map((item, i) => (
           <a
-            class={{ active: item.props.name === ctx.activeName }}
-            onClick={() => ctx.clickTab(item.props.name, i)}
+            class={{ active: item.props.name === proxy.activeName }}
+            onClick={() => proxy.clickTab(item.props.name, i)}
             href="javascript:;"
           >
             {item.props.label}

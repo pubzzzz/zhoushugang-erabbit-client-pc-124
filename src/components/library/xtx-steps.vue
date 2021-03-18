@@ -9,8 +9,8 @@ export default {
     }
   },
   render (props) {
-    const { ctx } = getCurrentInstance()
-    const items = ctx.$slots.default()
+    const { proxy } = getCurrentInstance()
+    const items = proxy.$slots.default()
     const dynamicItems = []
     items.forEach(item => {
       if (item.type.name === 'XtxStepsItem') {
