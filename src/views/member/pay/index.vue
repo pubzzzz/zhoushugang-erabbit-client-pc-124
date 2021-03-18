@@ -74,7 +74,7 @@ export default {
     const visibleDialog = ref(false)
     const payUrl = computed(() => {
       const payInterface = 'http://pcapi-xiaotuxian-front.itheima.net/pay/aliPay'
-      const payRedirect = encodeURIComponent('http://www.corho.com:8080/#/pay/callback')
+      const payRedirect = encodeURIComponent(process.env.NODE_ENV === 'development' ? 'http://www.corho.com:8080/#/pay/callback' : 'http://erabbit.itheima.net/#/pay/callback')
       return `${payInterface}?orderId=${order.value?.id}&redirect=${payRedirect}`
     })
     return { order, timeText, visibleDialog, payUrl }
