@@ -39,6 +39,7 @@
       </div>
     </div>
   </div>
+  <div v-else class="loading"></div>
 </template>
 
 <script>
@@ -60,9 +61,9 @@ const useGoods = () => {
   const route = useRoute()
   watch(() => route.params.id, async () => {
     if (route.params.id && route.path.startsWith('/product')) {
+      goods.value = null
       // 目前写死只有一个商品
       const data = await findGoods('1369155859933827074')
-      goods.value = null
       nextTick(() => {
         goods.value = data.result
       })
@@ -151,5 +152,11 @@ export default {
   min-height: 600px;
   background: #fff;
   margin-top: 20px;
+}
+.loading {
+  height: 580px;
+  width: 1240px;
+  margin: 72px auto 20px;
+  background: rgba(255,255,255,.9) url(../../assets/images/loading.gif) no-repeat center;
 }
 </style>

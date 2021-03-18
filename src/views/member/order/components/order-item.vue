@@ -1,7 +1,7 @@
 <template>
   <div class="order-item">
     <div class="head">
-      <span>下单时间：{{order.createTime.replace('T',' ')}}</span>
+      <span>下单时间：{{order.createTime}}</span>
       <span>订单编号：{{order.id}}</span>
       <span v-if="order.orderState===1" class="down-time">
         <i class="iconfont icon-down-time"></i>
@@ -13,9 +13,9 @@
       <div class="column goods">
         <ul>
           <li v-for="item in order.skus" :key="item.skuId">
-            <a class="image" href="javascript:;">
+            <RouterLink class="image" :to="`/product/${item.id}`">
               <img :src="item.image" alt="" />
-            </a>
+            </RouterLink>
             <div class="info">
               <p class="name ellipsis-2">{{item.name}}</p>
               <p class="attr ellipsis">{{item.attrsText}}</p>
@@ -47,9 +47,9 @@
         <!-- 待评价：查看详情，再次购买，申请售后 -->
         <!-- 已完成：查看详情，再次购买，申请售后 -->
         <!-- 已取消：查看详情 -->
-        <XtxButton v-if="order.orderState===1" type="primary" size="small">立即付款</XtxButton>
-        <XtxButton v-if="order.orderState===3" type="primary" size="small">确认收货</XtxButton>
-        <p><a href="javascript:;">查看详情</a></p>
+        <XtxButton @click="$router.push('/member/pay?id='+order.id)" v-if="order.orderState===1" type="primary" size="small">立即付款</XtxButton>
+        <XtxButton @click="cancel(order.id)" v-if="order.orderState===3" type="primary" size="small">确认收货</XtxButton>
+        <p><RouterLink :to="`/member/order/${order.id}`">查看详情</RouterLink></p>
         <p v-if="order.orderState===1"><a href="javascript:;">取消订单</a></p>
         <p v-if="[2,3,4,5].includes(order.orderState)"><a href="javascript:;">再次购买</a></p>
         <p v-if="[4,5].includes(order.orderState)"><a href="javascript:;">申请售后</a></p>
@@ -82,7 +82,10 @@ export default {
       5: '已完成',
       6: '已取消'
     }
-    return { timeText, orderState }
+    const cancel = (id) => {
+
+    }
+    return { timeText, orderState, cancel }
   }
 }
 </script>

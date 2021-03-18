@@ -2,7 +2,8 @@
   <div class="container">
     <AppMemberAside />
     <article class="article">
-      <RouterView />
+      <!-- 三级路由 -->
+        <RouterView />
     </article>
   </div>
 </template>

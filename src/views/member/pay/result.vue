@@ -8,16 +8,16 @@
       </XtxBread>
       <!-- 支付结果 -->
       <div class="pay-result">
-        <span v-if="+$route.query.payResult===1" class="iconfont icon-queren2 green"></span>
+        <span v-if="$route.query.payResult" class="iconfont icon-queren2 green"></span>
         <span v-else class="iconfont icon-shanchu red" ></span>
-        <p v-if="+$route.query.payResult===1" class="tit">订单支付成功</p>
+        <p v-if="$route.query.payResult" class="tit">订单支付成功</p>
         <p v-else class="tit">订单支付失败</p>
         <p class="tip">我们将尽快为您发货，收货期间请保持手机畅通</p>
         <p>支付方式：<span>在线支付</span></p>
         <p>支付金额：<span class="red">¥{{order?.payMoney}}</span></p>
         <div class="btn">
-          <XtxButton @click="$router.push(`/member/order/${$route.query.orderId}`)" type="primary" style="margin-right:20px">查看订单</XtxButton>
-          <XtxButton @click="$router.push(`/`)" type="gray">进入首页</XtxButton>
+          <XtxButton @click="$router.push('/member/order')" type="primary" style="margin-right:20px">查看订单</XtxButton>
+          <XtxButton @click="$router.push('/')" type="gray">进入首页</XtxButton>
         </div>
         <p class="alert">
           <span class="iconfont icon-tip"></span>

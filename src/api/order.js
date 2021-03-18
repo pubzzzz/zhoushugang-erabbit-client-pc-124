@@ -49,3 +49,16 @@ export const findOrder = (id) => {
 export const findOrderAll = ({ orderState, page, pageSize }) => {
   return request('/member/order', 'get', { orderState, page, pageSize })
 }
+
+/**
+ * 查看物流
+ * @param {String} orderId - 订单ID
+ * @returns
+ */
+export const findLogistics = (orderId) => {
+  return request(`https://mock.boxuegu.com/mock/1175/member/order/${orderId}/logistics`, 'get')
+}
+
+export const orderCancel = (id) => {
+  return request(`/member/order/${id}/cancel`, 'put')
+}

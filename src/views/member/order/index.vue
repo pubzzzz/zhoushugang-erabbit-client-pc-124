@@ -9,11 +9,17 @@
         ></XtxTabsPanel
       >
     </XtxTabs>
-    <div class="order-list" v-if="orderList">
-      <div class="none" v-if="orderList.length === 0">没有查询到订单</div>
+    <div class="order-list">
+      <div v-if="loading" class="loading"></div>
+      <div class="none" v-if="!loading && orderList.length === 0">暂无数据</div>
       <OrderItem v-for="item in orderList" :key="item.id" :order="item" />
     </div>
-    <div v-else class="loading"></div>
+    <XtxPagination
+      v-if="total > reqParams.pageSize"
+      @current-change="reqParams.page=$event"
+      :total="total"
+      :page-size="reqParams.pageSize"
+      :current-page="reqParams.page"  />
   </div>
 </template>
 <script>
@@ -42,30 +48,40 @@ export default {
     // 查询订单参数
     const reqParams = reactive({
       page: 1,
-      pageSize: 10,
+      pageSize: 5,
       orderState: 0
     })
     // 订单列表
     const orderList = ref([])
+    const total = ref(0)
+    const loading = ref(true)
     // 初始化后，查询条件更改后，查询。
     watch(reqParams, () => {
-      orderList.value = null
+      loading.value = true
       findOrderAll(reqParams).then(data => {
         orderList.value = data.result.items
+        total.value = data.result.counts
+        loading.value = false
       })
     }, { immediate: true })
 
-    return { activeName, clickTab, orderTabs, orderList }
+    return { activeName, clickTab, orderTabs, orderList, total, reqParams, loading }
   }
 }
 </script>
 <style scoped lang="less">
 .order-list {
   padding: 20px;
+  position: relative;
+  min-height: 400px;
 }
 .loading {
-  height: 400px;
-  background: url(../../../assets/images/loading.gif) no-repeat center ;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: rgba(255,255,255,.9) url(../../../assets/images/loading.gif) no-repeat center;
 }
 .none {
   height: 400px;
