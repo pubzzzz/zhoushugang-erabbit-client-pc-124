@@ -56,9 +56,23 @@ export const findOrderAll = ({ orderState, page, pageSize }) => {
  * @returns
  */
 export const findLogistics = (orderId) => {
-  return request(`https://mock.boxuegu.com/mock/1175/member/order/${orderId}/logistics`, 'get')
+  return request(`/member/order/${orderId}/logistics`, 'get')
 }
 
-export const orderCancel = (id) => {
-  return request(`/member/order/${id}/cancel`, 'put')
+/**
+ * 取消订单
+ * @param {String} id - 订单ID
+ * @returns
+ */
+export const orderCancel = (id, cancelReason) => {
+  return request(`/member/order/${id}/cancel`, 'put', { cancelReason })
+}
+
+/**
+ * 删除订单
+ * @param {Array<string>} ids - 订单ID集合
+ * @returns
+ */
+export const orderDelete = (ids) => {
+  return request('/member/order', 'delete', { ids })
 }

@@ -54,7 +54,8 @@ export default {
       const valid = await this.$refs.form.validate()
       if (valid) {
         try {
-          const data = await qqBind({ openId: this.openId, ...this.form })
+          console.log(this.openId)
+          const data = await qqBind({ unionId: this.openId, ...this.form })
           this.setUser(data.result)
           this.$router.push(this.returnUrl)
           this.$message('绑定账户成功', 'success')

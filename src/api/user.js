@@ -48,8 +48,8 @@ export const qqBindCode = (mobile) => {
  * @param {String} code - 验证码
  * @param {String} openId - QQ忽略唯一标识
  */
-export const qqBind = ({ mobile, code, openId }) => {
-  return request('/login/social/bind', 'post', { mobile, code, openId })
+export const qqBind = ({ mobile, code, unionId }) => {
+  return request('/login/social/bind', 'post', { mobile, code, unionId })
 }
 
 /**
@@ -77,5 +77,5 @@ export const qqPatchCode = (mobile) => {
  * @param {String} form.password - 密码
  */
 export const qqPatch = (form) => {
-  return request(`/login/social/${form.openId}/complement`, 'post', form)
+  return request(`/login/social/${form.unionId}/complement`, 'post', form)
 }

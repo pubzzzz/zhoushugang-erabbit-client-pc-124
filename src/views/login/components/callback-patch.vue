@@ -74,7 +74,7 @@ export default {
       const valid = await this.$refs.form.validate()
       if (valid) {
         try {
-          const data = await qqPatch({ openId: this.openId, ...this.form })
+          const data = await qqPatch({ unionId: this.openId, ...this.form })
           this.setUser(data.result)
           this.$router.push(this.returnUrl)
           this.$message('完善信息成功', 'success')

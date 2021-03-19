@@ -31,7 +31,8 @@ export const findHotGoods = (type, limit = 3) => {
  * @param {String} id - 商品ID
  */
 export const findCommentInfoByGoods = (id) => {
-  return request(`/goods/${id}/evaluate`, 'get')
+  // return request(`/goods/${id}/evaluate`, 'get')
+  return request(`https://mock.boxuegu.com/mock/1175/goods/${id}/evaluate`, 'get')
 }
 
 /**
@@ -40,7 +41,7 @@ export const findCommentInfoByGoods = (id) => {
  * @param {Object} reqParams - 筛选条件
  */
 export const findCommentListByGoods = (id, reqParams) => {
-  return request(`/goods/${id}/evaluate/page`, 'get', reqParams)
+  return request(`https://mock.boxuegu.com/mock/1175/goods/${id}/evaluate/page`, 'get', reqParams)
 }
 
 /**

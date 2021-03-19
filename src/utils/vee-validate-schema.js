@@ -23,7 +23,7 @@ const schema = {
     if (!value) return '请输入用户名'
     if (!/^[a-zA-Z]\w{5,20}$/.test(value)) return '字母开头的6-20个字符'
     const data = await checkAccount(value)
-    if (data.result) return '用户名已存在'
+    if (data.result.valid) return '用户名已存在'
     return true
   },
   rePassword (value, { form }) {
