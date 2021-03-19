@@ -15,6 +15,8 @@
       <OrderItem
         @order-cancel="orderCancel(item)"
         @order-delete="orderDelete(item)"
+        @order-confirm="orderConfirm(item)"
+        @order-logistics="orderLogistics(item)"
         v-for="item in orderList"
         :key="item.id" :order="item"
       />
@@ -26,20 +28,24 @@
       :page-size="reqParams.pageSize"
       :current-page="reqParams.page"  />
     <Teleport to="#model">
-      <OrderCancel ref="orderCancelCom" :curOrder="curOrder" />
+      <OrderCancel ref="orderCancelCom" />
+    </Teleport>
+    <Teleport to="#model">
+      <OrderLogistics ref="orderLogisticsCom" />
     </Teleport>
   </div>
 </template>
 <script>
 import { getCurrentInstance, reactive, ref, watch } from 'vue'
-import { findOrderAll, orderDelete as orderDeleteApi } from '@/api/order'
+import { findOrderAll, orderDelete as orderDeleteApi, orderConfirm as orderConfirmApi } from '@/api/order'
 import OrderItem from './components/order-item'
 import OrderCancel from './components/order-cancel'
+import OrderLogistics from './components/order-logistics'
 import Confirm from '@/components/library/confirm'
 import Message from '@/components/library/message'
 export default {
   name: 'MemberOrder',
-  components: { OrderItem, OrderCancel },
+  components: { OrderItem, OrderCancel, OrderLogistics },
   setup () {
     // 查询订单参数
     const reqParams = reactive({
@@ -48,15 +54,13 @@ export default {
       orderState: 0
     })
 
-    // 当前操作的订单对象
-    const curOrder = ref(null)
-
     return {
       reqParams,
       ...useOrderTab(reqParams),
       ...useOrderList(reqParams),
-      curOrder,
-      ...useCancelOrder(curOrder)
+      ...useCancelOrder(),
+      ...useConfirmOrder(),
+      ...useLogisticsOrder()
     }
   }
 }
@@ -99,24 +103,41 @@ const useOrderList = (reqParams) => {
   // 删除逻辑
   const app = getCurrentInstance()
   const orderDelete = (item) => {
-    Confirm(app, { text: '您确认删除改订单吗？' }).then(async () => {
+    Confirm(app, { text: '您确认删除订单吗？' }).then(async () => {
       await orderDeleteApi([item.id])
       Message(app, { text: '删除订单成功', type: 'success' })
       findOrderList()
-    }).catch(e => {
-      console.dir(e)
-    })
+    }).catch(e => {})
   }
   return { orderList, total, loading, orderDelete }
 }
 // 取消订单业务
-const useCancelOrder = (curOrder) => {
+export const useCancelOrder = () => {
   const orderCancelCom = ref(null)
   const orderCancel = (item) => {
-    curOrder.value = item
     orderCancelCom.value.open(item)
   }
   return { orderCancelCom, orderCancel }
+}
+// 确认发货业务
+export const useConfirmOrder = () => {
+  const app = getCurrentInstance()
+  const orderConfirm = (item) => {
+    Confirm(app, { text: '您确认已经收到货了吗？' }).then(async () => {
+      await orderConfirmApi(item.id)
+      Message(app, { text: '确认收货成功', type: 'success' })
+      item.orderState = 4
+    }).catch(e => {})
+  }
+  return { orderConfirm }
+}
+// 查看物流业务
+export const useLogisticsOrder = () => {
+  const orderLogisticsCom = ref(null)
+  const orderLogistics = (item) => {
+    orderLogisticsCom.value.open(item.id)
+  }
+  return { orderLogisticsCom, orderLogistics }
 }
 </script>
 <style scoped lang="less">

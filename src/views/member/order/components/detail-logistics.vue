@@ -4,14 +4,20 @@
       <span>{{logistics.list[0].time}}</span>
       <span>{{logistics.list[0].text}}</span>
     </p>
-    <a href="javascript:;">查看物流</a>
+    <a href="javascript:;" @click="orderLogistics(order)">查看物流</a>
   </div>
+  <Teleport to="#model">
+    <OrderLogistics ref="orderLogisticsCom" />
+  </Teleport>
 </template>
 <script>
 import { findLogistics } from '@/api/order'
+import OrderLogistics from './order-logistics'
+import { useLogisticsOrder } from '../index'
 import { ref } from 'vue'
 export default {
   name: 'DetailLogistics',
+  components: { OrderLogistics },
   props: {
     order: {
       type: Object,
@@ -23,7 +29,7 @@ export default {
     findLogistics(props.order.id).then(data => {
       logistics.value = data.result
     })
-    return { logistics }
+    return { logistics, ...useLogisticsOrder() }
   }
 }
 </script>

@@ -76,3 +76,12 @@ export const orderCancel = (id, cancelReason) => {
 export const orderDelete = (ids) => {
   return request('/member/order', 'delete', { ids })
 }
+
+/**
+ * 确认收货
+ * @param {String} id - 订单ID
+ * @returns
+ */
+export const orderConfirm = (id) => {
+  return request(`/member/order/${id}/receipt`, 'put')
+}

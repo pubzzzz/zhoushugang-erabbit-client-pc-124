@@ -12,7 +12,7 @@
       <!-- 待付款 -->
       <template v-if="order.orderState === 1">
         <XtxButton @click="$router.push('/member/pay?id='+order.id)" type="primary" size="small">立即付款</XtxButton>
-        <XtxButton type="gray" size="small">取消订单</XtxButton>
+        <XtxButton @click="orderCancel(order)" type="gray" size="small">取消订单</XtxButton>
       </template>
       <!-- 待发货 -->
       <template v-if="order.orderState === 2">
@@ -20,28 +20,34 @@
       </template>
       <!-- 待收货 -->
       <template v-if="order.orderState === 3">
-        <XtxButton type="primary" size="small">确认收货</XtxButton>
+        <XtxButton @click="orderConfirm(order)" type="primary" size="small">确认收货</XtxButton>
         <XtxButton type="plain" size="small">再次购买</XtxButton>
       </template>
       <!-- 待评价 -->
       <template v-if="order.orderState === 4">
-        <XtxButton type="primary" size="small">确认收货</XtxButton>
-        <XtxButton type="plain" size="small">再次购买</XtxButton>
-        <XtxButton type="plain" size="small">申请售后</XtxButton>
+        <XtxButton type="primary" size="small">再次购买</XtxButton>
+        <XtxButton type="plain" size="small">评价商品</XtxButton>
+        <XtxButton type="gray" size="small">申请售后</XtxButton>
       </template>
       <!-- 已完成 -->
       <template v-if="order.orderState === 5">
-        <XtxButton type="plain" size="small">再次购买</XtxButton>
-        <XtxButton type="primary" size="small">查看评价</XtxButton>
-        <XtxButton type="plain" size="small">申请售后</XtxButton>
+        <XtxButton type="primary" size="small">再次购买</XtxButton>
+        <XtxButton type="plain" size="small">查看评价</XtxButton>
+        <XtxButton type="gray" size="small">申请售后</XtxButton>
       </template>
       <!-- 已取消 -->
     </div>
   </div>
+  <Teleport to="#model">
+    <OrderCancel ref="orderCancelCom" />
+  </Teleport>
 </template>
 <script>
+import OrderCancel from './order-cancel'
+import { useCancelOrder, useConfirmOrder } from '../index'
 export default {
   name: 'OrderDetailPage',
+  components: { OrderCancel },
   props: {
     order: {
       type: Object,
@@ -58,7 +64,7 @@ export default {
       5: { label: '已完成', icon: 'icon-order-complete' },
       6: { label: '已取消', icon: 'icon-order-cancel' }
     }
-    return { orderStateAndIcon }
+    return { orderStateAndIcon, ...useCancelOrder(), ...useConfirmOrder() }
   }
 }
 </script>
