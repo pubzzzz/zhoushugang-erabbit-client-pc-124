@@ -105,7 +105,7 @@ export default {
       // 倒计时
       duration: 0,
       qqUrl: encodeURIComponent(process.env.VUE_APP_QQBACK),
-      apPId: process.env.VUE_APP_APPID
+      appId: process.env.VUE_APP_APPID
     }
   },
   watch: {
