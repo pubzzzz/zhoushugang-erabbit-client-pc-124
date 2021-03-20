@@ -53,7 +53,7 @@
           <a @click="submit()" href="javascript:;" class="btn">登 录</a>
         </Form>
         <div class="action">
-          <a :href="'https://graph.qq.com/oauth2.0/authorize?client_id=100556005&response_type=token&scope=all&redirect_uri='+qqUrl">
+          <a :href="'https://graph.qq.com/oauth2.0/authorize?client_id='+appId+'&response_type=token&scope=all&redirect_uri='+qqUrl">
             <img src="https://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_7.png" alt="">
           </a>
           <div class="url">
@@ -104,7 +104,8 @@ export default {
       schema: { isAgree, mobile, password, code },
       // 倒计时
       duration: 0,
-      qqUrl: encodeURIComponent(process.env.VUE_APP_QQBACK)
+      qqUrl: encodeURIComponent(process.env.VUE_APP_QQBACK),
+      apPId: process.env.VUE_APP_APPID
     }
   },
   watch: {
