@@ -11,7 +11,7 @@ build:
   only:
     - master
   script:
-    - npm i
+    - npm install
     - npm run build
     - cp -r dist/* /home/erabbit-ci/
   tags: 
