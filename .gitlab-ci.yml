@@ -11,8 +11,7 @@ build:
   only:
     - master
   script:
-#    - cnpm set registry https://registry.npm.taobao.org
-    - cnpm install --progress=false
+    - npm install
     - npm run build
     - cp -r dist/* /home/erabbit-ci/
   tags: 
