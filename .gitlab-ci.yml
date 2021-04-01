@@ -11,8 +11,8 @@ build:
   only:
     - master
   script:
-    - cnpm install 
-    - cnpm run build
+    - yarn 
+    - yarn run build
     - cp -r dist/* /home/erabbit-client-vue3/dist
   tags: 
     - erabbit-client-pc-vue3
