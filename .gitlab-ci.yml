@@ -13,7 +13,7 @@ build:
   script:
     - mkdir node_modules
     - chmod -R 777 node_modules/
-    - npm install 
+    - npm install --registry=https://registry.npm.taobao.org
     - npm run build
     - cp -r dist/* /home/erabbit-client-vue3/dist
   tags: 
