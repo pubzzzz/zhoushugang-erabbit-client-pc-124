@@ -11,7 +11,8 @@ build:
   only:
     - master
   script:
-    - yarn 
+    - yarn add vue-loader-v16
+    - yarn
     - yarn run build
     - cp -r dist/* /home/erabbit-client-vue3/dist
   tags: 
