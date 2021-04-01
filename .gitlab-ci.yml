@@ -12,7 +12,7 @@ build:
     - master
   script:
     - cnpm install 
-    - npm run build
+    - cnpm run build
     - cp -r dist/* /home/erabbit-client-vue3/dist
   tags: 
     - erabbit-client-pc-vue3
