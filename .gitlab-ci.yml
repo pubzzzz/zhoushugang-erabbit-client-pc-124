@@ -11,7 +11,8 @@ build:
   only:
     - master
   script:
-    - sudo npm install 
+    - mkdir node_modules
+    - npm install 
     - npm run build
     - cp -r dist/* /home/erabbit-client-vue3/dist
   tags: 
