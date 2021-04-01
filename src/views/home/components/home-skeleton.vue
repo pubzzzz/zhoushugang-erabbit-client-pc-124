@@ -1,5 +1,5 @@
 <template>
-  <div class='home-skeleton'>
+  <div class='home-skeleton' :style="{background:bg}">
     <div class="item" v-for="i in 4" :key="i">
       <XtxSkeleton bg="#e4e4e4" width="306px" height="306px" animated />
       <XtxSkeleton bg="#e4e4e4" width="160px" height="24px" animated />
@@ -20,14 +20,13 @@ export default {
 }
 </script>
 
-<style scoped lang='less' vars={bg}>
+<style scoped lang='less'>
 .home-skeleton {
   width: 1240px;
   height: 406px;
   display: flex;
   justify-content: space-between;
   .item {
-    background: var(--bg);
     width: 306px;
     .xtx-skeleton ~ .xtx-skeleton{
       display: block;
