@@ -12,7 +12,7 @@ build:
     - master
   script:
     - yarn
-    - yarn run build
+    - npm run build
     - cp -r dist/* /home/erabbit-client-vue3/dist
   tags: 
     - erabbit-client-pc-vue3
