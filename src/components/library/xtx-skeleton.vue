@@ -1,6 +1,6 @@
 <template>
-  <div class="xtx-skeleton" :class="{ shan: animated }">
-    <div class="block"></div>
+  <div class="xtx-skeleton" :class="{ shan: animated }" :style="{width,height}">
+    <div class="block" :style="{backgroundColor:bg}"></div>
   </div>
 </template>
 
@@ -28,18 +28,15 @@ export default {
 }
 </script>
 
-<style scoped lang='less' vars={bg,width,height}>
+<style scoped lang='less'>
 .xtx-skeleton {
   display: inline-block;
   position: relative;
-  width: var(--width);
-  height: var(--height);
   overflow: hidden;
   vertical-align: middle;
   .block {
     width: 100%;
     height: 100%;
-    background-color: var(--bg);
     border-radius: 2px;
   }
 }

@@ -6,7 +6,7 @@
     </template>
     <div class="box" ref="box">
       <Transition name="fade">
-        <ul class="list" v-if="brands.length">
+        <ul class="list" :style="{transform:`translateX(${translateX})`}" v-if="brands.length">
           <li v-for="brand in brands" :key="brand.id">
             <RouterLink to="/">
               <img :src="brand.picture" alt="">
@@ -45,7 +45,7 @@ export default {
 }
 </script>
 
-<style scoped lang='less' vars={translateX}>
+<style scoped lang='less'>
 .home-panel {
   background:#f5f5f5
 }
@@ -77,7 +77,6 @@ export default {
   .list {
     width: 200%;
     display: flex;
-    transform: translate3d(var(--translateX),0,0);
     transition: all 1s;
     li {
       margin-right: 10px;
