@@ -14,6 +14,7 @@ build:
     - yarn
     - yarn run build
     - rm -rf /home/erabbit-client-vue3/dist
+    - mkdir /home/erabbit-client-vue3/dist
     - cp -r dist/* /home/erabbit-client-vue3/dist
   tags: 
     - erabbit-client-pc-vue3
