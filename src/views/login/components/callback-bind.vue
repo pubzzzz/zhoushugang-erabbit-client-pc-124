@@ -71,7 +71,7 @@ export default {
               }
             }, 1000)
           }).catch(e => {
-            Message({ type: 'error', text: e.response.data.message || '发送失败' })
+            Message({}, { type: 'error', text: e.response.data.message || '发送失败' })
           })
         }
       } else {
@@ -95,11 +95,11 @@ export default {
           const { id, account, nickname, avatar, token, mobile } = data.result
           store.commit('user/setUser', { id, account, nickname, avatar, token, mobile })
           // 2. 提示
-          Message({ type: 'success', text: '绑定成功' })
+          Message({}, { type: 'success', text: '绑定成功' })
           // 3. 跳转
           router.push(store.state.user.redirectUrl || '/')
         }).catch(e => {
-          Message({ type: 'error', text: e.response.data.message || '绑定失败' })
+          Message({}, { type: 'error', text: e.response.data.message || '绑定失败' })
         })
       }
     }
