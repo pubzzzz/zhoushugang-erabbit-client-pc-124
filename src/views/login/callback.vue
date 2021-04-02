@@ -1,85 +1,87 @@
 <template>
   <LoginHeader>联合登录</LoginHeader>
   <section class="container">
-    <div class="unbind" v-if="isBind">
-      <div class="loading"></div>
-    </div>
     <nav class="tab">
-      <a @click="hasAccount=true" :class="{active:hasAccount}" href="javascript:;">
+      <a
+        @click="hasAccount = true"
+        :class="{ active: hasAccount }"
+        href="javascript:;"
+      >
         <i class="iconfont icon-bind" />
         <span>已有小兔鲜账号，请绑定手机</span>
       </a>
-      <a @click="hasAccount=false" :class="{active:!hasAccount}" href="javascript:;">
+      <a
+        @click="hasAccount = false"
+        :class="{ active: !hasAccount }"
+        href="javascript:;"
+      >
         <i class="iconfont icon-edit" />
         <span>没有小兔鲜账号，请完善资料</span>
       </a>
     </nav>
     <div class="tab-content" v-if="hasAccount">
-      <CallbackBind :nickname="nickname" :avatar="avatar" :openId="openId" />
+      <CallbackBind :nickname="nickname" :avatar="avatar" :unionId="unionId"/>
     </div>
     <div class="tab-content" v-else>
-      <CallbackPatch :openId="openId"/>
+      <CallbackPatch :unionId="unionId" />
+    </div>
+    <!-- loading -->
+    <div class="unbind" v-if="isBind">
+      <div class="loading"></div>
     </div>
   </section>
   <LoginFooter />
 </template>
-
 <script>
+import { ref } from 'vue'
 import LoginHeader from './components/login-header'
 import LoginFooter from './components/login-footer'
 import CallbackBind from './components/callback-bind'
 import CallbackPatch from './components/callback-patch'
 import QC from 'qc'
-import { qqLogin } from '@/api/user'
-import { mapMutations, mapState } from 'vuex'
-import defaultAvatar from '@/assets/images/200.png'
+import { userQQLogin } from '@/api/user'
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 export default {
-  name: 'LoginCallback',
-  components: {
-    LoginHeader,
-    LoginFooter,
-    CallbackBind,
-    CallbackPatch
-  },
-  data () {
-    return {
-      nickname: '',
-      avatar: defaultAvatar,
-      hasAccount: true,
-      isBind: true,
-      openId: ''
-    }
-  },
-  computed: {
-    ...mapState('user', ['returnUrl'])
-  },
-  methods: {
-    ...mapMutations('user', ['setUser'])
-  },
-  created () {
+  name: 'PageCallback',
+  components: { LoginHeader, LoginFooter, CallbackBind, CallbackPatch },
+  setup () {
+    const hasAccount = ref(true)
+    const nickname = ref(null)
+    const avatar = ref(null)
+    const unionId = ref(null)
+    // 假设已经绑定，默认会去做一次登录，如果登录失败证明未绑定。
+    const isBind = ref(true)
+    // 1. 获取QQ互联的openId也就是后台需要的unionId
+    // 2. 根据QQ互联的openId去进行登录，准备一个接口
+    const store = useStore()
+    const router = useRouter()
     if (QC.Login.check()) {
-      QC.Login.getMe(async (openId) => {
-        this.openId = openId
-        try {
-          // 已注册，已绑定
-          const data = await qqLogin(openId)
-          this.setUser(data.result)
-          this.$router.push(this.returnUrl)
-        } catch (e) {
-          this.isBind = false
-          // 未绑定
-          QC.api('get_user_info').success(({ data }) => {
-            this.avatar = data.figureurl_1
-            this.nickname = data.nickname
+      // 检查QQ是否登录
+      QC.Login.getMe((openId) => {
+        unionId.value = openId
+        userQQLogin(openId).then(data => {
+          // 代表：使用qq登录成功
+          const { id, account, nickname, avatar, token, mobile } = data.result
+          store.commit('user/setUser', { id, account, nickname, avatar, token, mobile })
+          // 跳转，有来源就跳来源，没有就首页
+          router.push(store.state.user.redirectUrl || '/')
+        }).catch(e => {
+          // 代表：使用qq登录失败===>1. 没绑定小兔鲜帐号  2. 没有小兔鲜帐号
+          isBind.value = false
+          // 调用qq提供的接口 get_user_info
+          QC.api('get_user_info').success(res => {
+            nickname.value = res.data.nickname
+            avatar.value = res.data.figureurl_1
           })
-        }
+        })
       })
     }
+    return { hasAccount, nickname, avatar, isBind, unionId }
   }
 }
 </script>
-
-<style scoped lang='less'>
+<style scoped lang="less">
 .container {
   padding: 25px 0;
   position: relative;

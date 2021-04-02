@@ -1,5 +1,5 @@
 <template>
-  <Form ref="form" class="xtx-form" :validation-schema="schema" v-slot="{errors}" autocomplete="off">
+  <Form ref="target" class="xtx-form" :validation-schema="mySchema" v-slot="{errors}" autocomplete="off">
     <div class="user-info">
       <img :src="avatar" alt="" />
       <p>Hi，{{ nickname }} 欢迎来小兔鲜，完成绑定后可以QQ账号一键登录哦~</p>
@@ -7,78 +7,103 @@
     <div class="xtx-form-item">
       <div class="field">
         <i class="icon iconfont icon-phone"></i>
-        <Field v-model="form.mobile" name="mobile" :class="{err:errors.mobile}" class="input" type="text" placeholder="绑定的手机号" />
+        <Field :class="{err:errors.mobile}" name="mobile" v-model="form.mobile" class="input" type="text" placeholder="绑定的手机号" />
       </div>
-      <div class="error" v-if="errors.mobile">{{errors.mobile}}</div>
+      <div class="error">{{errors.mobile}}</div>
     </div>
     <div class="xtx-form-item">
       <div class="field">
         <i class="icon iconfont icon-code"></i>
-        <Field v-model="form.code" name="code" :class="{err:errors.code}" class="input" type="text" placeholder="短信验证码" />
+        <Field  :class="{err:errors.code}" name="code"  v-model="form.code" class="input" type="text" placeholder="短信验证码" />
         <span @click="send()" class="code">
-          {{duration===0?'发送验证码':`${duration}秒后发送`}}
+          {{time===0?'发送验证码':`${time}秒后发送`}}
         </span>
       </div>
-      <div class="error" v-if="errors.code">{{errors.code}}</div>
+      <div class="error">{{errors.code}}</div>
     </div>
     <a @click="submit()" href="javascript:;" class="submit">立即绑定</a>
   </Form>
 </template>
 
 <script>
-import veeSchema from '@/utils/vee-validate-schema'
 import { Form, Field } from 'vee-validate'
-import { qqBindCode, qqBind } from '@/api/user'
-import { mapMutations, mapState } from 'vuex'
+import schema from '@/utils/vee-validate-schema'
+import { reactive, ref } from 'vue'
+import { userQQBind, userQQBindCode } from '@/api/user'
+import Message from '@/components/library/Message'
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 export default {
   name: 'CallbackBind',
   components: { Form, Field },
-  props: ['nickname', 'avatar', 'openId'],
-  data () {
-    const { mobile, code } = veeSchema
-    return {
-      schema: { mobile, code },
-      form: {
-        mobile: '',
-        code: ''
-      },
-      duration: 0
-    }
-  },
-  computed: {
-    ...mapState('user', ['returnUrl'])
-  },
-  methods: {
-    ...mapMutations('user', ['setUser']),
-    async submit () {
-      const valid = await this.$refs.form.validate()
-      if (valid) {
-        try {
-          console.log(this.openId)
-          const data = await qqBind({ unionId: this.openId, ...this.form })
-          this.setUser(data.result)
-          this.$router.push(this.returnUrl)
-          this.$message('绑定账户成功', 'success')
-        } catch (e) {
-          this.$message('绑定账户失败', 'error')
-        }
-      }
-    },
-    async send () {
-      const valid = this.schema.mobile(this.form.mobile)
+  props: ['nickname', 'avatar', 'unionId'],
+  setup (props) {
+    // 表单校验规则
+    const { mobile, code } = schema
+    const mySchema = { mobile, code }
+    // 表单信息对象
+    const form = reactive({
+      unionId: null,
+      mobile: null,
+      code: null
+    })
+    // 发送绑定帐号的短信验证码
+    const target = ref(null)
+    const time = ref(0)
+    let timer = null
+    const send = () => {
+      // 1. 校验下手机号是否正确，不正确需要错误提示
+      // 2. 验证下是否正在等待倒计时
+      // 3. 调用短信接口
+      // 4. 如果发送成功，开始倒计时  `60秒后发送`
+      // 5. 显示倒计时时间
+      // 6. 倒计时完毕，再次显示 `发送验证码`
+      const valid = mySchema.mobile(form.mobile)
       if (valid === true) {
-        if (this.duration > 0) return
-        await qqBindCode(this.form.mobile)
-        this.duration = 60
-        clearInterval(this.timer)
-        this.timer = window.setInterval(() => {
-          this.duration--
-          if (this.duration === 0) clearInterval(this.timer)
-        }, 1000)
+        if (time.value === 0) {
+          userQQBindCode(form.mobile).then(() => {
+            time.value = 60
+            clearInterval(timer)
+            timer = setInterval(() => {
+              time.value--
+              if (time.value <= 0) {
+                clearInterval(timer)
+              }
+            }, 1000)
+          }).catch(e => {
+            Message({ type: 'error', text: e.response.data.message || '发送失败' })
+          })
+        }
       } else {
-        this.$refs.form.setFieldError('mobile', valid)
+        // 不正确需要错误提示
+        target.value.setFieldError('mobile', valid)
       }
     }
+    // 使用store
+    const store = useStore()
+    // 使用router
+    const router = useRouter()
+    // 绑定操作
+    const submit = async () => {
+      const valid = await target.value.validate()
+      if (valid) {
+        form.unionId = props.unionId
+        // 进行绑定请求
+        userQQBind(form).then(data => {
+          // 成功
+          // 1. 存储信息
+          const { id, account, nickname, avatar, token, mobile } = data.result
+          store.commit('user/setUser', { id, account, nickname, avatar, token, mobile })
+          // 2. 提示
+          Message({ type: 'success', text: '绑定成功' })
+          // 3. 跳转
+          router.push(store.state.user.redirectUrl || '/')
+        }).catch(e => {
+          Message({ type: 'error', text: e.response.data.message || '绑定失败' })
+        })
+      }
+    }
+    return { mySchema, form, send, target, time, submit }
   }
 }
 </script>
