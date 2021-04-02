@@ -47,7 +47,7 @@ import { Form, Field } from 'vee-validate'
 import schema from '@/utils/vee-validate-schema'
 import { reactive, ref } from 'vue'
 import { userQQPatch, userQQPatchCode } from '@/api/user'
-import Message from '@/components/library/Message'
+import Message from '@/components/library/message'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 export default {
