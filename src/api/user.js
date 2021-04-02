@@ -1,81 +1,91 @@
 import request from '@/utils/request'
 
 /**
- * 账号登录
- * @param {String} account - 账号/手机
+ * 帐号登录
+ * @param {String} account - 用户名
  * @param {String} password - 密码
+ * @returns Promise
  */
-export const accountLogin = ({ account, password }) => {
+export const userAccountLogin = ({ account, password }) => {
   return request('/login', 'post', { account, password })
-}
-
-/**
- * 短信登录-验证码
- * @param {String} mobile - 手机号
- */
-export const mobileLoginCode = (mobile) => {
-  return request('login/code', 'get', { mobile })
 }
 
 /**
  * 短信登录
  * @param {String} mobile - 手机号
+ * @param {String} code - 验证码
+ * @returns Promise
  */
-export const mobileLogin = (mobile, code) => {
-  return request('login/code', 'post', { mobile, code })
+export const userMobileLogin = ({ mobile, code }) => {
+  return request('/login/code', 'post', { mobile, code })
 }
 
 /**
- * 以openId进行登录
- * @param {String} unionId - QQ互联唯一标识
- * @param {*} source - 注册来源
+ * 获取短信登录验证码
+ * @param {String} mobile - 手机号
+ * @returns Promise
  */
-export const qqLogin = (unionId, source = 6) => {
+export const userMobileLoginCode = (mobile) => {
+  return request('/login/code', 'get', { mobile })
+}
+
+/**
+ * 第三方登录
+ * @param {String} unionId - 第三方登录唯一标识
+ * @param {Integer} source - 来源 1为pc，2为webapp，3为微信小程序，4为Android，5为ios,6为qq,7为微信
+ * @returns Promise
+ */
+export const userQQLogin = (unionId, source = 6) => {
   return request('/login/social', 'post', { unionId, source })
 }
 
 /**
- * QQ绑定账户的短信
- * @param {String} mobile - 手机号
+ * QQ绑定帐号
+ * @param  {String} unionId - 第三方登录唯一标识
+ * @param  {String} code - 短信验证码
+ * @param  {String} mobile - 手机号
+ * @returns Promise
  */
-export const qqBindCode = (mobile) => {
+export const userQQBind = ({ unionId, code, mobile }) => {
+  return request('/login/social/bind', 'post', { unionId, code, mobile })
+}
+
+/**
+ * 获取短信绑定帐号验证码
+ * @param {String} mobile - 手机号
+ * @returns Promise
+ */
+export const userQQBindCode = (mobile) => {
   return request('/login/social/code', 'get', { mobile })
 }
 
 /**
- * QQ绑定账户登录
- * @param {String} mobile - 手机号
- * @param {String} code - 验证码
- * @param {String} openId - QQ忽略唯一标识
+ * 校验帐号是否存在
+ * @param {String} account - 帐号
+ * @returns Promise
  */
-export const qqBind = ({ mobile, code, unionId }) => {
-  return request('/login/social/bind', 'post', { mobile, code, unionId })
-}
-
-/**
- * 校验用户吗是否唯一
- * @param {String} account - 用户名
- */
-export const checkAccount = (account) => {
+export const userCheckAccount = (account) => {
   return request('/register/check', 'get', { account })
 }
 
 /**
- * QQ完善信息短信验证码
- * @param {String} mobile
+ * 获取短信完善信息验证码
+ * @param {String} mobile - 手机号
+ * @returns Promise
  */
-export const qqPatchCode = (mobile) => {
+export const userQQPatchCode = (mobile) => {
   return request('/register/code', 'get', { mobile })
 }
 
 /**
- * QQ完善信息登录
- * @param {String} form.openId - QQ忽略唯一标识
- * @param {String} form.account - 用户名
- * @param {String} form.mobile - 手机号
- * @param {String} form.code - 验证码
- * @param {String} form.password - 密码
+ * QQ完善信息
+ * @param  {String} unionId - 第三方登录唯一标识
+ * @param  {String} code - 短信验证码
+ * @param  {String} mobile - 手机号
+ * @param  {String} password - 密码
+ * @param  {String} account - 帐号
+ * @returns Promise
  */
-export const qqPatch = (form) => {
-  return request(`/login/social/${form.unionId}/complement`, 'post', form)
+export const userQQPatch = ({ unionId, code, mobile, password, account }) => {
+  return request(`/login/social/${unionId}/complement`, 'post', { code, mobile, password, account })
 }

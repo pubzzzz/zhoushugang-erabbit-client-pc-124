@@ -27,6 +27,7 @@ export default {
     // 三个参数：组件的props对象，数据的key，emit函数
     // 得到一个响应式数据，获取的值就是父组件的值，但你修改值的时候触发自定义时间传给父组件
     const checked = useVModel(props, 'modelValue', emit)
+    console.log(checked)
     const change = () => {
       // 1. 假设此时是选中的  true
       // 2. 把false设置给checed.value  通知父组件
