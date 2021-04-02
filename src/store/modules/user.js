@@ -9,14 +9,14 @@ export default {
       token: '',
       mobile: ''
     },
-    returnUrl: '/'
+    redirectUrl: '/'
   }),
   mutations: {
     setUser (state, payload) {
       state.profile = payload
     },
-    setReturnUrl (state, payload) {
-      state.returnUrl = payload
+    setRedirectUrl (state, payload) {
+      state.redirectUrl = payload
     }
   }
 }
