@@ -112,7 +112,7 @@ export default {
     const store = useStore()
     // 单选操作
     const checkOne = (item) => {
-      store.dispatch('cart/checkCart', { skuIds: [item.skuId], selected: !item.selected })
+      store.dispatch('cart/checkCart', { skuIds: [item.skuId], selected: item.selected })
     }
     // 全选操作
     const checkAll = (selected) => {
