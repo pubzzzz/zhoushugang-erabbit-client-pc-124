@@ -117,7 +117,7 @@ export default {
     // 全选操作
     const checkAll = (selected) => {
       const skuIds = store.getters['cart/validList'].map(item => item.skuId)
-      store.dispatch('cart/checkCart', { skuIds, selected: !selected })
+      store.dispatch('cart/checkCart', { skuIds, selected })
     }
     // 删除操作
     const app = getCurrentInstance()
