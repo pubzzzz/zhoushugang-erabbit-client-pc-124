@@ -9,7 +9,7 @@
         <table v-if="$store.state.cart.list.length">
           <thead>
             <tr>
-              <th width="120"><XtxCheckbox  @change="checkAll" :modelValue="$store.getters['cart/isCheckAll']">全选</XtxCheckbox></th>
+              <th width="120"><XtxCheckbox  @change="checkAll" :value="$store.getters['cart/isCheckAll']">全选</XtxCheckbox></th>
               <th width="400">商品信息</th>
               <th width="220">单价</th>
               <th width="180">数量</th>
@@ -20,7 +20,7 @@
           <!-- 有效商品 -->
           <tbody>
             <tr v-for="item in $store.getters['cart/validList']" :key="item.skuId">
-              <td><XtxCheckbox @change="checkOne(item)" :modelValue="item.selected" /></td>
+              <td><XtxCheckbox @change="checkOne(item)" :value="item.selected" /></td>
               <td>
                 <div class="goods">
                   <RouterLink :to="`/product/${item.id}`"><img :src="item.picture" alt=""></RouterLink>
@@ -78,7 +78,7 @@
       <!-- 操作栏 -->
       <div v-if="$store.state.cart.list.length" class="action">
         <div class="batch">
-          <XtxCheckbox @change="checkAll" :modelValue="$store.getters['cart/isCheckAll']">全选</XtxCheckbox>
+          <XtxCheckbox @change="checkAll" :value="$store.getters['cart/isCheckAll']">全选</XtxCheckbox>
           <a @click="batchDeleteSelectedCart()" href="javascript:;">删除商品</a>
           <a href="javascript:;">移入收藏夹</a>
           <a @click="batchDeleteInvalidCart()" href="javascript:;">清空失效商品</a>
