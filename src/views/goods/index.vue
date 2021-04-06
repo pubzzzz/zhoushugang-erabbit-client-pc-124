@@ -65,6 +65,13 @@ const useGoods = () => {
       // 目前写死只有一个商品
       const data = await findGoods('1369155859933827074')
       nextTick(() => {
+        data.result.skus.forEach(sku => {
+          const sortSpecs = []
+          data.result.specs.forEach(spec => {
+            sortSpecs.push(sku.specs.find(item => item.name === spec.name))
+          })
+          sku.specs = sortSpecs
+        })
         goods.value = data.result
       })
     }
