@@ -165,6 +165,7 @@ export default {
           .info {
             padding-left: 10px;
             line-height: 24px;
+            width: 190px;
             .name {
               font-size: 16px;
               color: #666;

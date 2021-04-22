@@ -2,7 +2,7 @@
   <div class='xtx-goods-page' v-if="goods">
     <div class="container">
       <!-- 面包屑 -->
-      <XtxBread>
+      <XtxBread v-if="goods.categories.length">
         <XtxBreadItem to="/">首页</XtxBreadItem>
         <XtxBreadItem v-if="goods.categories" :to="'/category/'+goods.categories[2].id">{{goods.categories[2].name}}</XtxBreadItem>
         <XtxBreadItem v-if="goods.categories" :to="'/category/sub/'+goods.categories[1].id">{{goods.categories[1].name}}</XtxBreadItem>
@@ -63,7 +63,8 @@ const useGoods = () => {
     if (route.params.id && route.path.startsWith('/product')) {
       goods.value = null
       // 目前写死只有一个商品
-      const data = await findGoods('1369155859933827074')
+      // const data = await findGoods('1369155859933827074')
+      const data = await findGoods(route.params.id)
       nextTick(() => {
         data.result.skus.forEach(sku => {
           const sortSpecs = []

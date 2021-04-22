@@ -5,7 +5,8 @@ import router from '@/router'
 // 创建一个新的axios实例
 const instance = axios.create({
   // baseURL: 'https://mock.boxuegu.com/mock/1175/',
-  baseURL: 'http://pcapi-xiaotuxian-front.itheima.net/',
+  // baseURL: 'http://pcapi-xiaotuxian-front.itheima.net/',
+  baseURL: 'http://pcapi-xiaotuxian-front-devtest.itheima.net/',
   timeout: 5000
 })
 

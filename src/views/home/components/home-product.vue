@@ -43,7 +43,7 @@ export default {
 <style scoped lang='less'>
 .home-product {
   background: #fff;
-  height: 2900px;
+  min-height: 2900px;
   .sub {
     margin-bottom: 2px;
     a {

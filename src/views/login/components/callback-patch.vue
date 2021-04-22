@@ -114,10 +114,14 @@ export default {
           // 1. 存储信息
           const { id, account, nickname, avatar, token, mobile } = data.result
           store.commit('user/setUser', { id, account, nickname, avatar, token, mobile })
-          // 2. 提示
-          Message({}, { type: 'success', text: '完善信息成功' })
-          // 3. 跳转
-          router.push(store.state.user.redirectUrl || '/')
+          store.commit('user/setUser', { id, account, nickname, avatar, token, mobile })
+          // 合并购物车操作
+          store.dispatch('cart/mergeCart').then(() => {
+            // 2. 提示
+            Message({}, { type: 'success', text: '完善信息成功' })
+            // 3. 跳转
+            router.push(store.state.user.redirectUrl || '/')
+          })
         }).catch(e => {
           Message({}, { type: 'error', text: e.response.data.message || '完善信息失败' })
         })
