@@ -2,10 +2,10 @@
   <div class='xtx-goods-page' v-if="goods">
     <div class="container">
       <!-- 面包屑 -->
-      <XtxBread v-if="goods.categories.length">
+      <XtxBread>
         <XtxBreadItem to="/">首页</XtxBreadItem>
-        <XtxBreadItem v-if="goods.categories" :to="'/category/'+goods.categories[2].id">{{goods.categories[2].name}}</XtxBreadItem>
-        <XtxBreadItem v-if="goods.categories" :to="'/category/sub/'+goods.categories[1].id">{{goods.categories[1].name}}</XtxBreadItem>
+        <XtxBreadItem v-if="goods.categories" :to="'/category/'+goods.categories[1].id">{{goods.categories[1].name}}</XtxBreadItem>
+        <XtxBreadItem v-if="goods.categories" :to="'/category/sub/'+goods.categories[0].id">{{goods.categories[0].name}}</XtxBreadItem>
         <XtxBreadItem>{{goods.name}}</XtxBreadItem>
       </XtxBread>
       <!-- 商品信息 -->
