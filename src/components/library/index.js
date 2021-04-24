@@ -36,7 +36,7 @@ const defineDirective = (app) => {
             el.src = defaultImg
           }
           observer.unobserve(el)
-          el.src = binding.value
+          el.src = binding.value || defaultImg
         }
       }, {
         threshold: 0.01
