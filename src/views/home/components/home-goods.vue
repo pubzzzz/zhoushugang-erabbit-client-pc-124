@@ -4,7 +4,7 @@
       <img alt="" v-lazy="goods.picture" />
     </RouterLink>
     <p class="name ellipsis-2">{{goods.name}}</p>
-    <p class="desc">{{goods.tag}}</p>
+    <p class="desc ellipsis">{{goods.tag}}</p>
     <p class="price">&yen;{{goods.price}}</p>
     <div class="extra">
       <RouterLink to="/">
@@ -49,6 +49,7 @@ export default {
   p {
     margin-top: 6px;
     font-size: 16px;
+    padding: 0 10px;
     &.name {
       height: 44px;
     }

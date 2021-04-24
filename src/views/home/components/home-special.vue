@@ -6,7 +6,10 @@
         <RouterLink to="/">
           <img :src="item.cover" alt />
           <div class="meta">
-            <p class="title">{{item.title}}<small>{{item.summary}}</small></p>
+            <p class="title">
+              <span class="top ellipsis">{{item.title}}</span>
+              <span class="sub ellipsis">{{item.summary}}</span>
+            </p>
             <span class="price">&yen;{{item.lowestPrice}}起</span>
           </div>
         </RouterLink>
@@ -55,6 +58,7 @@ export default {
       img {
         width: 100%;
         height: 100%;
+        object-fit: cover;
       }
       .meta {
         background-image: linear-gradient(to top,rgba(0, 0, 0, 0.8),transparent 50%);
@@ -64,13 +68,18 @@ export default {
         width: 100%;
         height: 288px;
         .title {
-          height: 70px;
-          padding-left: 16px;
-          font-size: 22px;
           position: absolute;
           bottom: 0px;
-          color: #fff;
-          small {
+          left: 0;
+          padding-left: 16px;
+          width: 70%;
+          height: 70px;
+          .top {
+            color: #fff;
+            font-size: 22px;
+            display: block;
+          }
+          .sub {
             display: block;
             font-size: 19px;
             color: #999;

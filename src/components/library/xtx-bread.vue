@@ -6,9 +6,11 @@ export default {
     const items = this.$slots.default()
     const domTree = []
     items.forEach((item, i) => {
-      domTree.push(item)
-      if (i < (items.length - 1)) {
-        domTree.push(h('i', { class: 'iconfont icon-angle-right' }))
+      if (item.type.name === 'XtxBreadItem') {
+        domTree.push(item)
+        if (i < (items.length - 1)) {
+          domTree.push(h('i', { class: 'iconfont icon-angle-right' }))
+        }
       }
     })
     return h('div', { class: 'xtx-bread' }, domTree)

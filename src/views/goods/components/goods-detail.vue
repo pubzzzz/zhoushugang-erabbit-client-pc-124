@@ -40,6 +40,7 @@ export default {
       .dd {
         flex: 1;
         color: #666;
+        padding-right: 50px;
       }
     }
   }

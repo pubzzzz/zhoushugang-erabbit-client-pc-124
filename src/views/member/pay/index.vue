@@ -54,6 +54,7 @@ import { computed, ref } from 'vue'
 import { findOrder } from '@/api/order'
 import { useRoute } from 'vue-router'
 import { usePayDownTime } from '@/hooks'
+import { baseURL } from '@/utils/request'
 export default {
   name: 'XtxPayPage',
   setup () {
@@ -73,9 +74,12 @@ export default {
     // 支付提示
     const visibleDialog = ref(false)
     const payUrl = computed(() => {
-      const payInterface = 'http://pcapi-xiaotuxian-front.itheima.net/pay/aliPay'
-      const payRedirect = encodeURIComponent(process.env.NODE_ENV === 'development' ? 'http://www.corho.com:8080/#/pay/callback' : 'http://erabbit.itheima.net/#/pay/callback')
-      return `${payInterface}?orderId=${order.value?.id}&redirect=${payRedirect}`
+      const payRedirect = encodeURIComponent(
+        process.env.NODE_ENV === 'development'
+          ? 'http://www.corho.com:8080/#/pay/callback'
+          : 'http://erabbit.itheima.net/#/pay/callback'
+      )
+      return `${baseURL}/pay/aliPay?orderId=${order.value?.id}&redirect=${payRedirect}`
     })
     return { order, timeText, visibleDialog, payUrl }
   }

@@ -4,8 +4,8 @@
       <!-- 面包屑 -->
       <XtxBread>
         <XtxBreadItem to="/">首页</XtxBreadItem>
-        <XtxBreadItem v-if="goods.categories" :to="'/category/'+goods.categories[1].id">{{goods.categories[1].name}}</XtxBreadItem>
-        <XtxBreadItem v-if="goods.categories" :to="'/category/sub/'+goods.categories[0].id">{{goods.categories[0].name}}</XtxBreadItem>
+        <XtxBreadItem v-if="goods.categories[1]" :to="'/category/'+goods.categories[1].id">{{goods.categories[1].name}}</XtxBreadItem>
+        <XtxBreadItem v-if="goods.categories[0]" :to="'/category/sub/'+goods.categories[0].id">{{goods.categories[0].name}}</XtxBreadItem>
         <XtxBreadItem>{{goods.name}}</XtxBreadItem>
       </XtxBread>
       <!-- 商品信息 -->

@@ -6,6 +6,7 @@
 
 import Confirm from './confirm'
 import Message from './message'
+import defaultImg from '@/assets/images/200.png'
 const importFn = require.context('./', false, /\.vue$/)
 
 export default {
@@ -31,6 +32,9 @@ const defineDirective = (app) => {
     mounted (el, binding) {
       const observer = new IntersectionObserver(([{ isIntersecting }]) => {
         if (isIntersecting) {
+          el.onerror = () => {
+            el.src = defaultImg
+          }
           observer.unobserve(el)
           el.src = binding.value
         }
