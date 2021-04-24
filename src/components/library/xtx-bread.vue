@@ -6,7 +6,8 @@ export default {
     const items = this.$slots.default()
     const domTree = []
     items.forEach((item, i) => {
-      if (item.type.name === 'XtxBreadItem') {
+      console.log(item)
+      if (item.type.children === 'XtxBreadItem' || item.children) {
         domTree.push(item)
         if (i < (items.length - 1)) {
           domTree.push(h('i', { class: 'iconfont icon-angle-right' }))

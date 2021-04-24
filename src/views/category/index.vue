@@ -58,6 +58,7 @@ export default {
       if (this.list && this.list.length) {
         currCategory = this.list.find(item => item.id === this.$route.params.id) || {}
       }
+      console.log(currCategory)
       return currCategory
     }
   },
