@@ -79,15 +79,16 @@
 <script>
 import { reactive, ref } from 'vue'
 import CheckoutAddress from './components/checkout-address'
-import { createOrder, findCheckoutInfo } from '@/api/order'
+import { createOrder, findCheckoutInfo, findOrderRepurchase } from '@/api/order'
 import Message from '@/components/library/message'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 export default {
   name: 'XtxPayCheckoutPage',
   components: { CheckoutAddress },
   setup () {
     const checkoutInfo = ref(null)
-    findCheckoutInfo().then(data => {
+    const route = useRoute();
+    (route.query.id ? findOrderRepurchase(route.query.id) : findCheckoutInfo()).then(data => {
       checkoutInfo.value = data.result
       // 设置提交时候的商品
       requestParams.goods = checkoutInfo.value.goods.map(item => {

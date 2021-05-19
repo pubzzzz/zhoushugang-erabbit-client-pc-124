@@ -174,7 +174,7 @@ export default {
         // 合并购物车操作
         store.dispatch('cart/mergeCart').then(() => {
           // 2. 提示
-          Message({}, { type: 'success', text: '完善信息成功' })
+          Message({}, { type: 'success', text: '登录成功' })
           // 3. 跳转
           router.push(route.query.redirectUrl || '/')
         })
