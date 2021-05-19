@@ -6,7 +6,6 @@ export default {
     const items = this.$slots.default()
     const domTree = []
     items.forEach((item, i) => {
-      console.log(item)
       if (item.type.children === 'XtxBreadItem' || item.children) {
         domTree.push(item)
         if (i < (items.length - 1)) {

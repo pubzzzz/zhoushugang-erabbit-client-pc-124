@@ -1,7 +1,7 @@
 <template>
   <div class='goods-sort'>
     <div class="sort">
-      <a :class="{active:myFilters.sortField===''}" href="javascript:;"  @click="changeSort('')">默认排序</a>
+      <a :class="{active:myFilters.sortField===null}" href="javascript:;"  @click="changeSort(null)">默认排序</a>
       <a :class="{active:myFilters.sortField==='publishTime'}" href="javascript:;" @click="changeSort('publishTime')">最新商品</a>
       <a :class="{active:myFilters.sortField==='orderNum'}" href="javascript:;" @click="changeSort('orderNum')">最高人气</a>
       <a :class="{active:myFilters.sortField==='evaluateNum'}" href="javascript:;" @click="changeSort('evaluateNum')">评论最多</a>
@@ -22,21 +22,21 @@
 import { reactive, watch } from 'vue'
 const useSortData = () => {
   const myFilters = reactive({
-    sortField: '',
-    sortMethod: '',
+    sortField: null,
+    sortMethod: null,
     inventory: false,
     onlyDiscount: false
   })
   const changeSort = (field) => {
     myFilters.sortField = field
     if (field === 'price') {
-      if (myFilters.sortMethod === '') {
+      if (myFilters.sortMethod === null) {
         myFilters.sortMethod = 'desc'
       } else {
         myFilters.sortMethod = myFilters.sortMethod === 'desc' ? 'asc' : 'desc'
       }
     } else {
-      myFilters.sortMethod = ''
+      myFilters.sortMethod = null
     }
   }
   return { myFilters, changeSort }

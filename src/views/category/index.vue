@@ -58,25 +58,20 @@ export default {
       if (this.list && this.list.length) {
         currCategory = this.list.find(item => item.id === this.$route.params.id) || {}
       }
-      console.log(currCategory)
       return currCategory
     }
   },
   async created () {
     const data = await findBanner()
     this.sliders = data.result
+    this.loadData(this.$route.params.id)
   },
-  watch: {
-    '$route.params.id': {
-      handler (now) {
-        now && this.loadData()
-      },
-      immediate: true
-    }
+  beforeRouteUpdate (to) {
+    this.loadData(to.params.id)
   },
   methods: {
-    async loadData () {
-      const data = await findTopCategory(this.$route.params.id)
+    async loadData (id) {
+      const data = await findTopCategory(id)
       this.subCategoryList = data.result.children
     }
   }

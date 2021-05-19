@@ -26,16 +26,16 @@
 
 <script>
 import { ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { findSubCategoryFilter } from '@/api/category'
 // 使用筛选区数据
 const useFilter = () => {
   const filterData = ref(null)
   const filterLoading = ref(false)
   const route = useRoute()
-  watch(() => route.params.id, async (newVal, oldVal) => {
+  const loadData = async (id) => {
     filterLoading.value = true
-    const { result } = await findSubCategoryFilter(newVal)
+    const { result } = await findSubCategoryFilter(id)
     result.selectedBrand = undefined
     result.brands.unshift({ id: undefined, name: '全部' })
     result.saleProperties.forEach(item => {
@@ -44,9 +44,13 @@ const useFilter = () => {
     })
     filterData.value = result
     filterLoading.value = false
-  }, {
-    immediate: true
+  }
+
+  loadData(route.params.id)
+  onBeforeRouteUpdate((to) => {
+    loadData(to.params.id)
   })
+
   return { filterData, filterLoading }
 }
 export default {
@@ -90,6 +94,8 @@ export default {
       a {
         margin-right: 36px;
         transition: all .3s;
+        display: inline-block;
+        line-height: 30px;
         &.active,
         &:hover {
           color: @xtxColor;

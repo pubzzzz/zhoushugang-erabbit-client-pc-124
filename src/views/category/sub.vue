@@ -68,6 +68,7 @@ export default {
       that.params.page = 1
       list.value = []
       finished.value = false
+      getData()
     }
     // 排序改变
     const sortChange = (sortParams) => {
@@ -75,6 +76,7 @@ export default {
       that.params.page = 1
       list.value = []
       finished.value = false
+      getData()
     }
     return { getData, list, loading, finished, filterChange, sortChange }
   }
