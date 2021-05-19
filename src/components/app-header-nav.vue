@@ -7,7 +7,7 @@
         <ul>
           <li v-for="sub in item.children" :key="sub.id">
             <RouterLink :to="`/category/sub/${sub.id}`" @click="hide(item)">
-              <img :src="sub.picture" alt="">
+              <img :src="sub.picture+'?quality=95&type=webp&imageView'" alt="">
               <p>{{sub.name}}</p>
             </RouterLink>
           </li>

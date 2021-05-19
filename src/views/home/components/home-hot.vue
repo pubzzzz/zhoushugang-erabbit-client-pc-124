@@ -5,7 +5,7 @@
         <ul v-if="goods.length" ref="pannel" class="goods-list">
           <li v-for="item in goods" :key="item.id">
             <RouterLink :to="'/product/'+item.id">
-              <img :src="item.picture" alt="">
+              <img :src="item.picture+'?type=webp&quality=95&thumbnail=265x265&imageView'" alt="">
               <p class="name">{{item.title}}</p>
               <p class="desc">{{item.alt}}</p>
             </RouterLink>

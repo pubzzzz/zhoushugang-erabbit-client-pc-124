@@ -18,7 +18,7 @@
       <ul v-if="currCategory && currCategory.goods && currCategory.goods.length">
         <li v-for="item in currCategory.goods" :key="item.id">
           <RouterLink :to="'/product/'+item.id">
-            <img v-lazy="item.picture" alt="">
+            <img v-lazy="item.picture+'?type=webp&imageView&thumbnail=78x78&quality=95'" alt="">
             <div class="info">
               <p class="name ellipsis-2">{{item.name}}</p>
               <p class="desc ellipsis">{{item.desc}}</p>

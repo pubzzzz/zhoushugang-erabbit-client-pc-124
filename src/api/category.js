@@ -27,5 +27,5 @@ export const findSubCategoryFilter = (id) => {
  * @param {Object} params 查询参数对象
  */
 export const findSubCategoryGoods = (params) => {
-  return request('/category/goods', 'post', params)
+  return request('/category/goods/temporary', 'post', params)
 }
