@@ -155,6 +155,7 @@ export default {
     dd {
       flex: 1;
       color: #666;
+      line-height: 40px;
       > img {
         width: 50px;
         height: 50px;
