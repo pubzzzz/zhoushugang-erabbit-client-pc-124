@@ -11,7 +11,7 @@ build:
   only:
     - master
   script:
-    - npm
+    - npm i
     - npm run build
     - rm -rf /home/erabbit-client-vue3/dist
     - mkdir /home/erabbit-client-vue3/dist
