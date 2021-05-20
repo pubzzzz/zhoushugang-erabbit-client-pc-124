@@ -11,6 +11,7 @@ build:
   only:
     - master
   script:
+    - npm install @vue/cli-service --unsafe-perm
     - npm i
     - npm run build
     - rm -rf /home/erabbit-client-vue3/dist
