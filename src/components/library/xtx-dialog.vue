@@ -1,9 +1,9 @@
 <template>
-  <div v-show="visible" class="xtx-dialog" :class="{fade}">
+  <div class="xtx-dialog" v-show="visible" :class="{fade}">
     <div class="wrapper" :class="{fade}">
       <div class="header">
         <h3>{{title}}</h3>
-        <a @click="close" href="JavaScript:;" class="iconfont icon-close-new"></a>
+        <a @click="closeDialog()" href="JavaScript:;" class="iconfont icon-close-new"></a>
       </div>
       <div class="body">
         <slot />
@@ -15,6 +15,8 @@
   </div>
 </template>
 <script>
+// vue3.0 v-model:visible 语法糖，拆解 （:visible + @update:visible）
+// vue2.0 visible.sync 语法糖，拆解 （:visible + @update:visible）
 import { ref, watch } from 'vue'
 export default {
   name: 'XtxDialog',
@@ -29,18 +31,21 @@ export default {
     }
   },
   setup (props, { emit }) {
-    const fade = ref(true)
-    // 改造动画执行时机
-    watch(() => props.visible, () => {
+    const fade = ref(false)
+
+    // visible的值为true打开对话框，否则就是关闭对话框，其实控制fade的值即可
+    watch(() => props.visible, (newVal) => {
       setTimeout(() => {
-        fade.value = props.visible
-      }, 10)
+        fade.value = newVal
+      }, 0)
     }, { immediate: true })
-    // 关闭的时候通知父组件
-    const close = () => {
+
+    // 自己关闭对话框，修改父组件数据状态
+    const closeDialog = () => {
       emit('update:visible', false)
     }
-    return { fade, close }
+
+    return { fade, closeDialog }
   }
 }
 </script>
@@ -51,7 +56,7 @@ export default {
   top: 0;
   width: 100%;
   height: 100%;
-  z-index: 8888;
+  z-index: 8887;
   background: rgba(0,0,0,0);
   &.fade {
     transition: all 0.4s;

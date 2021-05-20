@@ -1,33 +1,41 @@
-import { defaultCategory } from '@/api/constants'
+// 分类模块
+import { topCategory } from '@/api/constants'
 import { findAllCategory } from '@/api/category'
 export default {
   namespaced: true,
   state () {
     return {
-      // 默认数据：[{name:'xxx'},...] 才能支持组件默认渲染
-      list: defaultCategory.map(item => ({ name: item }))
+      // 分类信息集合，依赖topCategory重新设置，保证初始化就要数据，不至于白屏
+      list: topCategory.map(item => ({ name: item }))
     }
   },
+  // 修改分类函数
   mutations: {
-    setCategory (state, payload) {
+    // payload 所有的分类集合
+    setList (state, payload) {
       state.list = payload
     },
-    show (state, payload) {
-      const item = state.list.find(item => item.id === payload.id)
-      item.open = true
+    // 定义show和hide函数，控制当前分类的二级分类显示和隐藏
+    show (state, id) {
+      const currCategory = state.list.find(item => item.id === id)
+      currCategory.open = true
     },
-    hide (state, payload) {
-      const item = state.list.find(item => item.id === payload.id)
-      item.open = false
+    hide (state, id) {
+      const currCategory = state.list.find(item => item.id === id)
+      currCategory.open = false
     }
   },
+  // 获取分类函数
   actions: {
-    async getCategory (ctx) {
+    async getList ({ commit }) {
+      // 获取分类数据
       const data = await findAllCategory()
-      data.result.forEach(item => {
-        item.open = false
+      // 给每个分类加上控制二级分类显示隐藏的数据
+      data.result.forEach(top => {
+        top.open = false
       })
-      ctx.commit('setCategory', data.result)
+      // 修改分类数据
+      commit('setList', data.result)
     }
   }
 }

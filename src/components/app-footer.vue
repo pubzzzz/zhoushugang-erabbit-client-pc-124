@@ -1,5 +1,5 @@
 <template>
-  <footer class="app_footer">
+  <footer class="app-footer">
     <!-- 联系我们 -->
     <div class="contact">
       <div class="container">
@@ -65,12 +65,12 @@
 
 <script>
 export default {
-  name: 'app-footer'
+  name: 'AppFooter'
 }
 </script>
 
 <style scoped lang='less'>
-.app_footer {
+.app-footer {
   overflow: hidden;
   background-color: #f5f5f5;
   padding-top: 20px;

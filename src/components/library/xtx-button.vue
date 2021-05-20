@@ -42,10 +42,12 @@ export default {
 .small {
   width: 100px;
   height: 32px;
+  font-size: 14px;
 }
 .mini {
   width: 60px;
   height: 32px;
+  font-size: 14px;
 }
 .default {
   border-color: #e4e4e4;

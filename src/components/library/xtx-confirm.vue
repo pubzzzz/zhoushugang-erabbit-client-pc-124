@@ -10,16 +10,18 @@
         <span>{{text}}</span>
       </div>
       <div class="footer">
-        <XtxButton size="mini" type="gray" @click="cancel">取消</XtxButton>
-        <XtxButton size="mini" type="primary"  @click="submit">确认</XtxButton>
+        <XtxButton @click="cancel" size="mini" type="gray">取消</XtxButton>
+        <XtxButton @click="submit" size="mini" type="primary">确认</XtxButton>
       </div>
     </div>
   </div>
 </template>
 <script>
 import { onMounted, ref } from 'vue'
+import XtxButton from './xtx-button'
 export default {
   name: 'XtxConfirm',
+  components: { XtxButton },
   props: {
     title: {
       type: String,
@@ -37,22 +39,25 @@ export default {
     }
   },
   setup (props) {
+    // 对话框默认隐藏
     const fade = ref(false)
+    // 组件渲染完毕后
     onMounted(() => {
-      // 结构和样式同时加上无过度效果，需要些延时。
+      // 过渡效果需要在元素创建完毕后延时一会加上才会触发
       setTimeout(() => {
         fade.value = true
       }, 0)
     })
-
+    // 取消
     const cancel = () => {
+      // 其他事情
       props.cancelCallback()
     }
-
+    // 确认
     const submit = () => {
+      // 其他事情
       props.submitCallback()
     }
-
     return { cancel, submit, fade }
   }
 }

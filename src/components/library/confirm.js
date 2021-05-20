@@ -1,29 +1,30 @@
-import { createVNode, render } from 'vue'
+import { createVNode, render } from 'vue-demi'
 import XtxConfirm from './xtx-confirm.vue'
 
-const confirmContainer = document.createElement('div')
-confirmContainer.setAttribute('class', 'confirm-container')
-document.body.append(confirmContainer)
+// 准备一个DOM
+const div = document.createElement('div')
+div.setAttribute('class', 'xtx-confirm-container')
+document.body.appendChild(div)
 
-export default (app, config) => {
+// 返回的是promise对象，点取消销毁组件，点确认销毁组件
+export default ({ title, text }) => {
+  // 1. 导入被创建的组件
+  // 2. 使用createVNode创建虚拟节点
+  // 3. 准备一个dom容器装载组件
+  // 4. 使用render函数渲染组件到容器
   return new Promise((resolve, reject) => {
-    // 取消回调函数
-    config.cancelCallback = () => {
-    // 销毁组件
-      render(null, confirmContainer)
-      reject(new Error('取消操作'))
+    // 点击取消触发的函数
+    const cancelCallback = () => {
+      render(null, div)
+      reject(new Error('点击取消'))
     }
-    // 确认回调函数
-    config.submitCallback = () => {
-    // 销毁组件
-      render(null, confirmContainer)
+    // 点击确认触发的函数
+    const submitCallback = () => {
+      render(null, div)
       resolve()
     }
-    // 创建虚拟节点
-    const vn = createVNode(XtxConfirm, config)
-    // 设置组件上下文
-    vn.appContext = app.appContext
-    // 渲染组件
-    render(vn, confirmContainer)
+
+    const vn = createVNode(XtxConfirm, { title, text, cancelCallback, submitCallback })
+    render(vn, div)
   })
 }

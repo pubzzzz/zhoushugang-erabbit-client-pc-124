@@ -1,4 +1,4 @@
-# erabbit-client-pc-vue3
+# eribbit-client-pc-124
 
 ## Project setup
 ```

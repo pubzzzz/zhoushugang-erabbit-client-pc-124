@@ -6,11 +6,12 @@
         <XtxBreadItem to="/cart">购物车</XtxBreadItem>
         <XtxBreadItem >填写订单</XtxBreadItem>
       </XtxBread>
-      <div class="wrapper" v-if="checkoutInfo">
+      <div class="wrapper" v-if="order">
         <!-- 收货地址 -->
         <h3 class="box-title">收货地址</h3>
         <div class="box-body">
-          <CheckoutAddress @change="changeAddress" :list="checkoutInfo.userAddresses" />
+          <!-- 收货地址组件 -->
+          <CheckoutAddress @change="changeAddress" :list="order.userAddresses" />
         </div>
         <!-- 商品信息 -->
         <h3 class="box-title">商品信息</h3>
@@ -26,7 +27,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in checkoutInfo.goods" :key="item.id">
+              <tr v-for="item in order.goods" :key="item.skuId">
                 <td>
                   <a href="javascript:;" class="info">
                     <img :src="item.picture" alt="">
@@ -36,7 +37,7 @@
                     </div>
                   </a>
                 </td>
-                <td>&yen;{{item.payPrice}}</td>
+                <td>&yen;{{item.price}}</td>
                 <td>{{item.count}}</td>
                 <td>&yen;{{item.totalPrice}}</td>
                 <td>&yen;{{item.totalPayPrice}}</td>
@@ -62,63 +63,84 @@
         <h3 class="box-title">金额明细</h3>
         <div class="box-body">
           <div class="total">
-            <dl><dt>商品件数：</dt><dd>{{checkoutInfo.summary.goodsCount}}件</dd></dl>
-            <dl><dt>商品总价：</dt><dd>¥{{checkoutInfo.summary.totalPrice}}</dd></dl>
-            <dl><dt>运<i></i>费：</dt><dd>¥{{checkoutInfo.summary.postFee}}</dd></dl>
-            <dl><dt>应付总额：</dt><dd class="price">¥{{checkoutInfo.summary.totalPayPrice}}</dd></dl>
+            <dl><dt>商品件数：</dt><dd>{{order.summary.goodsCount}}件</dd></dl>
+            <dl><dt>商品总价：</dt><dd>¥{{order.summary.totalPrice}}</dd></dl>
+            <dl><dt>运<i></i>费：</dt><dd>¥{{order.summary.postFee}}</dd></dl>
+            <dl><dt>应付总额：</dt><dd class="price">¥{{order.summary.totalPayPrice}}</dd></dl>
           </div>
         </div>
         <!-- 提交订单 -->
         <div class="submit">
-          <XtxButton @click="submitOrder" type="primary">提交订单</XtxButton>
+          <XtxButton @click="submitOrderFn" type="primary">提交订单</XtxButton>
         </div>
       </div>
     </div>
   </div>
 </template>
 <script>
-import { reactive, ref } from 'vue'
 import CheckoutAddress from './components/checkout-address'
-import { createOrder, findCheckoutInfo, findOrderRepurchase } from '@/api/order'
-import Message from '@/components/library/message'
-import { useRoute, useRouter } from 'vue-router'
+import { createOrder, submitOrder, repurchaseOrder } from '@/api/order'
+import { reactive, ref } from 'vue'
+import Message from '@/components/library/Message'
+import { useRouter, useRoute } from 'vue-router'
+import { useStore } from 'vuex'
 export default {
   name: 'XtxPayCheckoutPage',
   components: { CheckoutAddress },
   setup () {
-    const checkoutInfo = ref(null)
-    const route = useRoute();
-    (route.query.id ? findOrderRepurchase(route.query.id) : findCheckoutInfo()).then(data => {
-      checkoutInfo.value = data.result
-      // 设置提交时候的商品
-      requestParams.goods = checkoutInfo.value.goods.map(item => {
-        return {
-          skuId: item.skuId,
-          count: item.count
-        }
+    // 结算功能-生成订单-订单信息
+    const order = ref(null)
+    const route = useRoute()
+    const store = useStore()
+    if (route.query.orderId) {
+      // 按照订单中商品结算
+      repurchaseOrder(route.query.orderId).then(data => {
+        order.value = data.result
+        reqParams.goods = data.result.goods.map(({ skuId, count }) => ({ skuId, count }))
       })
-    })
-    // 需要提交的字段
-    const requestParams = reactive({
-      addressId: null,
+    } else {
+      // 按照购物车商品结算
+      createOrder().then(data => {
+        order.value = data.result
+        reqParams.goods = data.result.goods.map(({ skuId, count }) => ({ skuId, count }))
+      })
+    }
+
+    // 接收收货地址ID
+    const changeAddress = (id) => {
+      reqParams.addressId = id
+    }
+
+    // 结算功能-提交订单-提交信息
+    const reqParams = reactive({
       deliveryTimeType: 1,
       payType: 1,
+      payChannel: 1,
       buyerMessage: '',
-      goods: []
+      // 商品信息，获取订单信息后设置
+      goods: [],
+      // 收货地址，切换收货地址或者组件默认的时候设置
+      addressId: null
     })
-    // 切换地址
-    const changeAddress = (id) => {
-      requestParams.addressId = id
-    }
+
     // 提交订单
     const router = useRouter()
-    const submitOrder = () => {
-      if (!requestParams.addressId) return Message({ text: '请选择收货地址' })
-      createOrder(requestParams).then(data => {
-        router.push({ path: '/member/pay', query: { id: data.result.id } })
+    const submitOrderFn = () => {
+      // 检查收货地址是否选好
+      if (!reqParams.addressId) {
+        return Message({ text: '亲，请选择收货地址' })
+      }
+      submitOrder(reqParams).then(data => {
+        // 清理本地购物车
+        store.dispatch('cart/findCart')
+        // 提交订单成功
+        Message({ type: 'success', text: '提交订单成功' })
+        // 跳转支付页面
+        router.push(`/member/pay?orderId=${data.result.id}`)
       })
     }
-    return { checkoutInfo, changeAddress, submitOrder }
+
+    return { order, changeAddress, reqParams, submitOrderFn }
   }
 }
 </script>

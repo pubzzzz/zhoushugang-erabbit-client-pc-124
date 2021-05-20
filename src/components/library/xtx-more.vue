@@ -30,7 +30,7 @@ export default {
     font-size: 14px;
     vertical-align: middle;
     position: relative;
-    top: 1px;
+    top: 2px;
     color: #ccc;
   }
   &:hover {

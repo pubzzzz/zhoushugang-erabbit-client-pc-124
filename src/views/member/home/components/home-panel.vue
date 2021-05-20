@@ -6,30 +6,18 @@
     </div>
     <!-- 商品列表 -->
     <div class="goods-list">
-      <GoodsItem v-for="i in 4" :key="i" :goods="goods" />
+      <slot />
     </div>
   </div>
 </template>
 <script>
-import GoodsItem from '@/views/category/components/goods-item'
 export default {
-  name: 'MemberHomeOrder',
-  components: { GoodsItem },
+  name: 'MemberHomePanel',
   props: {
     title: {
       type: String,
       default: ''
     }
-  },
-  setup () {
-    const goods = {
-      id: '1',
-      name: '自煮火锅不排队 麦饭石不粘鸳鸯火锅',
-      picture: 'https://yanxuan-item.nosdn.127.net/fcdcb840a0f5dd754bb8fd2157579012.jpg',
-      desc: '清汤鲜香 红汤劲爽',
-      price: '159.00'
-    }
-    return { goods }
   }
 }
 </script>

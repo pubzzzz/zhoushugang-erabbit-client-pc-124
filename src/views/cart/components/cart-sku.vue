@@ -1,70 +1,78 @@
 <template>
   <div class="cart-sku" ref="target">
-    <div class="attrs" @click="toggleCollapse">
-      <span class="ellipsis">{{text}}</span>
+    <div class="attrs" @click="toggle()">
+      <span class="ellipsis">{{attrsText}}</span>
       <i class="iconfont icon-angle-down"></i>
     </div>
-    <div class="layer" v-if="collapse">
-      <GoodsSku v-if="goods" :goods="goods" :skuId="skuId" @change="changeSku" />
-      <XtxButton v-if="goods" size="mini" type="primary" @click="submit()">确认</XtxButton>
-      <div v-else class="loading" ></div>
+    <div class="layer" v-if="visible">
+      <div v-if="loading" class="loading"></div>
+      <GoodsSku @change="changeSku" :skuId="skuId" v-else :goods="goods" />
+      <XtxButton @click="submit" v-if="!loading" type="primary" size="mini" style="margin-left:60px">确认</XtxButton>
     </div>
   </div>
 </template>
 <script>
 import { ref } from 'vue'
 import { onClickOutside } from '@vueuse/core'
-import { findGoodsSkus } from '@/api/goods'
+import { getGoodsSku } from '@/api/cart'
 import GoodsSku from '@/views/goods/components/goods-sku'
 export default {
   name: 'CartSku',
   components: { GoodsSku },
   props: {
+    attrsText: {
+      type: String,
+      default: ''
+    },
     skuId: {
       type: String,
-      default: null
-    },
-    text: {
-      type: String,
-      default: null
+      default: ''
     }
   },
   setup (props, { emit }) {
-    const collapse = ref(false)
+    const visible = ref(false)
     const goods = ref(null)
-    // 切换展开收起
+    const loading = ref(false)
+    // 打开
     const open = () => {
-      collapse.value = true
-      findGoodsSkus(props.skuId).then(data => {
+      visible.value = true
+      // 获取商品数据（specs,skus）
+      loading.value = true
+      getGoodsSku(props.skuId).then(data => {
         goods.value = data.result
+        loading.value = false
       })
     }
+    // 关闭
     const close = () => {
-      collapse.value = false
-      goods.value = null
+      visible.value = false
     }
-    const toggleCollapse = () => {
-      collapse.value ? close() : open()
+    // 切换
+    const toggle = () => {
+      visible.value ? close() : open()
     }
-    // 点击其他地方，收起
+    // 点击其他地方关闭
     const target = ref(null)
     onClickOutside(target, () => {
       close()
     })
-    // 选择sku触发事件
-    const changedSku = ref(null)
+
+    // 监听sku改变的函数，记录sku信息
+    const currSku = ref(null)
     const changeSku = (sku) => {
-      changedSku.value = sku
+      currSku.value = sku
     }
-    // 确认事件
+
+    // 点击确认的时候，更改后的sku信息提交给父组件（购物车组件）
     const submit = () => {
-      close()
-      if (changedSku.value && changedSku.value.skuId && changedSku.value.skuId !== props.skuId) {
-        // 选择了一个有效的skuId且和默认的不一致，才去更新
-        emit('change', changedSku.value)
+      // 当你currSku有值，且skuId和默认的skuId不同
+      if (currSku.value && currSku.value.skuId && currSku.value.skuId !== props.skuId) {
+        emit('change', currSku.value)
+        close()
       }
     }
-    return { collapse, toggleCollapse, target, goods, changeSku, submit }
+
+    return { visible, toggle, target, goods, loading, changeSku, submit }
   }
 }
 </script>
@@ -99,6 +107,8 @@ export default {
     box-shadow: 2px 2px 4px lighten(@xtxColor,50%);
     background: #fff;
     border-radius: 4px;
+    font-size: 14px;
+    padding: 20px;
     &::before {
       content: "";
       width: 12px;
@@ -112,18 +122,9 @@ export default {
       transform: scale(.8,1) rotate(45deg);
     }
     .loading {
-      height: 242px;
+      height: 224px;
       background: url(../../../assets/images/loading.gif) no-repeat center;
     }
   }
-}
-.goods-sku {
-  font-size: 14px;
-  padding-left: 20px;
-}
-.xtx-button {
-  margin-left: 70px;
-  margin-bottom: 20px;
-  font-size: 14px;
 }
 </style>

@@ -1,63 +1,59 @@
 <template>
   <Transition name="down">
-    <div class='xtx-message' :style="style" v-show="show">
-      <i class="iconfont" :class="[style.icon]"></i>
+    <div class="xtx-message" :style="style[type]" v-show="visible">
+      <!-- 上面绑定的是样式 -->
+      <!-- 不同提示图标会变 :class="{'icon-warning':true}" :class="['icon-warning']" -->
+      <i class="iconfont" :class="[style[type].icon]"></i>
       <span class="text">{{text}}</span>
     </div>
   </Transition>
 </template>
-
 <script>
+import { onMounted, ref } from 'vue'
 export default {
   name: 'XtxMessage',
   props: {
     type: {
       type: String,
-      default: 'warning'
+      default: 'warn'
     },
     text: {
       type: String,
       default: ''
     }
   },
-  computed: {
-    style () {
-      if (this.type === 'success') {
-        return {
-          icon: 'icon-queren2',
-          color: '#67C23A',
-          backgroundColor: 'rgb(240, 249, 235)',
-          borderColor: 'rgb(225, 243, 216)'
-        }
-      }
-      if (this.type === 'error') {
-        return {
-          icon: 'icon-shanchu',
-          color: '#F56C6C',
-          backgroundColor: 'rgb(254, 240, 240)',
-          borderColor: 'rgb(253, 226, 226)'
-        }
-      }
-      return {
+  setup () {
+    // 定义一个对象，包含三种情况的样式，对象key就是类型字符串
+    const style = {
+      warn: {
         icon: 'icon-warning',
         color: '#E6A23C',
         backgroundColor: 'rgb(253, 246, 236)',
         borderColor: 'rgb(250, 236, 216)'
+      },
+      error: {
+        icon: 'icon-shanchu',
+        color: '#F56C6C',
+        backgroundColor: 'rgb(254, 240, 240)',
+        borderColor: 'rgb(253, 226, 226)'
+      },
+      success: {
+        icon: 'icon-queren2',
+        color: '#67C23A',
+        backgroundColor: 'rgb(240, 249, 235)',
+        borderColor: 'rgb(225, 243, 216)'
       }
     }
-  },
-  data () {
-    return {
-      show: false
-    }
-  },
-  mounted () {
-    this.show = true
+    // 控制元素显示隐藏
+    const visible = ref(false)
+    onMounted(() => {
+      visible.value = true
+    })
+    return { style, visible }
   }
 }
 </script>
-
-<style scoped lang='less'>
+<style scoped lang="less">
 .down {
   &-enter {
     &-from {

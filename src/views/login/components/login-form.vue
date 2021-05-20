@@ -8,15 +8,14 @@
         <i class="iconfont icon-msg"></i> 使用短信登录
       </a>
     </div>
-    <!-- autocomplete="off" 关闭自动完成功能，原生功能 -->
-    <Form class="form" ref="target" :validation-schema="mySchema" v-slot="{errors}" autocomplete="off">
+    <Form ref="formCom" class="form" :validation-schema="schema" v-slot="{errors}" autocomplete="off">
       <template v-if="!isMsgLogin">
         <div class="form-item">
           <div class="input">
             <i class="iconfont icon-user"></i>
-            <Field :class="{error:errors.account}" name="account" v-model="form.account" type="text" placeholder="请输入用户名或手机号" />
+            <Field :class="{error:errors.account}" v-model="form.account" name="account" type="text" placeholder="请输入用户名" />
           </div>
-          <div v-if="errors.account" class="error">
+          <div class="error" v-if="errors.account">
             <i class="iconfont icon-warning" />
             {{errors.account}}
           </div>
@@ -24,9 +23,9 @@
         <div class="form-item">
           <div class="input">
             <i class="iconfont icon-lock"></i>
-            <Field :class="{error:errors.password}" name="password" v-model="form.password" type="password" placeholder="请输入密码" />
+            <Field :class="{error:errors.password}" v-model="form.password" name="password" type="password" placeholder="请输入密码" />
           </div>
-          <div v-if="errors.password" class="error">
+          <div class="error" v-if="errors.password">
             <i class="iconfont icon-warning" />
             {{errors.password}}
           </div>
@@ -36,9 +35,9 @@
         <div class="form-item">
           <div class="input">
             <i class="iconfont icon-user"></i>
-            <Field :class="{error:errors.mobile}" name="mobile" v-model="form.mobile" type="text" placeholder="请输入手机号" />
+            <Field :class="{error:errors.mobile}" v-model="form.mobile" name="mobile" type="text" placeholder="请输入手机号" />
           </div>
-          <div v-if="errors.mobile" class="error">
+          <div class="error" v-if="errors.mobile">
             <i class="iconfont icon-warning" />
             {{errors.mobile}}
           </div>
@@ -46,12 +45,12 @@
         <div class="form-item">
           <div class="input">
             <i class="iconfont icon-code"></i>
-            <Field :class="{error:errors.code}" name="code" v-model="form.code" type="text" placeholder="请输入验证码" />
+            <Field :class="{error:errors.code}" v-model="form.code" name="code" type="text" placeholder="请输入验证码" />
             <span @click="send()" class="code">
               {{time===0?'发送验证码':`${time}秒后发送`}}
             </span>
           </div>
-          <div v-if="errors.code" class="error">
+          <div class="error" v-if="errors.code">
             <i class="iconfont icon-warning" />
             {{errors.code}}
           </div>
@@ -65,15 +64,15 @@
           <span>和</span>
           <a href="javascript:;">《服务条款》</a>
         </div>
-        <div v-if="errors.isAgree" class="error">
-            <i class="iconfont icon-warning" />
-            {{errors.isAgree}}
-          </div>
+        <div class="error" v-if="errors.isAgree">
+          <i class="iconfont icon-warning" />
+          {{errors.isAgree}}
+        </div>
       </div>
-      <a @click="submit()" href="javascript:;" class="btn">登录</a>
+      <a @click="login()" href="javascript:;" class="btn">登录</a>
     </Form>
     <div class="action">
-      <a :href="`https://graph.qq.com/oauth2.0/authorize?client_id=${appId}&response_type=token&scope=all&redirect_uri=${qqBack}`" >
+      <a :href="qqUrl">
         <img src="https://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_7.png" alt="">
       </a>
       <div class="url">
@@ -84,35 +83,21 @@
   </div>
 </template>
 <script>
-// 1. 安装 vee-validate 4.0.3 版本
-// 2. 导入两个组件 Form Field 并且注册
-// 3. 将Form替代form标签  将Field替换表单元素
-// 4. Field表单元素的双向数据绑定
-// 5. 定义校验规则，Form组件使用。可以当前组件，提取出去可复用
-// 6. Field通过name指定校验规则
-// 7. 显示错误状态
-import { reactive, ref, watch } from 'vue'
+import { onUnmounted, reactive, ref, watch } from 'vue'
 import { Form, Field } from 'vee-validate'
 import schema from '@/utils/vee-validate-schema'
-import { userAccountLogin, userMobileLogin, userMobileLoginCode } from '@/api/user'
-import Message from '@/components/library/message'
+import Message from '@/components/library/Message'
+import { userAccountLogin, userMobileLogin, userMobileLoginMsg } from '@/api/user'
 import { useStore } from 'vuex'
 import { useRoute, useRouter } from 'vue-router'
-// import QC from 'qc'
+import { useIntervalFn } from '@vueuse/core'
 export default {
   name: 'LoginForm',
   components: { Form, Field },
   setup () {
-    // onMounted(() => {
-    //   // 组件渲染完毕，使用QC生成QQ登录按钮
-    //   QC.Login({
-    //     btnId: 'qqLoginBtn'
-    //   })
-    // })
-
-    // 控制短信登录切换的
+    // 切换短信登录
     const isMsgLogin = ref(false)
-    // 表单对象数据
+    // 表单数据对象
     const form = reactive({
       isAgree: true,
       account: null,
@@ -120,103 +105,129 @@ export default {
       mobile: null,
       code: null
     })
-    // 校验规则对象
+
+    // vee-validate 校验基本步骤
+    // 1. 导入 Form Field 组件 将 form 和 input 进行替换，需要加上name用来指定将来的校验规则函数的
+    // 2. Field 需要进行数据绑定，字段名称最好和后台接口需要的一致
+    // 3. 定义Field的name属性指定的校验规则函数，Form的validation-schema接受定义好的校验规则是对象
+    // 4. 自定义组件需要校验必须先支持v-model 然后Field使用as指定为组件名称
     const mySchema = {
+      // 校验函数规则：返回true就是校验成功，返回一个字符串就是失败，字符串就是错误提示
       account: schema.account,
       password: schema.password,
       mobile: schema.mobile,
       code: schema.code,
       isAgree: schema.isAgree
     }
-    // 切换表单元素，还原数据和清除校验效果
-    const target = ref(null)
+
+    // 监听isMsgLogin重置表单（数据+清除校验结果）
+    const formCom = ref(null)
     watch(isMsgLogin, () => {
-      // 还原数据
+      // 重置数据
       form.isAgree = true
       form.account = null
       form.password = null
       form.mobile = null
       form.code = null
-      // 补充校验效果清除，Form组件提供resetForm()
-      target.value.resetForm()
+      // 如果是没有销毁Field组件，之前的校验结果是不会清除  例如：v-show切换的
+      // Form组件提供了一个 resetForm 函数清除校验结果
+      formCom.value.resetForm()
     })
-    // 使用store
+
+    // setup中获取组件实例 proxy
+    // const { proxy } = getCurrentInstance()
+    // proxy.$message({ text: '111' })
+
+    // 需要在点击登录的时候对整体表单进行校验
     const store = useStore()
-    // 使用router
     const router = useRouter()
-    // 使用route
     const route = useRoute()
-    // 登录提交
-    const submit = async () => {
-      // 整体校验
-      const valid = await target.value.validate()
+    const login = async () => {
+      // Form组件提供了一个 validate 函数作为整体表单校验，当是返回的是一个promise
+      const valid = await formCom.value.validate()
       if (valid) {
-        // 发送请求
-        let data = null
         try {
-          if (!isMsgLogin.value) {
-            // 帐号登录
-            data = await userAccountLogin(form)
+          let data = null
+          if (isMsgLogin.value) {
+            // **手机号登录
+            // 2.1. 准备一个API做手机号登录
+            // 2.2. 调用API函数
+            // 2.3. 成功：存储用户信息 + 跳转至来源页或者首页 + 消息提示
+            // 2.4. 失败：消息提示
+            const { mobile, code } = form
+            data = await userMobileLogin({ mobile, code })
           } else {
-            // 短信登录
-            // 1. 定义两个API  短信登录，获取短信验证码
-            // 2. 实现发送短信验证码发送功能
-            // 3. 完成手机号短信验证码登录逻辑
-            data = await userMobileLogin(form)
+            // **帐号登录
+            // 1. 准备一个API做帐号登录
+            // 2. 调用API函数
+            // 3. 成功：存储用户信息 + 跳转至来源页或者首页 + 消息提示
+            // 4. 失败：消息提示
+            const { account, password } = form
+            data = await userAccountLogin({ account, password })
           }
+          // 存储用户信息
+          const { id, account, avatar, mobile, nickname, token } = data.result
+          store.commit('user/setUser', { id, account, avatar, mobile, nickname, token })
+          store.dispatch('cart/mergeCart').then(() => {
+            // 进行跳转
+            router.push(route.query.redirectUrl || '/')
+            // 成功消息提示
+            Message({ type: 'success', text: '登录成功' })
+          })
         } catch (e) {
-          Message({}, { type: 'error', text: e.response.data.message || '登录失败' })
+          // 失败提示
+          if (e.response.data) {
+            Message({ type: 'error', text: e.response.data.message || '登录失败' })
+          }
         }
-        // 成功
-        // 1. 存储信息
-        const { id, account, nickname, avatar, token, mobile } = data.result
-        store.commit('user/setUser', { id, account, nickname, avatar, token, mobile })
-        // 合并购物车操作
-        store.dispatch('cart/mergeCart').then(() => {
-          // 2. 提示
-          Message({}, { type: 'success', text: '登录成功' })
-          // 3. 跳转
-          router.push(route.query.redirectUrl || '/')
-        })
       }
     }
 
-    // 发送短信验证码
+    // pause 暂停 resume 开始
+    // useIntervalFn(回调函数,执行间隔,是否立即开启)
     const time = ref(0)
-    let timer = null
-    const send = () => {
-      // 1. 校验下手机号是否正确，不正确需要错误提示
-      // 2. 验证下是否正在等待倒计时
-      // 3. 调用短信接口
-      // 4. 如果发送成功，开始倒计时  `60秒后发送`
-      // 5. 显示倒计时时间
-      // 6. 倒计时完毕，再次显示 `发送验证码`
+    const { pause, resume } = useIntervalFn(() => {
+      time.value--
+      if (time.value <= 0) {
+        pause()
+      }
+    }, 1000, false)
+    onUnmounted(() => {
+      pause()
+    })
+
+    // 1. 发送验证码
+    // 1.1 绑定发送验证码按钮点击事件
+    // 1.2 校验手机号，如果成功才去发送短信（定义API），请求成功开启60s的倒计时，不能再次点击，倒计时结束恢复
+    // 1.3 如果失败，失败的校验样式显示出来
+    const send = async () => {
       const valid = mySchema.mobile(form.mobile)
       if (valid === true) {
+        // 通过
         if (time.value === 0) {
-          userMobileLoginCode(form.mobile).then(() => {
-            time.value = 60
-            clearInterval(timer)
-            timer = setInterval(() => {
-              time.value--
-              if (time.value <= 0) {
-                clearInterval(timer)
-              }
-            }, 1000)
-          }).catch(e => {
-            Message({}, { type: 'error', text: e.response.data.message || '发送失败' })
-          })
+        // 没有倒计时才可以发送
+          await userMobileLoginMsg(form.mobile)
+          Message({ type: 'success', text: '发送成功' })
+          time.value = 60
+          resume()
         }
       } else {
-        // 不正确需要错误提示
-        target.value.setFieldError('mobile', valid)
+        // 失败，使用vee的错误函数显示错误信息 setFieldError(字段,错误信息)
+        formCom.value.setFieldError('mobile', valid)
       }
     }
 
+    // 初始化QQ登录按钮 （官方）
+    // 1. 准备span有id = qqLoginBtn
+    // 2. QC.Login({btnId:"qqLoginBtn"})
+    // onMounted(() => {
+    //   QC.Login({ btnId: 'qqLoginBtn' })
+    // })
     const appId = process.env.VUE_APP_QQAPPID
     const qqBack = encodeURIComponent(process.env.VUE_APP_QQBACK)
+    const qqUrl = `https://graph.qq.com/oauth2.0/authorize?client_id=${appId}&response_type=token&scope=all&redirect_uri=${qqBack}`
 
-    return { isMsgLogin, form, mySchema, target, submit, send, time, appId, qqBack }
+    return { isMsgLogin, form, schema: mySchema, formCom, login, send, time, qqUrl }
   }
 }
 </script>

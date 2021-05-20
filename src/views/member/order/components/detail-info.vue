@@ -13,20 +13,20 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="goods in order.skus" :key="goods.skuId">
+        <tr v-for="item in order.skus" :key="item.id">
           <td>
             <a href="javascript:;" class="product">
-              <img :src="goods.image" alt="" />
+              <img :src="item.image" alt="" />
               <div class="info">
-                <p class="name ellipsis">{{goods.name}}</p>
-                <p class="attrs ellipsis">{{goods.attrsText}}</p>
+                <p class="name ellipsis">{{item.name}}</p>
+                <p class="attrs ellipsis">{{item.attrsText}}</p>
               </div>
             </a>
           </td>
-          <td>¥{{goods.curPrice}}</td>
-          <td>{{goods.quantity}}</td>
-          <td>¥{{goods.realPay}}</td>
-          <td>¥{{goods.realPay}}</td>
+          <td>¥{{item.curPrice}}</td>
+          <td>{{item.quantity}}</td>
+          <td>¥{{item.realPay}}</td>
+          <td>¥{{item.realPay}}</td>
         </tr>
       </tbody>
     </table>
@@ -35,15 +35,15 @@
     <div class="info-box">
       <dl>
         <dt>收<i></i>货<i></i>人：</dt>
-        <dd>{{order.receiverContact}}</dd>
+        <dd>周杰伦</dd>
       </dl>
       <dl>
         <dt>联系方式：</dt>
-        <dd>{{order.receiverMobile.replace(/(\d{3})\d{4}(\d{4})/,'$1****$2')}}</dd>
+        <dd>180****1849</dd>
       </dl>
       <dl>
         <dt>收货地址：</dt>
-        <dd>{{order.receiverAddress}}</dd>
+        <dd>北京海淀区黄平路金燕龙</dd>
       </dl>
     </div>
     <!-- 支付方式及送货时间 -->
@@ -51,7 +51,7 @@
     <div class="info-box">
       <dl>
         <dt>支付方式：</dt>
-        <dd>{{order.payType===1?'在线支付':'货到付款'}}</dd>
+        <dd>180****1849</dd>
       </dl>
       <dl>
         <dt>送货时间：</dt>
@@ -99,7 +99,7 @@
         </div>
         <div class="item">
           <label>运<i></i>费：</label>
-          <span>¥{{order.postFee}}</span>
+          <span>{{order.postFee}}</span>
         </div>
         <div class="item">
           <label>应付总额：</label>

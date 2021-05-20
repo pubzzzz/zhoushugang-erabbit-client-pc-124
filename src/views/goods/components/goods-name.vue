@@ -12,7 +12,7 @@
     </dl>
     <dl>
       <dt>配送</dt>
-      <dd>至 <XtxCity @change="changeCity" :provinceCode="provinceCode" :cityCode="cityCode" :countyCode="countyCode" /></dd>
+      <dd>至 <XtxCity @change="changeCity" :fullLocation="fullLocation" /></dd>
     </dl>
     <dl>
       <dt>服务</dt>
@@ -33,30 +33,33 @@ export default {
   props: {
     goods: {
       type: Object,
-      default: () => {}
+      default: () => ({})
     }
   },
   setup (props) {
-    // 默认配送北京市-市辖区-东城区
+    // 提供给后台的四项数据 (没登录)
     const provinceCode = ref('110000')
     const cityCode = ref('119900')
     const countyCode = ref('110101')
-    // 根据商品详情数据设置配送地址
+    const fullLocation = ref('北京市 市辖区 东城区')
+    // 取出用户收货地址中默认的地址给四个数据赋值 (已登录)
     if (props.goods.userAddresses) {
-      const defaultAddress = props.goods.userAddresses.find(item => item.isDefault)
-      if (defaultAddress) {
-        provinceCode.value = defaultAddress.provinceCode
-        cityCode.value = defaultAddress.cityCode
-        countyCode.value = defaultAddress.countyCode
+      const defaultAddresss = props.goods.userAddresses.find(item => item.isDefualt === 1)
+      if (defaultAddresss) {
+        provinceCode.value = defaultAddresss.provinceCode
+        cityCode.value = defaultAddresss.cityCode
+        countyCode.value = defaultAddresss.countyCode
+        fullLocation.value = defaultAddresss.fullLocation
       }
     }
-    // 接收城市组件选择后的传值
-    const changeCity = (data) => {
-      provinceCode.value = data.provinceCode
-      cityCode.value = data.cityCode
-      countyCode.value = data.countyCode
+    // 城市选中事件处理函数
+    const changeCity = (result) => {
+      provinceCode.value = result.provinceCode
+      cityCode.value = result.cityCode
+      countyCode.value = result.countyCode
+      fullLocation.value = result.fullLocation
     }
-    return { provinceCode, cityCode, countyCode, changeCity }
+    return { fullLocation, changeCity }
   }
 }
 </script>

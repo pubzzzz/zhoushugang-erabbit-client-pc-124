@@ -1,24 +1,31 @@
 <template>
-  <div class='home-category' @mouseleave="categoryId=null">
+  <div class="home-category" @mouseleave="categoryId=null">
     <ul class="menu">
-      <li :class="{active:categoryId!==undefined&&categoryId===item.id}" v-for="item in menuList" :key="item.id" @mouseenter="categoryId=item.id">
-        <RouterLink to="/">{{item.name}}</RouterLink>
+      <li :class="{active:categoryId&&categoryId===item.id}" v-for="item in menuList" :key="item.id" @mouseenter="categoryId=item.id">
+        <RouterLink :to="`/category/${item.id}`">{{ item.name }}</RouterLink>
         <template v-if="item.children">
-          <RouterLink to="/" v-for="sub in item.children" :key="sub.id">{{sub.name}}</RouterLink>
+          <RouterLink
+            v-for="sub in item.children"
+            :key="sub.id"
+            :to="`/category/sub/${sub.id}`"
+            >{{ sub.name }}</RouterLink
+          >
         </template>
-        <span v-else>
-          <XtxSkeleton width="40px" style="margin-right:5px" bg="rgba(255,255,255,0.2)" />
-          <XtxSkeleton width="35px" bg="rgba(255,255,255,0.2)" />
-        </span>
+        <!-- 骨架 -->
+        <template v-else>
+          <XtxSkeleton height="18px" width="60px" bg="rgba(255,255,255,0.2)" style="margin-right:5px" />
+          <XtxSkeleton height="18px" width="50px" bg="rgba(255,255,255,0.2)"/>
+        </template>
       </li>
     </ul>
     <!-- 弹层 -->
     <div class="layer">
-      <h4 v-if="currCategory">{{currCategory.id==='brand'?'品牌':'分类'}}推荐 <small>根据您的购买或浏览记录推荐</small></h4>
-      <ul v-if="currCategory && currCategory.goods && currCategory.goods.length">
+      <h4>{{currCategory&&currCategory.id==='brand'?'品牌':'分类'}}推荐 <small>根据您的购买或浏览记录推荐</small></h4>
+      <!-- 商品 -->
+      <ul v-if="currCategory && currCategory.goods">
         <li v-for="item in currCategory.goods" :key="item.id">
-          <RouterLink :to="'/product/'+item.id">
-            <img v-lazy="item.picture+'?type=webp&imageView&thumbnail=78x78&quality=95'" alt="">
+          <RouterLink :to="`/product/${item.id}`">
+            <img :src="item.picture+'?type=webp&imageView&thumbnail=78x78&quality=95'" alt="">
             <div class="info">
               <p class="name ellipsis-2">{{item.name}}</p>
               <p class="desc ellipsis">{{item.desc}}</p>
@@ -27,14 +34,15 @@
           </RouterLink>
         </li>
       </ul>
-      <ul v-if="currCategory && currCategory.brands && currCategory.brands.length">
-        <li class="brand" v-for="item in currCategory.brands" :key="item.id">
+      <!-- 品牌 -->
+      <ul v-if="currCategory && currCategory.brands">
+        <li class="brand" v-for="brand in currCategory.brands" :key="brand.id">
           <RouterLink to="/">
-            <img v-lazy="item.picture" alt="">
+            <img :src="brand.picture" alt="">
             <div class="info">
-              <p class="place"><i class="iconfont icon-position"></i>{{item.place}}</p>
-              <p class="name ellipsis">{{item.name}}</p>
-              <p class="desc ellipsis-2">{{item.desc}}</p>
+              <p class="place"><i class="iconfont icon-dingwei"></i>{{brand.place}}</p>
+              <p class="name ellipsis">{{brand.name}}</p>
+              <p class="desc ellipsis-2">{{brand.desc}}</p>
             </div>
           </RouterLink>
         </li>
@@ -44,60 +52,56 @@
 </template>
 
 <script>
-import { findHotBrand } from '@/api/home'
+import { computed, reactive, ref } from 'vue'
+import { useStore } from 'vuex'
+import { findBrand } from '@/api/home'
 export default {
   name: 'HomeCategory',
-  data () {
-    return {
-      categoryId: null,
-      brand: {
-        id: 'brand',
-        name: '品牌',
-        children: [{ id: 'brand-create', name: '品牌推荐' }],
-        brands: []
-      }
-    }
-  },
-  computed: {
-    currCategory () {
-      return this.menuList.find(item => item.id === this.categoryId)
-    },
-    menuList () {
-      const category = this.$store.state.category.list.map(item => {
-        const sub = item.children && item.children.slice(0, 2)
+  setup () {
+    const store = useStore()
+    // 最终使用的数据 = 9个分类() + 1个品牌
+    const brand = reactive({
+      id: 'brand',
+      name: '品牌',
+      children: [{ id: 'brand-children', name: '品牌推荐' }],
+      // 品牌列表
+      brands: []
+    })
+    const menuList = computed(() => {
+      // 得到9个分类切每个一级分类下的子分类只有两个
+      const list = store.state.category.list.map((item) => {
         return {
           id: item.id,
           name: item.name,
-          children: sub,
+          children: item.children && item.children.slice(0, 2),
           goods: item.goods
         }
       })
-      return [...category, this.brand]
-    }
-  },
-  async created () {
-    const data = await findHotBrand({ limit: 6 })
-    this.brand.brands = data.result
+      list.push(brand)
+      return list
+    })
+
+    // 得到弹出层的推荐商品数据
+    const categoryId = ref(null)
+    const currCategory = computed(() => {
+      return menuList.value.find(item => item.id === categoryId.value)
+    })
+
+    // 获取品牌数据，尽量不用使用async再setup上
+    findBrand().then(data => {
+      brand.brands = data.result
+    })
+
+    return { menuList, categoryId, currCategory }
   }
 }
 </script>
 
 <style scoped lang='less'>
-.xtx-skeleton {
-  animation: fade 1s linear infinite alternate;
-}
-@keyframes fade {
-  from {
-    opacity: 0.2;
-  }
-  to {
-    opacity: 1;
-  }
-}
 .home-category {
   width: 250px;
   height: 500px;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0, 0, 0, 0.8);
   position: relative;
   z-index: 99;
   .menu {
@@ -117,7 +121,8 @@ export default {
       }
     }
   }
-  .layer {
+  // 弹出层样式
+    .layer {
     width: 990px;
     height: 500px;
     background: rgba(255,255,255,0.8);
@@ -174,7 +179,7 @@ export default {
               color: #999;
             }
             .price {
-              font-size: 20px;
+              font-size: 22px;
               color: @priceColor;
               i {
                 font-size: 16px;
@@ -183,6 +188,7 @@ export default {
           }
         }
       }
+      // 品牌的样式
       li.brand {
         height: 180px;
         a {
@@ -207,6 +213,18 @@ export default {
     .layer {
       display: block;
     }
+  }
+}
+// 骨架动画
+.xtx-skeleton {
+  animation: fade 1s linear infinite alternate;
+}
+@keyframes fade {
+  from {
+    opacity: 0.2;
+  }
+  to {
+    opacity: 1;
   }
 }
 </style>

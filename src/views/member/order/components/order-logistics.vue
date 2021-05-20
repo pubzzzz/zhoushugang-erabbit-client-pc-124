@@ -1,22 +1,22 @@
 <template>
   <XtxDialog v-model:visible="visibleDialog" title="查看物流">
     <div class="order-logistics-goods" v-if="logistics">
-      <a class="image" href="javascript:;"
-        ><img :src="logistics.picture" alt="" />
-        <p>{{logistics.count}}件商品</p></a
-      >
-      <div class="info" v-if="logistics.company">
+      <a class="image" href="javascript:;">
+        <img :src="logistics.picture" alt="" />
+        <p>{{logistics.count}}件商品</p>
+      </a>
+      <div class="info">
         <p><span>配送企业：</span>{{logistics.company.name}}</p>
         <p><span>快递单号：</span>{{logistics.company.number}}</p>
         <p><span>联系电话：</span>{{logistics.company.tel}}</p>
       </div>
     </div>
     <div class="order-logistics-list" v-if="logistics">
-      <div class="item" v-for="(item, i) in logistics.list" :key="item.id">
+      <div class="item" v-for="(item,i) in logistics.list" :key="item.id">
         <div class="line" :class="{ active: i === 0 }"></div>
         <div class="logistics">
-          <p>{{ item.text }}</p>
-          <p>{{ item.time }}</p>
+          <p>{{item.text}}</p>
+          <p>{{item.time}}</p>
         </div>
       </div>
     </div>
@@ -24,26 +24,26 @@
 </template>
 <script>
 import { ref } from 'vue'
-import { findLogistics } from '@/api/order'
+import { logisticsOrder } from '@/api/order'
 export default {
   name: 'OrderLogistics',
   setup () {
-    // 对话框显示隐藏
     const visibleDialog = ref(false)
-    // 订单ID
     const logistics = ref(null)
-    // 打开对话框
-    const open = async (orderId) => {
+    const open = (order) => {
       visibleDialog.value = true
-      const data = await findLogistics(orderId)
-      logistics.value = data.result
+      // 查询物流
+      logisticsOrder(order.id).then(data => {
+        logistics.value = data.result
+      })
     }
-    return { visibleDialog, logistics, open }
+
+    return { visibleDialog, open, logistics }
   }
 }
 </script>
 <style scoped lang="less">
-.xtx-dialog ::v-deep .wrapper {
+.xtx-dialog :deep(.wrapper) {
   width: 680px;
 }
 .order-logistics-goods {

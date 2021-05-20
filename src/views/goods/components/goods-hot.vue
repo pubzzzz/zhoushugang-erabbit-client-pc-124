@@ -1,35 +1,37 @@
 <template>
   <div class="goods-hot">
     <h3>{{title}}</h3>
-    <GoodsItem v-for="item in goodsList" :key="item.id" :goods="item"/>
+    <div v-if="goodsList">
+      <GoodsItem v-for="item in goodsList" :key="item.id" :goods="item" />
+    </div>
   </div>
 </template>
 <script>
+import GoodsItem from '@/views/category/components/goods-item'
 import { computed, ref } from 'vue'
-import GoodsItem from '../../category/components/goods-item'
-import { findHotGoods } from '@/api/goods'
+import { findGoodsHot } from '@/api/product'
+import { useRoute } from 'vue-router'
 export default {
   name: 'GoodsHot',
+  components: { GoodsItem },
   props: {
+    // 热榜类型
     type: {
       type: Number,
       default: 1
     }
   },
-  components: { GoodsItem },
   setup (props) {
-    // 处理标题
-    const titleObj = { 1: '24小时热销榜', 2: '周热销榜', 3: '总热销榜' }
+    // 类型数据字典
+    const types = { 1: '24小时热销榜', 2: '周热销榜', 3: '总热销榜' }
     const title = computed(() => {
-      return titleObj[props.type]
+      return types[props.type]
     })
-    // 商品列表
+    // 发请求获取数据
+    const route = useRoute()
     const goodsList = ref([])
-    findHotGoods(props.type).then(data => {
-      goodsList.value = data.result.map(item => {
-        item.tag = item.desc
-        return item
-      })
+    findGoodsHot({ id: route.params.id, type: props.type }).then(data => {
+      goodsList.value = data.result
     })
     return { title, goodsList }
   }
@@ -47,7 +49,7 @@ export default {
     margin-bottom: 10px;
     font-weight: normal;
   }
-  ::v-deep .goods-item {
+  :deep(.goods-item) {
     background: #fff;
     width: 100%;
     margin-bottom: 10px;

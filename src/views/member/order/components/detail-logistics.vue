@@ -1,35 +1,36 @@
 <template>
   <div class="detail-logistics">
-    <p v-if="logistics?.list">
-      <span>{{logistics.list[0].time}}</span>
-      <span>{{logistics.list[0].text}}</span>
+    <p>
+      <span>{{list[0].text}}</span>
+      <span>{{list[0].time}}</span>
     </p>
-    <a href="javascript:;" @click="orderLogistics(order)">查看物流</a>
+    <a href="javascript:;" @click="handlerLogistics(order)">查看物流</a>
+    <Teleport to="#model">
+      <OrderLogistics ref="orderLogisticsCom" />
+    </Teleport>
   </div>
-  <Teleport to="#model">
-    <OrderLogistics ref="orderLogisticsCom" />
-  </Teleport>
 </template>
 <script>
-import { findLogistics } from '@/api/order'
+import { logisticsOrder } from '@/api/order'
 import OrderLogistics from './order-logistics'
-import { useLogisticsOrder } from '../index'
+import { useLogistics } from '../index'
 import { ref } from 'vue'
 export default {
   name: 'DetailLogistics',
-  components: { OrderLogistics },
   props: {
     order: {
       type: Object,
       default: () => ({})
     }
   },
-  setup (props) {
-    const logistics = ref(null)
-    findLogistics(props.order.id).then(data => {
-      logistics.value = data.result
-    })
-    return { logistics, ...useLogisticsOrder() }
+  components: {
+    OrderLogistics
+  },
+  // 组件实例化的时候需要执行setup，因为需要返回渲染模版需要的数据。
+  async setup (props) {
+    const data = await logisticsOrder(props.order.id)
+    const list = ref(data.result.list)
+    return { list, ...useLogistics() }
   }
 }
 </script>

@@ -11,7 +11,8 @@
         <span class="icon iconfont icon-queren2"></span>
         <div class="tip">
           <p>订单提交成功！请尽快完成支付。</p>
-          <p>支付还剩 <span>{{timeText}}</span>, 超时后将取消订单</p>
+          <p v-if="order.countdown > -1">支付还剩 <span>{{timeText}}</span>, 超时后将取消订单</p>
+          <p v-else>订单已经超时</p>
         </div>
         <div class="amount">
           <span>应付总额：</span>
@@ -19,11 +20,11 @@
         </div>
       </div>
       <!-- 付款方式 -->
-      <div class="pay-type" v-if="order">
+      <div class="pay-type">
         <p class="head">选择以下支付方式付款</p>
         <div class="item">
           <p>支付平台</p>
-          <a class="btn wx" @click="$router.push('/pay/callback?orderId=1369595674747736065')" href="javascript:;"></a>
+          <a class="btn wx" href="javascript:;"></a>
           <a class="btn alipay" @click="visibleDialog=true" :href="payUrl" target="_blank"></a>
         </div>
         <div class="item">
@@ -36,12 +37,13 @@
         </div>
       </div>
     </div>
+    <!-- 支付提示对话框 -->
     <XtxDialog title="正在支付..." v-model:visible="visibleDialog">
       <div class="pay-wait">
         <img src="@/assets/images/load.gif" alt="">
-        <div>
+        <div v-if="order">
             <p>如果支付成功：</p>
-            <RouterLink  :to="`/member/order/${order?.id}`">查看订单详情></RouterLink>
+            <RouterLink :to="`/member/order/${$route.query.orderId}`">查看订单详情></RouterLink>
             <p>如果支付失败：</p>
             <RouterLink to="/">查看相关疑问></RouterLink>
         </div>
@@ -50,42 +52,61 @@
   </div>
 </template>
 <script>
-import { computed, ref } from 'vue'
-import { findOrder } from '@/api/order'
 import { useRoute } from 'vue-router'
-import { usePayDownTime } from '@/hooks'
+import { findOrderDetail } from '@/api/order'
+import { ref } from 'vue'
+import { usePayTime } from '@/hooks'
 import { baseURL } from '@/utils/request'
+
 export default {
   name: 'XtxPayPage',
   setup () {
-    // 订单
-    const order = ref(null)
-    // 路由信息
+    // 根据地址栏ID发请求获取订单数据
     const route = useRoute()
-    // 倒计时文字
-    const timeText = ref('')
-    // 查询订单
-    findOrder(route.query.id).then(data => {
+    const order = ref(null)
+    findOrderDetail(route.query.orderId).then(data => {
       order.value = data.result
-      usePayDownTime(data.result.createTime, text => {
-        timeText.value = text
-      })
+      // 后端提供 countdown 倒计时秒数
+      if (data.result.countdown > -1) {
+        start(data.result.countdown)
+      }
     })
-    // 支付提示
+
+    // 倒计时工具函数
+    const { start, timeText } = usePayTime()
+
+    // 支付地址
+    // const payUrl = '后台服务基准地址+支付页面地址+订单ID+回跳地址'
+    const redirect = encodeURIComponent(
+      process.env.NODE_ENV === 'development'
+        ? 'http://www.corho.com:8080/#/pay/callback'
+        : 'http://erabbit.itheima.net/#/pay/callback'
+    )
+    const payUrl = `${baseURL}pay/aliPay?orderId=${route.query.orderId}&redirect=${redirect}`
+
     const visibleDialog = ref(false)
-    const payUrl = computed(() => {
-      const payRedirect = encodeURIComponent(
-        process.env.NODE_ENV === 'development'
-          ? 'http://www.corho.com:8080/#/pay/callback'
-          : 'http://erabbit.itheima.net/#/pay/callback'
-      )
-      return `${baseURL}/pay/aliPay?orderId=${order.value?.id}&redirect=${payRedirect}`
-    })
-    return { order, timeText, visibleDialog, payUrl }
+
+    return {
+      order,
+      timeText,
+      payUrl,
+      visibleDialog
+    }
   }
 }
 </script>
 <style scoped lang="less">
+.pay-wait {
+  display: flex;
+  justify-content: space-around;
+  p {
+    margin-top: 30px;
+    font-size: 14px;
+  }
+  a {
+    color: @xtxColor;
+  }
+}
 .pay-info {
   background: #fff;
   display: flex;
@@ -155,17 +176,6 @@ export default {
     &.wx {
       background: url(https://cdn.cnbj1.fds.api.mi-img.com/mi-mall/c66f98cff8649bd5ba722c2e8067c6ca.jpg) no-repeat center / contain;
     }
-  }
-}
-.pay-wait {
-  display: flex;
-  justify-content: space-around;
-  p {
-    margin-top: 30px;
-    font-size: 14px;
-  }
-  a {
-    color: @xtxColor;
   }
 }
 </style>

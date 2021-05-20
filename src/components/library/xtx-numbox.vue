@@ -2,9 +2,9 @@
   <div class="xtx-numbox">
     <div class="label" v-if="label">{{label}}</div>
     <div class="numbox">
-      <a href="javascript:;" @click="changeNum(-1)">-</a>
-      <input type="text" readonly :value="num">
-      <a href="javascript:;" @click="changeNum(1)">+</a>
+      <a @click="changeNum(-1)" href="javascript:;">-</a>
+      <input type="text" readonly :value="modelValue">
+      <a @click="changeNum(1)" href="javascript:;">+</a>
     </div>
   </div>
 </template>
@@ -14,31 +14,37 @@ export default {
   name: 'XtxNumbox',
   props: {
     label: {
-      type: String
+      type: String,
+      default: ''
     },
     modelValue: {
       type: Number,
       default: 1
     },
+    // 最小值，最大值
     min: {
       type: Number,
       default: 1
     },
     max: {
       type: Number,
-      default: 100
+      default: 10
     }
   },
   setup (props, { emit }) {
-    const num = useVModel(props, 'modelValue', emit)
-    const changeNum = (value) => {
-      const newValue = num.value + value
-      if (newValue < props.min) return
-      if (newValue > props.max) return
-      num.value = newValue
+    // 1. 绑定按钮点击事件  -按钮 +按钮 触发同一个事件，同一个函数
+    // 2. 使用vueuse的useVModel做数据绑定,修改 count 通知父组件更新
+    const count = useVModel(props, 'modelValue', emit)
+    const changeNum = (step) => {
+      // 3. 得到将要改变的值，如果值不合法终止程序
+      const newValue = count.value + step
+      if (newValue < props.min || newValue > props.max) return
+      // 4. 正常改值即可
+      count.value = newValue
+      // 5. 提供change事件
       emit('change', newValue)
     }
-    return { num, changeNum }
+    return { changeNum }
   }
 }
 </script>

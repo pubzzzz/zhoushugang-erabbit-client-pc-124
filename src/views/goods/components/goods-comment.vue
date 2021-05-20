@@ -1,10 +1,10 @@
 <template>
   <div class="goods-comment">
-    <!-- 头部 -->
+    <!-- 评价头部 -->
     <div class="head" v-if="commentInfo">
       <div class="data">
-        <p><span>{{commentInfo.salesCount}}</span><span>人购买</span></p>
-        <p><span>{{commentInfo.praisePercent}}</span><span>好评率</span></p>
+        <p><span>{{ commentInfo.salesCount }}</span><span>人购买</span></p>
+        <p><span>{{ commentInfo.praisePercent }}</span><span>好评率</span></p>
       </div>
       <div class="tags">
         <div class="dt">大家都在说：</div>
@@ -13,137 +13,136 @@
             v-for="(item,i) in commentInfo.tags"
             :key="item.title"
             href="javascript:;"
-            :class="{active:currTagIndex===i}"
+            :class="{active:currentTagIndex===i}"
             @click="changeTag(i)"
+            >{{item.title}}（{{item.tagCount}}）</a
           >
-            {{item.title}}（{{item.tagCount}}）
-          </a>
         </div>
       </div>
     </div>
-    <!-- 排序 -->
     <div class="sort" v-if="commentInfo">
       <span>排序：</span>
-      <a
-        @click="changeSort(null)"
-        href="javascript:;"
-        :class="{active:reqParams.sortField===null}"
-      >默认</a>
-      <a
-        @click="changeSort('praiseCount')"
-        href="javascript:;"
-        :class="{active:reqParams.sortField==='praiseCount'}"
-      >最热</a>
-      <a
-        @click="changeSort('createTime')"
-        href="javascript:;"
-        :class="{active:reqParams.sortField==='createTime'}"
-      >最新</a>
+      <a @click="changeSort(null)" :class="{active:reqParams.sortField===null}" href="javascript:;">默认</a>
+      <a @click="changeSort('createTime')" :class="{active:reqParams.sortField==='createTime'}" href="javascript:;">最新</a>
+      <a @click="changeSort('praiseCount')" :class="{active:reqParams.sortField==='praiseCount'}" href="javascript:;">最热</a>
     </div>
-    <!-- 列表 -->
-    <div class="list">
+    <!-- 评价列表 -->
+    <div class="list" v-if="commentList">
       <div class="item" v-for="item in commentList" :key="item.id">
         <div class="user">
           <img :src="item.member.avatar" alt="">
-          <span>{{item.member.nickname}}</span>
+          <span>{{formatNickname(item.member.nickname)}}</span>
         </div>
         <div class="body">
           <div class="score">
-            <i v-for="i in item.score" :key="i+'1'" class="iconfont icon-wjx01"></i>
-            <i v-for="i in 5-item.score" :key="i+'2'" class="iconfont icon-wjx02"></i>
-            <span class="attr">{{item.orderInfo.specsText}}</span>
+            <i v-for="i in item.score" :key="i+'s'" class="iconfont icon-wjx01"></i>
+            <i v-for="i in 5-item.score" :key="i+'k'" class="iconfont icon-wjx02"></i>
+            <span class="attr">{{formatSpecs(item.orderInfo.specs)}}</span>
           </div>
           <div class="text">{{item.content}}</div>
-          <!-- 使用图片预览组件 -->
+          <!-- 评论图片组件 -->
           <GoodsCommentImage v-if="item.pictures.length" :pictures="item.pictures" />
           <div class="time">
             <span>{{item.createTime}}</span>
-            <span class="zan"><i class="iconfont icon-dianzan"></i> {{item.praiseCount}}</span>
+            <span class="zan"><i class="iconfont icon-dianzan"></i>{{item.praiseCount}}</span>
           </div>
         </div>
       </div>
     </div>
-    <!-- 分页 -->
-    <XtxPagination @current-change="changePager" :total="total" :current-page="reqParams.page"  />
+    <!-- 分页组件 -->
+    <XtxPagination v-if="total" @current-change="changePagerFn" :page-size="reqParams.pageSize" :current-page="reqParams.page" />
   </div>
 </template>
 <script>
-import { findCommentInfoByGoods, findCommentListByGoods } from '@/api/goods'
-import { reactive, ref, watch } from 'vue'
+import { inject, reactive, ref, watch } from 'vue'
+import { findGoodsCommentInfo, findGoodsCommentList } from '@/api/product'
 import GoodsCommentImage from './goods-comment-image'
-const getCommentInfo = (props) => {
-  const commentInfo = ref(null)
-  findCommentInfoByGoods(props.goods.id).then(data => {
-    // type 的目的是将来点击可以区分点的是不是标签
-    data.result.tags.unshift({ type: 'img', title: '有图', tagCount: data.result.hasPictureCount })
-    data.result.tags.unshift({ type: 'all', title: '全部评价', tagCount: data.result.evaluateCount })
-    commentInfo.value = data.result
-  })
-  return commentInfo
-}
 export default {
   name: 'GoodsComment',
   components: { GoodsCommentImage },
-  props: {
-    goods: {
-      type: Object,
-      default: () => {}
-    }
-  },
-  setup (props) {
-    const commentInfo = getCommentInfo(props)
-    // 记录当前激活的索引
-    const currTagIndex = ref(0)
+  setup () {
+    // 获取评价信息
+    const commentInfo = ref(null)
+    const goods = inject('goods')
+    findGoodsCommentInfo(goods.value.id).then((data) => {
+      data.result.tags.unshift({
+        title: '有图',
+        tagCount: data.result.hasPictureCount,
+        type: 'img'
+      })
+      data.result.tags.unshift({
+        title: '全部评价',
+        tagCount: data.result.evaluateCount,
+        type: 'all'
+      })
+      // 设置数据之前，tags数组前追加 有图tag  全部评价tag
+      commentInfo.value = data.result
+    })
+
+    // 激活tag
+    const currentTagIndex = ref(0)
     const changeTag = (i) => {
-      currTagIndex.value = i
-      // 设置有图和标签条件
-      const currTag = commentInfo.value.tags[i]
-      if (currTag.type === 'all') {
-        reqParams.hasPicture = false
+      currentTagIndex.value = i
+      // 点击tag的时候修改筛选条件
+      const tag = commentInfo.value.tags[i]
+      // 情况1：全部评价
+      // 情况2：有图
+      // 情况3：正常tag
+      if (tag.type === 'all') {
+        reqParams.hasPicture = null
         reqParams.tag = null
-      } else if (currTag.type === 'img') {
+      } else if (tag.type === 'img') {
         reqParams.hasPicture = true
         reqParams.tag = null
       } else {
-        reqParams.hasPicture = false
-        reqParams.tag = currTag.title
+        reqParams.hasPicture = null
+        reqParams.tag = tag.title
       }
+      // 重置页码1
       reqParams.page = 1
     }
-    // 改变排序
-    const changeSort = (type) => {
-      reqParams.sortField = type
+
+    // 点击排序
+    const changeSort = (sortField) => {
+      reqParams.sortField = sortField
+      // 重置页码1
       reqParams.page = 1
     }
-    // 筛选条件准备
+
+    // 准备筛选条件数据
     const reqParams = reactive({
       page: 1,
       pageSize: 10,
-      hasPicture: false,
+      hasPicture: null,
       tag: null,
-      sortField: null,
-      sortMethod: 'desc'
+      // 排序方式：praiseCount 热度  createTime 最新
+      sortField: null
     })
-    // 初始化或者筛选条件改变后，获取列表数据。
+
+    // 初始化需要发请求，筛选条件发生改变发请求
     const commentList = ref([])
     const total = ref(0)
-    watch(reqParams, async () => {
-      const data = await findCommentListByGoods(props.goods.id, reqParams)
-      commentList.value = data.result.items.map(item => {
-        // 处理 specs 成字符串
-        item.member.nickname = item.member.nickname.split('').map((str, i) => {
-          return (i === 0 || i === item.member.nickname.length - 1) ? str : '*'
-        }).join('')
-        item.orderInfo.specsText = item.orderInfo.specs.reduce((p, n) => `${p} ${n.name}：${n.nameValue}`, '')
-        return item
+    watch(reqParams, () => {
+      findGoodsCommentList(goods.value.id, reqParams).then(data => {
+        commentList.value = data.result.items
+        total.value = data.result.counts
       })
-      total.value = data.result.counts
     }, { immediate: true })
-    // 改变分页
-    const changePager = (np) => {
-      reqParams.page = np
+
+    // 定义转换数据的函数（对应vue2.0的过滤器）
+    const formatSpecs = (specs) => {
+      return specs.reduce((p, c) => `${p} ${c.name}：${c.nameValue}`, '').trim()
     }
-    return { commentInfo, currTagIndex, changeTag, reqParams, changeSort, commentList, total, changePager }
+    const formatNickname = (nickname) => {
+      return nickname.substr(0, 1) + '****' + nickname.substr(-1)
+    }
+
+    // 实现分页切换
+    const changePagerFn = (newPage) => {
+      reqParams.page = newPage
+    }
+
+    return { commentInfo, currentTagIndex, changeTag, reqParams, commentList, changeSort, formatSpecs, formatNickname, total, changePagerFn }
   }
 }
 </script>
@@ -198,7 +197,7 @@ export default {
           line-height: 40px;
           &:hover {
             border-color: @xtxColor;
-            background: lighten(@xtxColor,50%);
+            background: lighten(@xtxColor, 50%);
             color: @xtxColor;
           }
           &.active {
@@ -222,12 +221,13 @@ export default {
     }
     > a {
       margin-left: 30px;
-      &.active,&:hover {
+      &.active,
+      &:hover {
         color: @xtxColor;
       }
     }
   }
-  .list {
+    .list {
     padding: 0 20px;
     .item {
       display: flex;

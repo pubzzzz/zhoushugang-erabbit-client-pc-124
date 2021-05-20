@@ -6,7 +6,7 @@
       <div class="avatar">
         <img :src="$store.state.user.profile.avatar"/>
       </div>
-      <h4>{{$store.state.user.profile.mobile.replace(/(\d{3})\d{4}(\d{4})/,'$1****$2')}}</h4>
+      <h4>{{$store.state.user.profile.nickname||$store.state.user.profile.account}}</h4>
     </div>
     <div class="item">
       <a href="javascript:;">
@@ -25,13 +25,8 @@
   </div>
 </template>
 <script>
-import { ref } from 'vue'
 export default {
-  name: 'MemberHomeOverview',
-  setup () {
-    const account = ref('')
-    return { account }
-  }
+  name: 'MemberHomeOverview'
 }
 </script>
 <style scoped lang="less">

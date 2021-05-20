@@ -3,11 +3,11 @@
   <section class="login-section">
     <div class="wrapper">
       <nav>
-        <a :class="{active:activeName==='account'}" @click="activeName='account'" href="javascript:;">账户登录</a>
-        <a :class="{active:activeName==='qrcode'}" @click="activeName='qrcode'" href="javascript:;">扫码登录</a>
+        <a @click="activeName='account'" :class="{active:activeName==='account'}" href="javascript:;">账户登录</a>
+        <a @click="activeName='qrcode'" :class="{active:activeName==='qrcode'}" href="javascript:;">扫码登录</a>
       </nav>
-      <!-- 两个容器切换 -->
-      <LoginForm v-if="activeName==='account'" />
+      <!-- 帐号登录&扫码登录 -->
+      <LoginForm v-if="activeName==='account'">表单</LoginForm>
       <div v-if="activeName==='qrcode'" class="qrcode-box">
         <img src="@/assets/images/qrcode.jpg" alt="">
         <p>打开 <a href="javascript:;">小兔鲜App</a> 扫码登录</p>
@@ -28,27 +28,17 @@ export default {
   components: { LoginHeader, LoginFooter, LoginForm },
   setup () {
     const activeName = ref('account')
-    // 存储回调地址，提供将来QQ回调页使用
+
+    // 存储回跳地址
     const store = useStore()
     const route = useRoute()
-    store.commit('user/setRedirectUrl', route.query.redirectUrl)
+    store.commit('user/setRedirectUrl', route.query.redirectUrl || '/')
+
     return { activeName }
   }
 }
 </script>
 <style scoped lang="less">
-// 二维码容器
-.qrcode-box {
-  text-align: center;
-  padding-top: 40px;
-  p {
-    margin-top: 20px;
-    a {
-      color: @xtxColor;
-      font-size: 16px;
-    }
-  }
-}
 .login-section {
   background: url(../../assets/images/login-bg.png) no-repeat center / cover;
   height: 488px;
@@ -84,6 +74,18 @@ export default {
           font-weight: bold;
         }
       }
+    }
+  }
+}
+// 二维码容器
+.qrcode-box {
+  text-align: center;
+  padding-top: 40px;
+  p {
+    margin-top: 20px;
+    a {
+      color: @xtxColor;
+      font-size: 16px;
     }
   }
 }

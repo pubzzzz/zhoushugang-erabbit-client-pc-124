@@ -1,63 +1,62 @@
 <template>
-    <XtxDialog v-model:visible="visibleDialog" title="取消订单">
-      <div class="cancel-info">
-        <p>取消订单后，本单享有的优惠可能会一并取消，是否继续？</p>
-        <p class="tip">请选择取消订单的原因（必选）：</p>
-        <div class="btn">
-          <a
-            @click="curText = item"
-            v-for="item in cancelReason"
-            :key="item"
-            href="javascript:;"
-            :class="{ active: curText === item }"
-          >
-            {{ item }}
-          </a>
-        </div>
+  <XtxDialog title="取消订单" v-model:visible="visibleDialog">
+    <!-- 取消原因列表 -->
+    <div class="cancel-info">
+      <p>取消订单后，本单享有的优惠可能会一并取消，是否继续？</p>
+      <p class="tip">请选择取消订单的原因（必选）：</p>
+      <div class="btn">
+        <a
+          @click="curText = item"
+          v-for="item in cancelReason"
+          :key="item"
+          href="javascript:;"
+          :class="{ active: curText === item }"
+        >
+          {{ item }}
+        </a>
       </div>
-      <template #footer>
-        <XtxButton type="gray" @click="visibleDialog=false" style="margin-right:20px">取消</XtxButton>
-        <XtxButton type="primary" @click="submit">确认</XtxButton>
-      </template>
-    </XtxDialog>
+    </div>
+    <!-- 按钮操作 -->
+    <template #footer>
+      <XtxButton type="gray" @click="visibleDialog=false" style="margin-right:20px">取消</XtxButton>
+      <XtxButton type="primary" @click="submit">确认</XtxButton>
+    </template>
+  </XtxDialog>
 </template>
 <script>
-import { getCurrentInstance, ref } from 'vue'
+import { ref } from 'vue'
 import { cancelReason } from '@/api/constants'
-import { orderCancel } from '@/api/order'
-import Message from '@/components/library/message'
-
+import Message from '@/components/library/Message'
+import { cancelOrder } from '@/api/order'
 export default {
   name: 'OrderCancel',
-  emits: ['success'],
-  setup (props, { emit }) {
-    // 对话框显示隐藏
+  setup () {
     const visibleDialog = ref(false)
-    // 订单ID
-    const selfOrder = ref(null)
-    // 打开对话框
+    const currOrder = ref(null)
     const open = (order) => {
       visibleDialog.value = true
-      curText.value = ''
-      selfOrder.value = order
+      currOrder.value = order
     }
-    // 选中的取消订单原因
+    // 选中的原因label
     const curText = ref('')
     // 确认
-    const app = getCurrentInstance()
-    const submit = async () => {
-      if (!curText.value) return Message(app, { text: '请选择取消原因' })
-      // 取消订单请求
-      await orderCancel(selfOrder.value.id, curText.value)
-      selfOrder.value.orderState = 6
-      visibleDialog.value = false
+    const submit = () => {
+      if (!curText.value) return Message({ text: '亲，请选择取消原因' })
+      cancelOrder({
+        orderId: currOrder.value.id,
+        cancelReason: curText.value
+      }).then(() => {
+        Message({ type: 'success', text: '取消订单成功' })
+        currOrder.value.orderState = 6
+        visibleDialog.value = false
+      })
     }
-    return { visibleDialog, open, cancelReason, curText, submit }
+    return { visibleDialog, cancelReason, curText, open, submit }
   }
 }
 </script>
 <style scoped lang="less">
- .xtx-dialog ::v-deep .wrapper {
+ .xtx-dialog :deep(.wrapper) {
   width: 620px;
 }
 .cancel-info {

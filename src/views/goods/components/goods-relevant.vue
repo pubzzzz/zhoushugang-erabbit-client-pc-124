@@ -5,37 +5,35 @@
       <span class="title">{{goodsId?'同类商品推荐':'猜你喜欢'}}</span>
     </div>
     <!-- 此处使用改造后的xtx-carousel.vue -->
-    <XtxCarousel :sliders="sliders" style="height:380px" auto-play />
+    <XtxCarousel :sliders="sliders" />
   </div>
 </template>
 
 <script>
-import { findRelGoods } from '@/api/goods'
 import { ref } from 'vue'
-// 得到需要的数据
-const useRelGoodsData = (id) => {
-  const sliders = ref([])
-  findRelGoods(id).then(data => {
-    // 每页4条
-    const size = 4
-    const total = Math.ceil(data.result.length / size)
-    for (let i = 0; i < total; i++) {
-      sliders.value.push(data.result.slice(i * size, (i + 1) * size))
-    }
-  })
-  return sliders
-}
+import { findRelevantGoods } from '@/api/product'
 export default {
   // 同类推荐，猜你喜欢
   name: 'GoodsRelevant',
   props: {
     goodsId: {
       type: String,
-      default: undefined
+      default: ''
     }
   },
   setup (props) {
-    const sliders = useRelGoodsData(props.goodsId)
+    // 最终需要的数据是 sliders 提供给轮播图使用
+    // 数据结构：sliders = [[4个],[4个],[4个],[4个]]
+    const sliders = ref([])
+    findRelevantGoods({ id: props.goodsId }).then(data => {
+      // data.result 商品列表，数据结构 [16个]
+      // 将data.result数据赋值给sliders数据，保证数据结构正确
+      const pageSize = 4
+      const pageCount = Math.ceil(data.result.length / pageSize)
+      for (let i = 0; i < pageCount; i++) {
+        sliders.value.push(data.result.slice(pageSize * i, pageSize * (i + 1)))
+      }
+    })
     return { sliders }
   }
 }
@@ -75,7 +73,8 @@ export default {
     }
   }
 }
-::v-deep .xtx-carousel {
+:deep(.xtx-carousel) {
+  height: 380px;
   .carousel {
     &-indicator {
       bottom: 30px;
@@ -88,8 +87,7 @@ export default {
     &-btn {
       top: 110px;
       opacity: 1;
-      background: #fff;
-      background-color: rgba(0,0,0,0);
+      background: rgba(0,0,0,0);
       color: #ddd;
       i {
         font-size: 30px;

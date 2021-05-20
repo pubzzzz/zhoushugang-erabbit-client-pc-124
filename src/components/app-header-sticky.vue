@@ -3,7 +3,7 @@
     <div class="container" v-show="y>=78">
       <RouterLink class="logo" to="/" />
       <AppHeaderNav />
-      <div class="left">
+      <div class="right">
         <RouterLink to="/" >品牌</RouterLink>
         <RouterLink to="/" >专题</RouterLink>
       </div>
@@ -12,8 +12,9 @@
 </template>
 
 <script>
-import AppHeaderNav from './app-header-nav'
+// import { onMounted, ref } from 'vue'
 import { useWindowScroll } from '@vueuse/core'
+import AppHeaderNav from './app-header-nav'
 export default {
   name: 'AppHeaderSticky',
   components: { AppHeaderNav },
@@ -21,6 +22,19 @@ export default {
     const { y } = useWindowScroll()
     return { y }
   }
+  // setup () {
+  //   // 记录y轴卷曲的高度
+  //   const y = ref(0)
+  //   // 当你页面滚动的时候更新它
+  //   onMounted(() => {
+  //     window.onscroll = () => {
+  //       const scrollTop = document.documentElement.scrollTop
+  //       y.value = scrollTop
+  //     }
+  //   })
+  //   // 提供y给模版
+  //   return { y }
+  // }
 }
 </script>
 
@@ -51,7 +65,7 @@ export default {
     background: url(../assets/images/logo.png) no-repeat  right 2px;
     background-size: 160px auto;
   }
-  .left {
+  .right {
     width: 220px;
     display: flex;
     text-align: center;

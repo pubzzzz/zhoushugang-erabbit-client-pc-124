@@ -1,10 +1,14 @@
 <template>
-  <div class='xtx-carousel' @mouseenter="stop" @mouseleave="start">
+  <div class='xtx-carousel' @mouseenter="stop()" @mouseleave="start()">
+    <!-- 图片容器 -->
     <ul class="carousel-body">
+      <!-- fade 显示的图片加上 -->
       <li class="carousel-item" v-for="(item,i) in sliders" :key="i" :class="{fade:index===i}">
-        <RouterLink v-if="item.hrefUrl" :to="item.hrefUrl">
+        <!-- 图片 -->
+        <RouterLink v-if="item.imgUrl" to="/">
           <img :src="item.imgUrl" alt="">
         </RouterLink>
+        <!-- 商品列表 item=[goods1,goods2,。。。]-->
         <div v-else class="slider">
           <RouterLink v-for="goods in item" :key="goods.id" :to="`/product/${goods.id}`">
             <img :src="goods.picture" alt="">
@@ -14,81 +18,101 @@
         </div>
       </li>
     </ul>
+    <!-- 上一张 -->
     <a @click="toggle(-1)" href="javascript:;" class="carousel-btn prev"><i class="iconfont icon-angle-left"></i></a>
+    <!-- 下一张 -->
     <a @click="toggle(1)" href="javascript:;" class="carousel-btn next"><i class="iconfont icon-angle-right"></i></a>
+    <!-- 指示器 -->
     <div class="carousel-indicator">
+      <!-- active 激活点 -->
       <span @click="index=i" v-for="(item,i) in sliders" :key="i" :class="{active:index===i}"></span>
     </div>
   </div>
 </template>
 
 <script>
+import { onUnmounted, ref, watch } from 'vue'
 export default {
   name: 'XtxCarousel',
   props: {
+    // 轮播图数据
     sliders: {
       type: Array,
       default: () => []
     },
+    // 是否自动轮播
     autoPlay: {
       type: Boolean,
       default: false
     },
+    // 间隔时长
     duration: {
       type: Number,
-      default: 5000
+      default: 3000
     }
   },
-  watch: {
-    sliders (newVal, oldVal) {
-      if (newVal.length) {
-        // 开启自动轮播
-        this.autoPlay && this.autoPlayHandler()
-      }
-    }
-  },
-  data () {
-    return {
-      index: 0
-    }
-  },
-  // vue3.0 的钩子，销毁时候执行
-  beforeUnmount () {
-    if (this.timer) window.clearInterval(this.timer)
-  },
-  methods: {
-    autoPlayHandler () {
-      if (this.timer) window.clearInterval(this.timer)
-      this.timer = window.setInterval(() => {
-        if ((this.index + 1) > (this.sliders.length - 1)) {
-          this.index = 0
-        } else {
-          this.index++
+  setup (props) {
+    // 控制显示图片的索引
+    const index = ref(0)
+
+    // 1. 自动轮播图的逻辑
+    let timer = null
+    const autoPlayFn = () => {
+      // 防止定时器重复添加
+      clearInterval(timer)
+      // 自动播放，每隔多久切换索引
+      timer = setInterval(() => {
+        index.value++
+        if (index.value >= props.sliders.length) {
+          index.value = 0
         }
-      }, this.duration)
-    },
-    toggle (step) {
-      if ((this.index + step) < 0) {
-        this.index = this.sliders.length - 1
-        return
-      }
-      if ((this.index + step) > (this.sliders.length - 1)) {
-        this.index = 0
-        return
-      }
-      this.index += step
-    },
-    stop () {
-      if (this.timer) window.clearInterval(this.timer)
-    },
-    start () {
-      this.autoPlay && this.sliders.length && this.autoPlayHandler()
+      }, props.duration)
     }
+    // 需要监听sliders数据变化，判断如果有数据且autoPlay是true
+    watch(() => props.sliders, (newVal) => {
+      if (newVal.length && props.autoPlay) {
+        autoPlayFn()
+      }
+    }, { immediate: true })
+
+    // 2. 鼠标进入暂停  离开开启自动播放（有开启条件）
+    const stop = () => {
+      if (timer) clearInterval(timer)
+    }
+    const start = () => {
+      if (props.sliders.length && props.autoPlay) {
+        autoPlayFn()
+      }
+    }
+
+    // 3. 点击点点可以切换，上一张下一张
+    const toggle = (step) => {
+      // 将要改变的索引
+      const newIndex = index.value + step
+      // 超出的情况，太大了
+      if (newIndex > (props.sliders.length - 1)) {
+        index.value = 0
+        return
+      }
+      // 超出的情况，太小了
+      if (newIndex < 0) {
+        index.value = props.sliders.length - 1
+        return
+      }
+      // 正常
+      index.value = newIndex
+    }
+
+    // 4. 组件卸载，清除定时器
+    onUnmounted(() => {
+      clearInterval(timer)
+    })
+
+    return { index, stop, start, toggle }
   }
 }
 </script>
-
-<style scoped lang='less'>
+<style scoped lang="less">
 .xtx-carousel{
   width: 100%;
   height: 100%;
@@ -121,9 +145,9 @@ export default {
       position: absolute;
       left: 0;
       bottom: 20px;
+      z-index: 2;
       width: 100%;
       text-align: center;
-      z-index: 2;
       span {
         display: inline-block;
         width: 12px;
@@ -147,11 +171,11 @@ export default {
       border-radius: 50%;
       position: absolute;
       top: 228px;
+      z-index: 2;
       text-align: center;
       line-height: 44px;
       opacity: 0;
       transition: all 0.5s;
-      z-index: 2;
       &.prev{
         left: 20px;
       }

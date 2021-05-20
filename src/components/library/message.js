@@ -1,25 +1,32 @@
-import { createVNode, render } from 'vue'
-import XtxMessage from './xtx-message'
+// 提供一个能够显示xtx-message组件的函数
+// 这个函数将来：导入直接使用，也可以挂载在vue实例原型上
+// import Message from 'Message.js' 使用 Message({type:'error',text:'提示文字'})
+// this.$message({type:'error',text:'提示文字'})
 
-// 定时器
+import { createVNode, render } from 'vue'
+import XtxMessage from './xtx-message.vue'
+
+// DOM容器
+const div = document.createElement('div')
+div.setAttribute('class', 'xtx-msssage-container')
+document.body.appendChild(div)
+
+// 定时器标识
 let timer = null
-// 消息显示时间
-const duration = 3000
-// 准备一个容器显示消息组件
-const messageContainer = document.createElement('div')
-messageContainer.setAttribute('class', 'message-container')
-document.body.append(messageContainer)
-// 导出一个函数
-export default (app, { text, type }) => {
-  // 根据组件创建虚拟节点
-  const vn = createVNode(XtxMessage, { text, type })
-  // 设置上下文（运行组件环境）
-  vn.appContext = app.appContext
+
+export default ({ type, text }) => {
   // 渲染组件
-  render(vn, messageContainer)
-  // 清除定时器，加一个定时器，销毁消息组件
+  // 1. 导入消息提示组件
+  // 2. 将消息提示组件编译为虚拟节点(dom节点)
+  // createVNode(组件,属性对象（props）)
+  const vnode = createVNode(XtxMessage, { type, text })
+  // 3. 准备一个装载消息提示组件的DOM容器
+  // 4. 将虚拟节点渲染再容器中
+  // render(虚拟节点,DOM容器)
+  render(vnode, div)
+  // 5. 3s后销毁组件
   clearTimeout(timer)
   timer = setTimeout(() => {
-    render(null, messageContainer)
-  }, duration)
+    render(null, div)
+  }, 3000)
 }

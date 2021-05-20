@@ -1,42 +1,42 @@
 <template>
-  <Form class="xtx-form" ref="target" autocomplete="off" v-slot="{errors}" :validation-schema="mySchema">
+  <Form ref="formCom" :validation-schema="mySchema" v-slot="{errors}" class="xtx-form" autocomplete="off">
     <div class="xtx-form-item">
       <div class="field">
         <i class="icon iconfont icon-user"></i>
-        <Field :class="{err:errors.account}" name="account" v-model="form.account" class="input" type="text" placeholder="请输入用户名" />
+        <Field :class="{err:errors.account}" v-model="form.account" name="account" class="input" type="text" placeholder="请输入用户名" />
       </div>
-      <div class="error">{{errors.account}}</div>
+      <div v-if="errors.account" class="error">{{errors.account}}</div>
     </div>
     <div class="xtx-form-item">
       <div class="field">
         <i class="icon iconfont icon-phone"></i>
-        <Field :class="{err:errors.mobile}" name="mobile" v-model="form.mobile" class="input" type="text" placeholder="请输入手机号" />
+        <Field :class="{err:errors.mobile}" v-model="form.mobile" name="mobile" class="input" type="text" placeholder="请输入手机号" />
       </div>
-      <div class="error">{{errors.mobile}}</div>
+      <div v-if="errors.mobile" class="error">{{errors.mobile}}</div>
     </div>
     <div class="xtx-form-item">
       <div class="field">
         <i class="icon iconfont icon-code"></i>
-        <Field :class="{err:errors.code}" name="code" v-model="form.code" class="input" type="text" placeholder="请输入验证码" />
+        <Field :class="{err:errors.code}" v-model="form.code" name="code" class="input" type="text" placeholder="请输入验证码" />
         <span @click="send()" class="code">
           {{time===0?'发送验证码':`${time}秒后发送`}}
         </span>
       </div>
-      <div class="error">{{errors.code}}</div>
+      <div v-if="errors.code" class="error">{{errors.code}}</div>
     </div>
     <div class="xtx-form-item">
       <div class="field">
         <i class="icon iconfont icon-lock"></i>
-        <Field :class="{err:errors.password}" name="password" v-model="form.password" class="input" type="password" placeholder="请输入密码" />
+        <Field :class="{err:errors.password}" v-model="form.password" name="password" class="input" type="password" placeholder="请输入密码" />
       </div>
-      <div class="error">{{errors.password}}</div>
+      <div v-if="errors.password" class="error">{{errors.password}}</div>
     </div>
     <div class="xtx-form-item">
       <div class="field">
         <i class="icon iconfont icon-lock"></i>
-        <Field :class="{err:errors.rePassword}" name="rePassword" v-model="form.rePassword" class="input" type="password" placeholder="请确认密码" />
+        <Field :class="{err:errors.rePassword}" v-model="form.rePassword" name="rePassword" class="input" type="password" placeholder="请确认密码" />
       </div>
-      <div class="error">{{errors.rePassword}}</div>
+      <div v-if="errors.rePassword" class="error">{{errors.rePassword}}</div>
     </div>
     <a @click="submit()" href="javascript:;" class="submit">立即提交</a>
   </Form>
@@ -44,21 +44,28 @@
 
 <script>
 import { Form, Field } from 'vee-validate'
+import { reactive, ref, onUnmounted } from 'vue'
 import schema from '@/utils/vee-validate-schema'
-import { reactive, ref } from 'vue'
-import { userQQPatch, userQQPatchCode } from '@/api/user'
-import Message from '@/components/library/message'
+import { userQQPatchCode, userQQPatchLogin } from '@/api/user'
+import { useIntervalFn } from '@vueuse/core'
+import Message from '@/components/library/Message'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 export default {
   name: 'CallbackPatch',
   components: { Form, Field },
-  props: ['unionId'],
+  props: {
+    unionId: {
+      type: String,
+      default: ''
+    }
+  },
   setup (props) {
-    // 校验规则
-    const { accountApi: account, mobile, code, password, rePassword } = schema
-    const mySchema = { account, mobile, code, password, rePassword }
-    // 数据对象
+    // 1. 表单校验 多两个校验：用户名是否存在，再次输入密码是否一致
+    // 2. 发送短信验证码：接口API定义
+    // 3. 完善信息
+
+    // 表单数据对象
     const form = reactive({
       account: null,
       mobile: null,
@@ -66,69 +73,77 @@ export default {
       password: null,
       rePassword: null
     })
-    // ======================发送短信验证码======================
-    const target = ref(null)
+    // 表单校验规则
+    const mySchema = {
+      account: schema.accountApi,
+      mobile: schema.mobile,
+      code: schema.code,
+      password: schema.password,
+      rePassword: schema.rePassword
+    }
+
+    // -------------------------------------------------------
+    const formCom = ref(null)
     const time = ref(0)
-    let timer = null
-    const send = () => {
-      // 1. 校验下手机号是否正确，不正确需要错误提示
-      // 2. 验证下是否正在等待倒计时
-      // 3. 调用短信接口
-      // 4. 如果发送成功，开始倒计时  `60秒后发送`
-      // 5. 显示倒计时时间
-      // 6. 倒计时完毕，再次显示 `发送验证码`
+    const { pause, resume } = useIntervalFn(() => {
+      time.value--
+      if (time.value <= 0) {
+        pause()
+      }
+    }, 1000, false)
+    onUnmounted(() => {
+      pause()
+    })
+
+    // 1. 发送验证码
+    // 1.1 绑定发送验证码按钮点击事件
+    // 1.2 校验手机号，如果成功才去发送短信（定义API），请求成功开启60s的倒计时，不能再次点击，倒计时结束恢复
+    // 1.3 如果失败，失败的校验样式显示出来
+    const send = async () => {
       const valid = mySchema.mobile(form.mobile)
       if (valid === true) {
+        // 通过
         if (time.value === 0) {
-          userQQPatchCode(form.mobile).then(() => {
-            time.value = 60
-            clearInterval(timer)
-            timer = setInterval(() => {
-              time.value--
-              if (time.value <= 0) {
-                clearInterval(timer)
-              }
-            }, 1000)
-          }).catch(e => {
-            Message({}, { type: 'error', text: e.response.data.message || '发送失败' })
-          })
+        // 没有倒计时才可以发送
+          await userQQPatchCode(form.mobile)
+          Message({ type: 'success', text: '发送成功' })
+          time.value = 60
+          resume()
         }
       } else {
-        // 不正确需要错误提示
-        target.value.setFieldError('mobile', valid)
+        // 失败，使用vee的错误函数显示错误信息 setFieldError(字段,错误信息)
+        formCom.value.setFieldError('mobile', valid)
       }
     }
-    // ======================提交完善的信息======================
-    // 使用store
+
+    // ----------------------------------------------------------
+    // 完善信息
     const store = useStore()
-    // 使用router
     const router = useRouter()
-    // 绑定操作
     const submit = async () => {
-      const valid = await target.value.validate()
+      const valid = formCom.value.validate()
       if (valid) {
-        form.unionId = props.unionId
-        // 进行完善请求
-        userQQPatch(form).then(data => {
-          // 成功
-          // 1. 存储信息
-          const { id, account, nickname, avatar, token, mobile } = data.result
-          store.commit('user/setUser', { id, account, nickname, avatar, token, mobile })
-          store.commit('user/setUser', { id, account, nickname, avatar, token, mobile })
-          // 合并购物车操作
+        userQQPatchLogin({
+          unionId: props.unionId,
+          ...form
+        }).then(data => {
+          // 实现和之前登录一样的逻辑
+          // 1. 存储用户信息
+          const { id, account, avatar, mobile, nickname, token } = data.result
+          store.commit('user/setUser', { id, account, avatar, mobile, nickname, token })
           store.dispatch('cart/mergeCart').then(() => {
-            // 2. 提示
-            Message({}, { type: 'success', text: '完善信息成功' })
-            // 3. 跳转
-            router.push(store.state.user.redirectUrl || '/')
+            // 2. 跳转到来源页或者首页
+            router.push(store.state.user.redirectUrl)
+            // 3. 成功提示
+            Message({ type: 'success', text: 'QQ完善信息成功' })
           })
         }).catch(e => {
-          Message({}, { type: 'error', text: e.response.data.message || '完善信息失败' })
+          Message({ type: 'error', text: '完善信息失败' })
         })
       }
     }
 
-    return { mySchema, form, target, time, send, submit }
+    return { form, mySchema, formCom, time, send, submit }
   }
 }
 </script>

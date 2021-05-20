@@ -1,23 +1,25 @@
 <template>
-  <HomePanel title="新鲜好物" sub-title="新鲜出炉 品质靠谱">
-    <template v-slot:right><XtxMore /></template>
-    <div ref="box" style="position: relative;height: 406px;">
-      <Transition name="fade">
-        <ul v-if="goods.length" ref="pannel" class="goods-list">
-          <li v-for="item in goods" :key="item.id">
-            <RouterLink :to="'/product/'+item.id">
-              <img :src="item.picture+'?type=webp&quality=95&thumbnail=265x265&imageView'" alt="">
-              <p class="name ellipsis">{{item.name}}</p>
-              <p class="price">&yen;{{item.price}}</p>
-            </RouterLink>
-          </li>
-        </ul>
-        <HomeSkeleton bg="#f0f9f4" v-else />
-      </Transition>
-    </div>
-  </HomePanel>
+  <div class="home-new">
+    <HomePanel title="新鲜好物" sub-title="新鲜出炉 品质靠谱">
+      <template #right><XtxMore path="/" /></template>
+      <div ref="target" style="position: relative;height: 426px;">
+        <!-- 面板内容 -->
+        <Transition name="fade">
+          <ul v-if="goods.length" class="goods-list">
+            <li v-for="item in goods" :key="item.id">
+              <RouterLink :to="`/product/${item.id}`">
+                <img :src="item.picture" alt="">
+                <p class="name ellipsis">{{item.name}}</p>
+                <p class="price">&yen;{{item.price}}</p>
+              </RouterLink>
+            </li>
+          </ul>
+          <HomeSkeleton bg="#f0f9f4" v-else />
+        </Transition>
+      </div>
+    </HomePanel>
+  </div>
 </template>
-
 <script>
 import HomePanel from './home-panel'
 import HomeSkeleton from './home-skeleton'
@@ -27,13 +29,18 @@ export default {
   name: 'HomeNew',
   components: { HomePanel, HomeSkeleton },
   setup () {
-    const { container, data } = useLazyData(findNew)
-    return { goods: data, box: container }
+    // const goods = ref([])
+    // findNew().then(data => {
+    //   goods.value = data.result
+    // })
+    // 1. target 去绑定一个监听对象,最好的DOM
+    // 2. 传入API函数，内部获取调用，返回就是响应式数据
+    const { target, result } = useLazyData(findNew)
+    return { goods: result, target }
   }
 }
 </script>
-
-<style scoped lang='less'>
+<style scoped lang="less">
 .goods-list {
   display: flex;
   justify-content: space-between;
@@ -49,11 +56,8 @@ export default {
     }
     p {
       font-size: 22px;
-      padding-top: 12px;
+      padding: 12px 30px 0 30px;
       text-align: center;
-      &.name {
-        padding: 12px 30px 0 30px;
-      }
     }
     .price {
       color: @priceColor;

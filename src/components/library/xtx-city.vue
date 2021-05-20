@@ -1,13 +1,15 @@
 <template>
   <div class="xtx-city" ref="target">
-    <div class="select" @click="toggleDialog" :class="{active}">
-      <span v-if="!fullName" class="placeholder">{{placeholder}}</span>
-      <span v-else class="value">{{fullName}}</span>
+    <div class="select" @click="toggle()" :class="{active:visible}">
+      <span v-if="!fullLocation" class="placeholder">{{placeholder}}</span>
+      <span v-else class="value">{{fullLocation}}</span>
       <i class="iconfont icon-angle-down"></i>
     </div>
-    <div class="option" v-if="active">
-      <span @click="changeItem(item)" class="ellipsis" v-for="item in currList" :key="item.code">{{item.name}}</span>
+    <div class="option" v-if="visible">
       <div v-if="loading" class="loading"></div>
+      <template v-else>
+        <span class="ellipsis" @click="changeItem(item)" v-for="item in currList" :key="item.code">{{item.name}}</span>
+      </template>
     </div>
   </div>
 </template>
@@ -15,126 +17,127 @@
 import { computed, reactive, ref } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 import axios from 'axios'
-// 获取所有城市数据
-const useAllCityData = () => {
-  const allData = ref([])
-  const loading = ref(true)
-  const url = 'https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/area.json'
-  // 注意这里不能用await(导致useAllCityData需要加async使其返回值为promise)
-  axios.get(url).then(res => {
-    allData.value = res.data
-    loading.value = false
-  })
-  return { allData, loading }
-}
 export default {
   name: 'XtxCity',
   props: {
-    provinceCode: {
-      type: String,
-      default: ''
-    },
-    cityCode: {
-      type: String,
-      default: ''
-    },
-    countyCode: {
+    fullLocation: {
       type: String,
       default: ''
     },
     placeholder: {
       type: String,
-      default: '请选择配送地址'
+      defulat: '请选择配送地址'
     }
   },
   setup (props, { emit }) {
-    // 控制展开收起,默认收起
-    const active = ref(false)
-    const openDialog = () => {
-      active.value = true
-      // 清除上次选择
-      changeResult.provinceCode = ''
-      changeResult.cityCode = ''
-      changeResult.countyCode = ''
+    // 显示隐藏数据
+    const visible = ref(false)
+
+    // 所有省市区数据
+    const allCityData = ref([])
+    // 正在加载数据
+    const loading = ref(false)
+
+    // 提供打开和关闭函数
+    const open = () => {
+      visible.value = true
+      // 获取地区数据
+      loading.value = true
+      getCityData().then(data => {
+        allCityData.value = data
+        loading.value = false
+      })
+      // 清空之前选择
+      for (const key in changeResult) {
+        changeResult[key] = ''
+      }
     }
-    const closeDialog = () => {
-      active.value = false
+    const close = () => {
+      visible.value = false
     }
-    // 切换展开收起
-    const toggleDialog = () => {
-      if (active.value) closeDialog()
-      else openDialog()
+    // 提供一个切换函数给select使用
+    const toggle = () => {
+      visible.value ? close() : open()
     }
-    // 点击其他位置隐藏
+    // 实现点击组件外部元素进行关闭操作
     const target = ref(null)
     onClickOutside(target, () => {
-      closeDialog()
+      // 参数1：监听那个元素
+      // 参数2：点击了该元素外的其他地方触发的函数
+      close()
     })
 
-    // 获取城市数据,显示当前地方列表
-    const { allData, loading } = useAllCityData()
+    // 实现计算属性：获取当前显示的地区数组
     const currList = computed(() => {
-      // 省列表
-      let arr = allData.value
-      // 市列表
-      if (changeResult.provinceCode) {
-        arr = arr.find(p => p.code === changeResult.provinceCode).areaList
+      // 默认省一级
+      let list = allCityData.value
+      // 可能：市一级
+      if (changeResult.provinceCode && changeResult.provinceName) {
+        list = list.find(p => p.code === changeResult.provinceCode).areaList
       }
-      // 区列表
-      if (changeResult.cityCode) {
-        arr = arr.find(c => c.code === changeResult.cityCode).areaList
+      // 可能：县地区一级
+      if (changeResult.cityCode && changeResult.cityName) {
+        list = list.find(c => c.code === changeResult.cityCode).areaList
       }
-      return arr
+      return list
     })
 
-    // 根据传递的code显示文字
-    const fullName = computed(() => {
-      try {
-        const arr = []
-        if (props.provinceCode && props.cityCode && props.countyCode) {
-          const province = allData.value.find(p => p.code === props.provinceCode)
-          arr.push(province.name)
-          const city = province.areaList.find(c => c.code === props.cityCode)
-          arr.push(city.name)
-          const county = city.areaList.find(y => y.code === props.countyCode)
-          arr.push(county.name)
-        }
-        return arr.join(' ')
-      } catch (e) {
-        return ''
-      }
-    })
-
-    // 处理点击选择地区操作
+    // 定义选择的 省市区 数据
     const changeResult = reactive({
       provinceCode: '',
+      provinceName: '',
       cityCode: '',
-      countyCode: ''
+      cityName: '',
+      countyCode: '',
+      countyName: '',
+      fullLocation: ''
     })
-    // 获取完整中文
-    const getFullLaction = () => {
-      const arr = []
-      const province = allData.value.find(p => p.code === changeResult.provinceCode)
-      arr.push(province.name)
-      const city = province.areaList.find(c => c.code === changeResult.cityCode)
-      arr.push(city.name)
-      const county = city.areaList.find(y => y.code === changeResult.countyCode)
-      arr.push(county.name)
-      return arr.join(' ')
-    }
-    // 选择完成
+    // 当你点击按钮的时候记录
     const changeItem = (item) => {
-      if (item.level === 0) changeResult.provinceCode = item.code
-      if (item.level === 1) changeResult.cityCode = item.code
+      if (item.level === 0) {
+        // 省
+        changeResult.provinceCode = item.code
+        changeResult.provinceName = item.name
+      }
+      if (item.level === 1) {
+        // 市
+        changeResult.cityCode = item.code
+        changeResult.cityName = item.name
+      }
       if (item.level === 2) {
+        // 地区
         changeResult.countyCode = item.code
-        changeResult.fullLaction = getFullLaction()
+        changeResult.countyName = item.name
+        // 完整路径
+        changeResult.fullLocation = `${changeResult.provinceName} ${changeResult.cityName} ${changeResult.countyName}`
+        // 这是最后一级，选完了，关闭对话框，通知父组件数据
+        close()
         emit('change', changeResult)
-        closeDialog()
       }
     }
-    return { active, toggleDialog, target, currList, loading, fullName, changeItem }
+
+    return { visible, toggle, target, loading, currList, changeItem }
   }
+}
+// 获取省市区数据函数
+const getCityData = () => {
+  // 数据：https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/area.json
+  // 1. 当本地没有缓存，发请求获取数据
+  // 2. 当本地缓存，取出本地数据
+  // 返回promise在then获取数据，这里可能是异步操作可能是同步操作
+  return new Promise((resolve, reject) => {
+    // 约定：数据存储在window上的cityData字段
+    if (window.cityData) {
+      resolve(window.cityData)
+    } else {
+      const url = 'https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/area.json'
+      axios.get(url).then(res => {
+        // 缓存
+        window.cityData = res.data
+        resolve(res.data)
+      })
+    }
+  })
 }
 </script>
 <style scoped lang="less">

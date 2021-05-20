@@ -1,54 +1,70 @@
 <script>
-import { getCurrentInstance, provide } from 'vue'
 import { useVModel } from '@vueuse/core'
+import { provide } from 'vue'
 export default {
   name: 'XtxTabs',
-  render () {
-    const { proxy } = getCurrentInstance()
-    const panels = proxy.$slots.default()
-    const dynamicPanels = []
-    panels.forEach(item => {
-      if (item.type.name === 'XtxTabsPanel') {
-        dynamicPanels.push(item)
-      } else {
-        item.children.forEach(d => {
-          dynamicPanels.push(d)
-        })
-      }
-    })
-    const navs = (
-      <nav>
-        {dynamicPanels.map((item, i) => (
-          <a
-            class={{ active: item.props.name === proxy.activeName }}
-            onClick={() => proxy.clickTab(item.props.name, i)}
-            href="javascript:;"
-          >
-            {item.props.label}
-          </a>
-        ))}
-      </nav>
-    )
-    return <div class="xtx-tabs">{[navs, panels]} </div>
-  },
   props: {
     modelValue: {
-      type: String,
+      type: [String, Number],
       default: ''
     }
   },
   setup (props, { emit }) {
+    // 接受v-model的值
     const activeName = useVModel(props, 'modelValue', emit)
-    const clickTab = (name, index) => {
+    // 点击选项卡触发函数
+    const tabClick = (name, index) => {
       activeName.value = name
-      emit('click-tab', { name, index })
+      // 提供一个tab-click自定义事件
+      emit('tab-click', { name, index })
     }
+    // 给每一个panel传当前激活的name
     provide('activeName', activeName)
-    return { activeName, clickTab }
+
+    return { activeName, tabClick }
+  },
+  render () {
+    // 获取插槽内容
+    const panels = this.$slots.default()
+    // 动态的panels组件集合
+    const dynamicPanels = []
+    panels.forEach((item) => {
+      // 静态
+      if (item.type.name === 'XtxTabsPanel') {
+        dynamicPanels.push(item)
+      } else {
+        // v-for 渲染处来的
+        item.children.forEach((item) => {
+          dynamicPanels.push(item)
+        })
+      }
+    })
+
+    // 需要在这里进行组织
+    // 1. tabs组件大容器
+    // 2. 选项卡的导航菜单结构
+    // 3. 内容容器
+    const nav = (
+      <nav>
+        {dynamicPanels.map((item, i) => {
+          return (
+            <a
+              onClick={() => this.tabClick(item.props.name, i)}
+              class={{ active: item.props.name === this.activeName }}
+              href="javascript:;"
+            >
+              {item.props.label}
+            </a>
+          )
+        })}
+      </nav>
+    )
+
+    return <div class="xtx-tabs">{[nav, dynamicPanels]}</div>
   }
 }
 </script>
-<style lang="less">
+<style scoped lang="less">
 .xtx-tabs {
   background: #fff;
   > nav {

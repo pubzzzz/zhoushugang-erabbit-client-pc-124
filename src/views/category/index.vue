@@ -1,11 +1,11 @@
 <template>
-  <div class='top-category'>
+  <div class="top-category">
     <div class="container">
       <!-- 面包屑 -->
       <XtxBread>
         <XtxBreadItem to="/">首页</XtxBreadItem>
         <Transition name="fade-right" mode="out-in">
-          <XtxBreadItem :key="currCategory.id">{{currCategory.name}}</XtxBreadItem>
+          <XtxBreadItem :key="topCategory.id">{{topCategory.name}}</XtxBreadItem>
         </Transition>
       </XtxBread>
       <!-- 轮播图 -->
@@ -14,71 +14,80 @@
       <div class="sub-list">
         <h3>全部分类</h3>
         <ul>
-          <li v-for="item in currCategory.children" :key="item.id">
+          <li v-for="sub in topCategory.children" :key="sub.id">
             <a href="javascript:;">
-              <img :src="item.picture" >
-              <p>{{item.name}}</p>
+              <img :src="sub.picture" >
+              <p>{{sub.name}}</p>
             </a>
           </li>
         </ul>
       </div>
-      <!-- 分类关联商品 -->
-      <div class="ref-goods" v-for="item in subCategoryList" :key="item.id">
+      <!-- 各个分类推荐商品 -->
+      <div class="ref-goods" v-for="sub in subList" :key="sub.id">
         <div class="head">
-          <h3>- {{item.name}} -</h3>
-          <p class="tag">柔软细腻，融水即化无残余</p>
-          <XtxMore :path="`/category/sub/${item.id}`" />
+          <h3>- {{sub.name}} -</h3>
+          <p class="tag">温暖柔软，品质之选</p>
+          <XtxMore :path="`/category/sub/${sub.id}`" />
         </div>
         <div class="body">
-          <GoodsItem v-for="g in item.goods" :key="g.id" :goods="g" />
+          <GoodsItem v-for="goods in sub.goods" :key="goods.id" :goods="goods" />
         </div>
       </div>
     </div>
   </div>
 </template>
-
 <script>
+import { computed, ref, watch } from 'vue'
 import { findBanner } from '@/api/home'
-import { findTopCategory } from '@/api/category'
-import { mapState } from 'vuex'
+import { useStore } from 'vuex'
+import { useRoute } from 'vue-router'
 import GoodsItem from './components/goods-item'
+import { findTopCategory } from '@/api/category'
 export default {
   name: 'TopCategory',
   components: { GoodsItem },
-  data () {
+  setup () {
+    // 轮播图
+    const sliders = ref([])
+    findBanner().then(data => {
+      sliders.value = data.result
+    })
+
+    // 面包屑+所有子分类 ====> vuex
+    const store = useStore()
+    const route = useRoute()
+    const topCategory = computed(() => {
+      let cate = {}
+      // 当前顶级分类 === 根据路由上的ID去vuex中category模块的list中查找
+      const item = store.state.category.list.find(item => {
+        return item.id === route.params.id
+      })
+      // 找到数据赋值
+      if (item) cate = item
+      return cate
+    })
+
+    // 获取各个子类目下推荐商品
+    const subList = ref([])
+    const getSubList = () => {
+      findTopCategory(route.params.id).then(data => {
+        subList.value = data.result.children
+      })
+    }
+    watch(() => route.params.id, (newVal) => {
+      // newVal && getSubList() 加上一个严谨判断，在顶级类名下才发请求
+      if (newVal && `/category/${newVal}` === route.path) getSubList()
+    }, { immediate: true })
+
     return {
-      sliders: [],
-      subCategoryList: []
-    }
-  },
-  computed: {
-    ...mapState('category', ['list']),
-    currCategory () {
-      let currCategory = {}
-      if (this.list && this.list.length) {
-        currCategory = this.list.find(item => item.id === this.$route.params.id) || {}
-      }
-      return currCategory
-    }
-  },
-  async created () {
-    const data = await findBanner()
-    this.sliders = data.result
-    this.loadData(this.$route.params.id)
-  },
-  beforeRouteUpdate (to) {
-    this.loadData(to.params.id)
-  },
-  methods: {
-    async loadData (id) {
-      const data = await findTopCategory(id)
-      this.subCategoryList = data.result.children
+      sliders,
+      topCategory,
+      subList
     }
   }
 }
 </script>
-
-<style scoped lang='less'>
+<style scoped lang="less">
 .top-category {
   h3 {
     font-size: 28px;
@@ -94,6 +103,7 @@ export default {
       display: flex;
       padding: 0 32px;
       flex-wrap: wrap;
+      min-height: 160px;
       li {
         width: 168px;
         height: 160px;
@@ -115,6 +125,7 @@ export default {
       }
     }
   }
+  // 推荐商品
   .ref-goods {
     background-color: #fff;
     margin-top: 20px;
@@ -135,8 +146,9 @@ export default {
     }
     .body {
       display: flex;
-      justify-content: space-around;
-      padding: 0 40px 30px;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      padding: 0 65px 30px;
     }
   }
 }

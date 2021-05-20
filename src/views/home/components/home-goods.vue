@@ -1,10 +1,10 @@
 <template>
   <div class="goods-item">
-    <RouterLink :to="'/product/'+goods.id" class="image">
-      <img alt="" v-lazy="goods.picture+'?type=webp&quality=95&thumbnail=160x160&imageView'" />
+    <RouterLink :to="`/product/${goods.id}`" class="image">
+      <img v-lazy="goods.picture" alt="" />
     </RouterLink>
     <p class="name ellipsis-2">{{goods.name}}</p>
-    <p class="desc ellipsis">{{goods.tag}}</p>
+    <p class="desc ellipsis">{{goods.desc}}</p>
     <p class="price">&yen;{{goods.price}}</p>
     <div class="extra">
       <RouterLink to="/">
@@ -21,7 +21,7 @@ export default {
   props: {
     goods: {
       type: Object,
-      default: () => {}
+      default: () => ({})
     }
   }
 }
@@ -49,7 +49,6 @@ export default {
   p {
     margin-top: 6px;
     font-size: 16px;
-    padding: 0 10px;
     &.name {
       height: 44px;
     }

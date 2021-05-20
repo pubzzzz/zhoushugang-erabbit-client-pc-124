@@ -1,15 +1,15 @@
 <template>
   <HomePanel title="热门品牌" sub-title="国际经典 品质保证">
     <template v-slot:right>
-      <a @click="toggle(-1)" :class="{disabled:index<=0}" href="javascript:;" class="iconfont icon-angle-left prev"></a>
-      <a @click="toggle(1)"  :class="{disabled:index>=1}" href="javascript:;" class="iconfont icon-angle-right next"></a>
+      <a @click="toggle(-1)" :class="{disabled:index===0}" href="javascript:;" class="iconfont icon-angle-left prev"></a>
+      <a @click="toggle(1)" :class="{disabled:index===1}" href="javascript:;" class="iconfont icon-angle-right next"></a>
     </template>
-    <div class="box" ref="box">
+    <div ref="target" class="box">
       <Transition name="fade">
-        <ul class="list" :style="{transform:`translateX(${translateX})`}" v-if="brands.length">
-          <li v-for="brand in brands" :key="brand.id">
+        <ul v-if="brands.length" class="list" :style="{transform:`translateX(${-index*1240}px)`}">
+          <li v-for="item in brands" :key="item.id">
             <RouterLink to="/">
-              <img :src="brand.picture" alt="">
+              <img :src="item.picture" alt="">
             </RouterLink>
           </li>
         </ul>
@@ -22,30 +22,47 @@
 </template>
 
 <script>
+import { ref } from 'vue'
 import HomePanel from './home-panel'
-import { computed, ref } from 'vue'
+import { findBrand } from '@/api/home'
 import { useLazyData } from '@/hooks'
-import { findHotBrand } from '@/api/home'
 export default {
   name: 'HomeBrand',
   components: { HomePanel },
   setup () {
+    // 获取数据
+    // const brands = ref([])
+    // findBrand(10).then(data => {
+    //   brands.value = data.result
+    // })
+    // 注意：useLazyData需要的是API函数，如果遇到要传参的情况，自己写函数再函数中调用API
+    const { target, result } = useLazyData(() => findBrand(10))
+
+    // 切换效果，前提只有 0 1 两页
     const index = ref(0)
+    // 1. 点击上一页
+    // 2. 点击下一页
     const toggle = (step) => {
-      const result = index.value + step
-      if (result < 0 || result > 1) return false
-      index.value = result
+      const newIndex = index.value + step
+      if (newIndex < 0 || newIndex > 1) return
+      index.value = newIndex
     }
-    const translateX = computed(() => {
-      return -index.value * 1240 + 'px'
-    })
-    const { container, data } = useLazyData(findHotBrand)
-    return { index, toggle, translateX, box: container, brands: data }
+    return { brands: result, toggle, index, target }
   }
 }
 </script>
 
 <style scoped lang='less'>
+.skeleton {
+  width: 100%;
+  display: flex;
+  .item {
+    margin-right: 10px;
+    &:nth-child(5n) {
+      margin-right: 0;
+    }
+  }
+}
 .home-panel {
   background:#f5f5f5
 }
@@ -87,16 +104,6 @@ export default {
       img {
         width: 240px;
         height: 305px;
-      }
-    }
-  }
-  .skeleton {
-    width: 100%;
-    display: flex;
-    .item {
-      margin-right: 10px;
-      &:nth-child(5n) {
-        margin-right: 0;
       }
     }
   }

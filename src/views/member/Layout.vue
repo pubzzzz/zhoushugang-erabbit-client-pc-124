@@ -2,8 +2,7 @@
   <div class="container">
     <AppMemberAside />
     <article class="article">
-      <!-- 三级路由 -->
-        <RouterView />
+      <RouterView />
     </article>
   </div>
 </template>
@@ -22,7 +21,6 @@ export default {
   padding-top: 20px;
   .article {
     width: 1000px;
-    background: #fff;
   }
 }
 </style>
