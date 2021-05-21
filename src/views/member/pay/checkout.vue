@@ -29,13 +29,13 @@
             <tbody>
               <tr v-for="item in order.goods" :key="item.skuId">
                 <td>
-                  <a href="javascript:;" class="info">
+                  <RouterLink :to="`/product/${item.id}`" class="info">
                     <img :src="item.picture" alt="">
                     <div class="right">
                       <p>{{item.name}}</p>
                       <p>{{item.attrsText}}</p>
                     </div>
-                  </a>
+                  </RouterLink>
                 </td>
                 <td>&yen;{{item.price}}</td>
                 <td>{{item.count}}</td>
