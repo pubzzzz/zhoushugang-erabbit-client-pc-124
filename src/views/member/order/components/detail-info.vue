@@ -39,7 +39,7 @@
       </dl>
       <dl>
         <dt>联系方式：</dt>
-        <dd>{{order.receiverMobile.replace(/^(\d{3})\d{4}(\d{4})$/,'$1****$2')}}}}</dd>
+        <dd>{{order.receiverMobile.replace(/^(\d{3})\d{4}(\d{4})$/,'$1****$2')}}</dd>
       </dl>
       <dl>
         <dt>收货地址：</dt>
