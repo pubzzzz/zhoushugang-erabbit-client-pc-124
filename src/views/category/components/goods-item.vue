@@ -1,10 +1,16 @@
 <template>
-  <RouterLink :to="`/product/${goods.id}`" class='goods-item'>
+  <RouterLink v-if="isLink" :to="`/product/${goods.id}`" class='goods-item'>
     <img :src="goods.picture" alt="">
     <p class="name ellipsis">{{goods.name}}</p>
     <p class="desc ellipsis">{{goods.desc}}</p>
     <p class="price">&yen;{{goods.price}}</p>
   </RouterLink>
+  <a v-else href="javascript:;" class='goods-item'>>
+    <img :src="goods.picture" alt="">
+    <p class="name ellipsis">{{goods.name}}</p>
+    <p class="desc ellipsis">{{goods.desc}}</p>
+    <p class="price">&yen;{{goods.price}}</p>
+  </a>
 </template>
 
 <script>
@@ -14,6 +20,10 @@ export default {
     goods: {
       type: Object,
       default: () => ({})
+    },
+    isLink: {
+      type: Boolean,
+      default: true
     }
   }
 }

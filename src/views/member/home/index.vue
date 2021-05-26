@@ -4,11 +4,11 @@
     <HomeOverview />
     <!-- 收藏 -->
     <HomePanel title="我的收藏">
-      <GoodsItem v-for="item in collectGoods" :key="item.id" :goods="item" />
+      <GoodsItem :isLink="false" v-for="item in collectGoods" :key="item.id" :goods="item" />
     </HomePanel>
     <!-- 足迹 -->
     <HomePanel title="我的足迹">
-      <GoodsItem v-for="i in 4" :key="i" :goods="goods" />
+      <GoodsItem :isLink="false" v-for="i in 4" :key="i" :goods="goods" />
     </HomePanel>
     <!-- 猜你 -->
     <GoodsRelevant />
