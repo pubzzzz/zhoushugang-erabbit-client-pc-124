@@ -35,15 +35,15 @@
     <div class="info-box">
       <dl>
         <dt>收<i></i>货<i></i>人：</dt>
-        <dd>周杰伦</dd>
+        <dd>{{order.receiverContact}}</dd>
       </dl>
       <dl>
         <dt>联系方式：</dt>
-        <dd>180****1849</dd>
+        <dd>{{order.receiverMobile.replace(/^(\d{3})\d{4}(\d{4})$/,'$1****$2')}}}}</dd>
       </dl>
       <dl>
         <dt>收货地址：</dt>
-        <dd>北京海淀区黄平路金燕龙</dd>
+        <dd>{{order.receiverAddress}}</dd>
       </dl>
     </div>
     <!-- 支付方式及送货时间 -->
@@ -51,7 +51,7 @@
     <div class="info-box">
       <dl>
         <dt>支付方式：</dt>
-        <dd>180****1849</dd>
+        <dd>支付宝</dd>
       </dl>
       <dl>
         <dt>送货时间：</dt>
