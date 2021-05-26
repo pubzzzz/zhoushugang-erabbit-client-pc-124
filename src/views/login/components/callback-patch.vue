@@ -104,11 +104,14 @@ export default {
       if (valid === true) {
         // 通过
         if (time.value === 0) {
-        // 没有倒计时才可以发送
-          await userQQPatchCode(form.mobile)
-          Message({ type: 'success', text: '发送成功' })
-          time.value = 60
-          resume()
+          // 没有倒计时才可以发送
+          userQQPatchCode(form.mobile).then(() => {
+            Message({ type: 'success', text: '发送成功' })
+            time.value = 60
+            resume()
+          }).catch(e => {
+            Message({ type: 'error', text: e.response.data?.message || '发送失败' })
+          })
         }
       } else {
         // 失败，使用vee的错误函数显示错误信息 setFieldError(字段,错误信息)
