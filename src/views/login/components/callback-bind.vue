@@ -101,6 +101,7 @@ export default {
           }).catch(e => {
             Message({ type: 'error', text: e.response.data?.message || '发送失败' })
           })
+        }
       } else {
         // 失败，使用vee的错误函数显示错误信息 setFieldError(字段,错误信息)
         formCom.value.setFieldError('mobile', valid)
