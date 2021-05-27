@@ -36,6 +36,7 @@ export default {
     const open = (order) => {
       visibleDialog.value = true
       currOrder.value = order
+      curText.value = ''
     }
     // 选中的原因label
     const curText = ref('')
