@@ -52,9 +52,9 @@
   </div>
 </template>
 <script>
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { findOrderDetail } from '@/api/order'
-import { ref } from 'vue'
+import { onUnmounted, ref } from 'vue'
 import { usePayTime } from '@/hooks'
 import { baseURL } from '@/utils/request'
 
@@ -85,6 +85,15 @@ export default {
     const payUrl = `${baseURL}pay/aliPay?orderId=${route.query.orderId}&redirect=${redirect}`
 
     const visibleDialog = ref(false)
+
+    // 定时跳转详情页
+    const router = useRouter()
+    const timer = setTimeout(() => {
+      router.push(`/member/order/${route.query.orderId}`)
+    }, 180 * 1000)
+    onUnmounted(() => {
+      clearTimeout(timer)
+    })
 
     return {
       order,

@@ -9,7 +9,7 @@
         </Transition>
       </XtxBread>
       <!-- 轮播图 -->
-      <XtxCarousel :sliders="sliders" style="height:500px" />
+      <XtxCarousel auto-play :sliders="sliders" style="height:500px" />
       <!-- 所有二级分类 -->
       <div class="sub-list">
         <h3>全部分类</h3>

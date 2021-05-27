@@ -103,6 +103,34 @@ export default {
     // 添加时候的提交操作（修改）
     const submit = () => {
       // 1. 省略了校验
+      if (!formData.receiver) {
+        return Message({ text: '请输入收货人' })
+      }
+      if (formData.receiver.length > 20) {
+        return Message({ text: '收货人20个字符内' })
+      }
+      if (!formData.contact) {
+        return Message({ text: '请输入手机号' })
+      }
+      if (!/^1[3-9]\d{9}$/.test(formData.contact)) {
+        return Message({ text: '手机号格式不对' })
+      }
+      if (!formData.fullLocation) {
+        return Message({ text: '请选择收货地区' })
+      }
+      if (!formData.address) {
+        return Message({ text: '请输入详细地址' })
+      }
+      if (formData.address.length > 50) {
+        return Message({ text: '收货人50个字符内' })
+      }
+      if (formData.postalCode && !/^\d{6}$/.test(formData.postalCode)) {
+        return Message({ text: '邮政编码格式不对' })
+      }
+      if (formData.addressTags && formData.addressTags.length > 20) {
+        return Message({ text: '地址标签20个字符内' })
+      }
+
       // 2. 发送请求了
       if (formData.id) {
         // 修改请求
