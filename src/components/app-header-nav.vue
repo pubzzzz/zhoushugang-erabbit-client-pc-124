@@ -1,7 +1,7 @@
 <template>
   <ul class="app-header-nav">
     <li class="home"><RouterLink to="/">首页</RouterLink></li>
-    <li v-for="item in list" :key="item.id" @mousemove="show(item)" @mouseleave="hide(item)">
+    <li :class="{active:$route.params.id===item.id}" v-for="item in list" :key="item.id" @mousemove="show(item)" @mouseleave="hide(item)">
       <RouterLink @click="hide(item)" :to="`/category/${item.id}`">{{item.name}}</RouterLink>
       <div class="layer" :class="{open:item.open}">
         <ul>
@@ -60,7 +60,7 @@ export default {
       height: 32px;
       display: inline-block;
     }
-    &:hover {
+    &:hover,&.active {
       > a {
         color: @xtxColor;
         border-bottom: 1px solid @xtxColor;
