@@ -25,7 +25,7 @@
         <div class="item">
           <p>支付平台</p>
           <a class="btn wx" href="javascript:;"></a>
-          <a class="btn alipay" @click="visibleDialog=true" :href="payUrl" target="_blank"></a>
+          <a class="btn alipay" @click="open()" :href="payUrl" target="_blank"></a>
         </div>
         <div class="item">
           <p>支付方式</p>
@@ -88,18 +88,23 @@ export default {
 
     // 定时跳转详情页
     const router = useRouter()
-    const timer = setTimeout(() => {
-      router.push(`/member/order/${route.query.orderId}`)
-    }, 180 * 1000)
+    let timer = null
     onUnmounted(() => {
       clearTimeout(timer)
     })
+    const open = () => {
+      visibleDialog.value = true
+      timer = setTimeout(() => {
+        router.push(`/member/order/${route.query.orderId}`)
+      }, 180 * 1000)
+    }
 
     return {
       order,
       timeText,
       payUrl,
-      visibleDialog
+      visibleDialog,
+      open
     }
   }
 }

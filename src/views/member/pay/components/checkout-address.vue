@@ -140,6 +140,9 @@ export default {
         padding: 10px;
         font-size: 14px;
         line-height: 30px;
+        li {
+          word-break: break-all;
+        }
       }
     }
   }
@@ -164,6 +167,7 @@ export default {
       padding: 20px;
       li {
         line-height: 30px;
+        word-break: break-all;
         span {
           color: #999;
           margin-right: 5px;
