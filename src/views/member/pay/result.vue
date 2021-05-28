@@ -16,7 +16,7 @@
         <p>支付金额：<span class="red">¥{{order?.payMoney}}</span></p>
         <div class="btn">
           <XtxButton @click="$router.push('/member/order')" type="primary" style="margin-right:20px">查看订单</XtxButton>
-          <XtxButton type="gray">进入首页</XtxButton>
+          <XtxButton @click="$router.push('/')" type="gray">进入首页</XtxButton>
         </div>
         <p class="alert">
           <span class="iconfont icon-tip"></span>

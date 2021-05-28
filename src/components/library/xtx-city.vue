@@ -151,6 +151,7 @@ const getCityData = () => {
     padding: 0 5px;
     line-height: 28px;
     cursor: pointer;
+    overflow: hidden;
     &.active {
       background: #fff;
     }

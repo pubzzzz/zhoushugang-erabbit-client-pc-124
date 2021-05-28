@@ -122,7 +122,7 @@ export default {
         return Message({ text: '请输入详细地址' })
       }
       if (formData.address.length > 50) {
-        return Message({ text: '收货人50个字符内' })
+        return Message({ text: '详细地址50个字符内' })
       }
       if (formData.postalCode && !/^\d{6}$/.test(formData.postalCode)) {
         return Message({ text: '邮政编码格式不对' })
