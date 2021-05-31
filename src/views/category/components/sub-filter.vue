@@ -99,6 +99,7 @@ export default {
       .head {
         width: 80px;
         color: #999;
+        line-height: 40px;
       }
       .body {
         flex: 1;
