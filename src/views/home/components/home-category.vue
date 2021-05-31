@@ -25,7 +25,7 @@
       <ul v-if="currCategory && currCategory.goods">
         <li v-for="item in currCategory.goods" :key="item.id">
           <RouterLink :to="`/product/${item.id}`">
-            <img :src="item.picture+'?type=webp&imageView&thumbnail=78x78&quality=95'" alt="">
+            <img :src="item.picture+'?imageView&thumbnail=78x78&quality=95'" alt="">
             <div class="info">
               <p class="name ellipsis-2">{{item.name}}</p>
               <p class="desc ellipsis">{{item.desc}}</p>
