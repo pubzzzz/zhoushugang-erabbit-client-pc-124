@@ -68,6 +68,9 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.xtx-city {
+  vertical-align: middle;
+}
 .g-name {
   font-size: 22px
 }
