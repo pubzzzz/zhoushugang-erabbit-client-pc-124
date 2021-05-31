@@ -107,7 +107,7 @@ export default {
           margin-right: 36px;
           transition: all .3s;
           display: inline-block;
-          width: 128px;
+          max-width: 112px;
           &.active,
           &:hover {
             color: @xtxColor;
