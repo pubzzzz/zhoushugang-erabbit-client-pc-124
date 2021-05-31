@@ -13,7 +13,7 @@
     <dl>
       <dt>配送</dt>
       <dd>
-        <span style="vertical-align: middle; padding-right: 5px;">至</span>
+        <b style="vertical-align: middle; padding-right: 5px;font-weight:normal">至</b>
         <XtxCity @change="changeCity" :fullLocation="fullLocation" />
       </dd>
     </dl>
