@@ -12,7 +12,10 @@
     </dl>
     <dl>
       <dt>配送</dt>
-      <dd>至 <XtxCity @change="changeCity" :fullLocation="fullLocation" /></dd>
+      <dd>
+        <span style="vertical-align: middle; padding-right: 5px;">至</span>
+        <XtxCity @change="changeCity" :fullLocation="fullLocation" />
+      </dd>
     </dl>
     <dl>
       <dt>服务</dt>
